@@ -6,7 +6,7 @@
 | Cliente | Jurisdicción Sanitaria de Huejutla de Reyes, Hidalgo |
 | Documento | Visión del Producto |
 | Código | DOC-001 |
-| Versión | 1.1.0 |
+| Versión | 1.2.0 |
 | Estado | Aprobado |
 | Autor | Equipo del Proyecto |
 | Rol arquitectónico | Software Architect & Product Architect |
@@ -18,7 +18,7 @@
 
 Este documento establece la visión oficial del producto **Plataforma de Gestión, Comunicación y Educación para la Salud** para la Jurisdicción Sanitaria de Huejutla de Reyes, Hidalgo.
 
-Su objetivo es servir como fundamento estratégico para las decisiones posteriores de alcance, principios de producto, personas, lenguaje ubicuo, dominio, reglas de negocio, arquitectura, base de datos, API, frontend, backend e implementación.
+Su objetivo es servir como fundamento estratégico para las decisiones posteriores de alcance, principios de producto, personas, lenguaje ubicuo, dominio, reglas de negocio, arquitectura, base de datos, API, experiencia digital, operación e implementación.
 
 Este documento no define funcionalidades detalladas, modelo de datos, componentes técnicos específicos ni pantallas. Su función es alinear el producto con su propósito institucional y actuar como referencia principal para validar cualquier decisión futura.
 
@@ -35,11 +35,25 @@ Este documento responde las siguientes preguntas:
 
 ---
 
-# 2. Contexto del Producto
+# 2. Filosofía del Producto
+
+El producto no pretende ser únicamente un portal institucional ni un repositorio digital de publicaciones aisladas.
+
+La plataforma deberá convertirse en el principal mecanismo digital de comunicación entre la Jurisdicción Sanitaria y la población, permitiendo que el conocimiento institucional se transforme en conocimiento accesible, claro, confiable y útil para las personas.
+
+La tecnología es un medio, no el fin. Su valor estará en facilitar que la institución preserve, organice, publique, distribuya y reutilice su conocimiento de salud pública con mayor claridad, trazabilidad y alcance.
+
+El verdadero activo del sistema será el conocimiento institucional: el conjunto organizado y preservado de contenidos, información oficial, fuentes, contexto histórico, experiencia institucional y criterios de comunicación que permiten orientar mejor a la población.
+
+Toda funcionalidad deberá contribuir de forma explícita a preservar, organizar, distribuir, comprender o facilitar el acceso al conocimiento en salud pública. Aquello que no fortalezca esta filosofía deberá reconsiderarse antes de incorporarse al producto.
+
+---
+
+# 3. Contexto del Producto
 
 La transformación digital ha cambiado la forma en que las personas consumen información. Actualmente, gran parte de la población consulta temas de interés público mediante redes sociales, plataformas digitales y dispositivos móviles, mientras que los portales institucionales tradicionales han dejado de ser el principal punto de consulta cotidiana.
 
-La Jurisdicción Sanitaria de Huejutla de Reyes genera continuamente información relevante sobre campañas de prevención, enfermedades, programas de salud, avisos sanitarios, vacunación, eventos, documentos, estadísticas e información institucional.
+La Jurisdicción Sanitaria de Huejutla de Reyes genera continuamente contenido institucional relacionado con campañas de prevención, enfermedades, programas de salud, avisos sanitarios, vacunación, eventos, documentos, estadísticas e información pública.
 
 Sin embargo, actualmente la Jurisdicción no cuenta con una plataforma institucional centralizada para publicar, preservar y distribuir información oficial de salud pública.
 
@@ -53,11 +67,11 @@ La comunicación con la población ocurre principalmente mediante redes sociales
 - ausencia de un repositorio confiable de conocimiento;
 - acceso limitado a información organizada sobre enfermedades y campañas de prevención.
 
-El producto nace para resolver esta situación mediante una plataforma digital capaz de administrar información oficial, preservarla como conocimiento institucional y distribuirla por los canales que la población realmente utiliza.
+El producto nace para resolver esta situación mediante una plataforma digital capaz de administrar contenido institucional, preservar conocimiento de salud pública y distribuir información oficial por los canales que la población realmente utiliza.
 
 ---
 
-# 3. Problema
+# 4. Problema
 
 Actualmente existen necesidades que limitan la comunicación efectiva entre la institución y la ciudadanía.
 
@@ -70,13 +84,13 @@ Como consecuencia:
 - el conocimiento institucional puede quedar disperso en documentos, redes sociales, comunicados o archivos internos;
 - la información histórica puede perderse o ser difícil de consultar;
 - el personal responsable de publicar contenido no cuenta con una herramienta unificada para administrarlo, reutilizarlo y distribuirlo;
-- las dudas frecuentes de la población no siempre encuentran una respuesta inmediata, clara y basada en información institucional.
+- las dudas frecuentes de la población no siempre encuentran una respuesta inmediata, clara y basada en conocimiento institucional.
 
-El problema central no es la falta de tecnología, sino la falta de una plataforma institucional que convierta el conocimiento oficial en información accesible, reutilizable y distribuible.
+El problema central no es la falta de tecnología, sino la falta de una plataforma institucional que convierta el conocimiento oficial en información accesible, contenido reutilizable y orientación comprensible para la población.
 
 ---
 
-# 4. Oportunidad
+# 5. Oportunidad
 
 La creación de una plataforma digital propia permite transformar la comunicación de salud pública de un modelo disperso y reactivo a un modelo centralizado, preventivo, trazable y orientado a la educación.
 
@@ -94,11 +108,15 @@ La plataforma no busca competir con las redes sociales, sino utilizarlas como ca
 
 ---
 
-# 5. Propósito Central del Producto
+# 6. Propósito Central del Producto
 
 El propósito del sistema es:
 
 > Garantizar que la población tenga acceso oportuno a información oficial, confiable, clara y comprensible sobre salud pública mediante los canales de comunicación más relevantes.
+
+Este propósito se complementa con una responsabilidad central:
+
+> Transformar el conocimiento institucional en conocimiento accesible para la población.
 
 Toda decisión de producto, arquitectura o implementación deberá evaluarse contra este propósito.
 
@@ -106,7 +124,7 @@ La tecnología, los módulos, la inteligencia artificial, el buscador, las redes
 
 ---
 
-# 6. Capacidad Principal del Sistema
+# 7. Capacidad Principal del Sistema
 
 La capacidad principal del producto es:
 
@@ -116,21 +134,23 @@ Todas las demás capacidades existen para fortalecer esta función central.
 
 El CMS, el buscador, el chatbot, las redes sociales, la línea del tiempo, el SEO, las infografías, los documentos, las campañas y el gestor multimedia son medios para lograr que la información oficial llegue mejor, más rápido y con mayor claridad a la población.
 
-Si una funcionalidad no contribuye a publicar, preservar, distribuir, localizar, comprender o reutilizar información confiable de salud pública, deberá reconsiderarse.
+Si una funcionalidad no contribuye a publicar, preservar, distribuir, localizar, comprender o reutilizar conocimiento confiable de salud pública, deberá reconsiderarse.
 
 ---
 
-# 7. Misión del Producto
+# 8. Misión del Producto
 
 La misión de la plataforma es:
 
 > Garantizar que la población tenga acceso oportuno a información oficial, confiable, clara y comprensible sobre salud pública utilizando los canales de comunicación más relevantes para cada momento.
 
-Esta misión prioriza el acceso al conocimiento, la prevención y la claridad comunicativa sobre la complejidad tecnológica.
+Esta misión incluye transformar el conocimiento institucional en conocimiento accesible para la población, de forma que los contenidos publicados no sean únicamente piezas informativas, sino recursos útiles para comprender, prevenir y actuar.
+
+La misión prioriza el acceso al conocimiento, la prevención y la claridad comunicativa sobre la complejidad tecnológica.
 
 ---
 
-# 8. Visión del Producto
+# 9. Visión del Producto
 
 La visión del producto es:
 
@@ -140,7 +160,7 @@ En un horizonte de más de diez años, la plataforma deberá consolidarse como e
 
 ---
 
-# 9. Posicionamiento del Producto
+# 10. Posicionamiento del Producto
 
 Para la población general de la Jurisdicción Sanitaria, así como para personal de salud, estudiantes, autoridades, investigadores, medios de comunicación e instituciones educativas, que necesitan acceder a información oficial de salud pública, resolver dudas, consultar guías preventivas y conocer avisos o campañas sanitarias, la plataforma proporciona un ecosistema web centralizado, confiable y adaptable.
 
@@ -155,13 +175,13 @@ A diferencia de portales gubernamentales estáticos o publicaciones dispersas en
 - asistencia basada en información oficial;
 - evolución técnica a largo plazo.
 
-La plataforma será el origen del conocimiento; los diferentes medios digitales serán mecanismos de distribución.
+La plataforma será el origen del conocimiento institucional; los diferentes medios digitales serán mecanismos de distribución de información y contenido.
 
 ---
 
-# 10. Público Objetivo
+# 11. Público Objetivo
 
-## 10.1 Público Principal
+## 11.1 Público Principal
 
 El público principal es la población en general.
 
@@ -169,7 +189,7 @@ Cualquier ciudadano deberá poder consultar información de manera sencilla, rá
 
 El producto debe facilitar que la población encuentre, comprenda y utilice información oficial de salud pública para tomar mejores decisiones de prevención y cuidado.
 
-## 10.2 Público Secundario
+## 11.2 Público Secundario
 
 El producto también deberá considerar las necesidades de:
 
@@ -185,75 +205,110 @@ Estos públicos pueden requerir información más estructurada, histórica, docu
 
 ---
 
-# 11. Propuesta de Valor
+# 12. Propuesta de Valor
 
 La plataforma no pretende convertirse únicamente en un sitio web institucional.
 
 Su propuesta de valor consiste en transformar el conocimiento institucional en contenido digital accesible, visual, reutilizable y distribuible, permitiendo que la información oficial llegue a la población utilizando los canales que esta consume diariamente.
 
-El valor del producto no está en tener muchas funcionalidades, sino en lograr que la información confiable sea:
+El valor del producto no está en tener muchas funcionalidades, sino en lograr que el conocimiento confiable sea:
 
 - fácil de encontrar;
 - fácil de comprender;
 - útil para la prevención;
 - reutilizable por la institución;
 - distribuible en múltiples canales;
-- preservada como memoria institucional;
+- preservado como memoria institucional;
 - accionable para la población.
 
 ---
 
-# 12. Principios Rectores
+# 13. Valores Permanentes del Producto
+
+Los valores permanentes del producto deberán orientar sus decisiones durante toda su vida útil.
+
+La plataforma deberá:
+
+- acercar el conocimiento institucional a la población;
+- generar confianza mediante información clara, verificable y vigente;
+- fomentar la prevención como eje de comunicación en salud pública;
+- preservar la memoria institucional;
+- adaptarse a nuevos medios de comunicación sin perder su propósito;
+- mantener claridad y confiabilidad por encima de la complejidad tecnológica;
+- favorecer la comprensión pública antes que la acumulación de publicaciones;
+- fortalecer la relación entre la Jurisdicción Sanitaria y la ciudadanía.
+
+Estos valores deberán mantenerse incluso cuando cambien las herramientas, canales o necesidades operativas del producto.
+
+---
+
+# 14. Impacto Esperado en la Población
+
+Después de utilizar la plataforma, una persona debería poder:
+
+- encontrar rápidamente información oficial de salud pública;
+- comprender mejor cómo prevenir enfermedades;
+- identificar campañas vigentes y acciones relevantes de la Jurisdicción;
+- resolver dudas frecuentes con orientación clara y basada en conocimiento institucional;
+- acceder a materiales visuales claros, útiles y comprensibles;
+- confiar en que la información publicada proviene de una fuente institucional;
+- regresar al portal cuando necesite orientación confiable.
+
+El impacto esperado no se limita al consumo de contenido. La plataforma debe ayudar a que la población comprenda mejor los temas de salud pública y cuente con mejores elementos para prevenir, cuidarse y acudir a los canales adecuados cuando lo necesite.
+
+---
+
+# 15. Principios Rectores
 
 El producto deberá respetar permanentemente los siguientes principios.
 
-## 12.1 Confiabilidad
+## 15.1 Confiabilidad
 
 Toda la información publicada deberá provenir de fuentes oficiales, institucionales o verificables.
 
 La plataforma debe distinguir claramente entre fuente, autor, validador y publicador.
 
-## 12.2 Claridad
+## 15.2 Claridad
 
 El contenido deberá utilizar lenguaje sencillo, directo y comprensible para la población.
 
 La claridad debe tener prioridad sobre la formalidad excesiva cuando el objetivo sea educar o prevenir.
 
-## 12.3 Comprensión
+## 15.3 Comprensión
 
 La información no debe limitarse a estar disponible. Debe presentarse de forma que la población pueda comprenderla y utilizarla.
 
-## 12.4 Accesibilidad
+## 15.4 Accesibilidad
 
 La información deberá estar disponible desde distintos dispositivos y mediante diferentes canales de comunicación.
 
 La interfaz y los contenidos deberán considerar buenas prácticas de accesibilidad.
 
-## 12.5 Recursos Visuales
+## 15.5 Recursos Visuales
 
 Las infografías, imágenes, videos y otros recursos visuales deberán facilitar el aprendizaje y mejorar la comprensión de los temas de salud pública.
 
-## 12.6 Adaptabilidad
+## 15.6 Adaptabilidad
 
 El sistema deberá poder incorporar nuevos canales digitales sin modificar su propósito.
 
 La misión del producto no depende de Facebook, Instagram, TikTok, YouTube, X ni de ninguna plataforma específica.
 
-## 12.7 Prevención
+## 15.7 Prevención
 
 La prevención constituye el eje principal del producto.
 
 La información deberá contribuir a mejorar la cultura del cuidado de la salud y reducir riesgos mediante educación oportuna.
 
-## 12.8 Educación
+## 15.8 Educación
 
 Cada contenido deberá aportar conocimiento útil para fortalecer la educación en salud pública.
 
-## 12.9 Reutilización
+## 15.9 Reutilización
 
 El conocimiento institucional deberá poder reutilizarse para nuevas campañas, publicaciones, documentos, respuestas asistidas y estrategias de comunicación.
 
-## 12.10 Tecnología como Medio
+## 15.10 Tecnología como Medio
 
 La tecnología debe estar al servicio de la comunicación y la educación en salud.
 
@@ -261,7 +316,7 @@ No deberá incorporarse tecnología por novedad si no fortalece el propósito de
 
 ---
 
-# 13. Factores Diferenciadores
+# 16. Factores Diferenciadores
 
 La plataforma se diferenciará por:
 
@@ -283,12 +338,12 @@ Debe ser una herramienta institucional de comunicación, educación y preservaci
 
 ---
 
-# 14. Alcance Estratégico de Alto Nivel
+# 17. Alcance Estratégico de Alto Nivel
 
 A nivel estratégico, la plataforma deberá permitir:
 
-- generar y administrar contenido oficial;
-- publicar noticias, campañas, programas, eventos, comunicados, avisos, documentos, infografías, preguntas frecuentes e información institucional;
+- generar y administrar contenido institucional;
+- publicar información oficial mediante noticias, campañas, programas, eventos, comunicados, avisos, documentos, infografías, preguntas frecuentes e información institucional;
 - organizar conocimiento sobre enfermedades y temas de salud pública;
 - preservar información histórica mediante una línea del tiempo administrable;
 - facilitar la búsqueda de contenido;
@@ -305,11 +360,11 @@ El detalle funcional será definido posteriormente en `scope.md`.
 
 ---
 
-# 15. Fuentes del Conocimiento
+# 18. Fuentes del Conocimiento
 
 El administrador no es necesariamente el creador del conocimiento.
 
-El administrador será responsable de publicar, organizar y gestionar información institucional, pero la información puede provenir de:
+El administrador será responsable de publicar, organizar y gestionar contenido institucional, pero el conocimiento puede provenir de:
 
 - programas institucionales;
 - Secretaría de Salud;
@@ -319,25 +374,28 @@ El administrador será responsable de publicar, organizar y gestionar informaci�
 - información histórica;
 - contenido propio validado;
 - documentos oficiales;
-- campañas regionales.
+- campañas regionales;
+- experiencia institucional acumulada.
 
 Esta separación es importante para distinguir autoría, fuente, validación, publicación y responsabilidad institucional.
 
 ---
 
-# 16. Decisiones Estratégicas Iniciales
+# 19. Decisiones Estratégicas Iniciales
 
-## 16.1 La plataforma se centrará en contenido
+## 19.1 La plataforma se centrará en contenido institucional
 
-El concepto central del sistema será `Content`.
+El concepto de dominio será **Contenido Institucional** entendido como un activo de conocimiento publicable, trazable, reutilizable y vinculado a fuentes oficiales.
 
-Noticias, campañas, enfermedades, eventos, documentos, infografías, preguntas frecuentes, comunicados, avisos y programas serán tratados como variantes, especializaciones o expresiones de contenido.
+A nivel técnico, este concepto podrá representarse mediante una abstracción como `Content`, pero el término técnico no deberá opacar la visión de dominio del producto: el sistema administra recursos de conocimiento de salud pública, no únicamente registros o publicaciones.
+
+Noticias, campañas, enfermedades, eventos, documentos, infografías, preguntas frecuentes, comunicados, avisos y programas serán tratados como variantes, especializaciones o expresiones de contenido institucional.
 
 Esta decisión favorece consistencia, reutilización, mantenimiento y evolución del sistema.
 
-No deberán modelarse múltiples sistemas aislados si comparten una misma naturaleza editorial, de publicación y distribución.
+No deberán modelarse múltiples sistemas aislados si comparten una misma naturaleza editorial, de publicación, preservación y distribución.
 
-## 16.2 Los canales se desacoplan del contenido
+## 19.2 Los canales se desacoplan del contenido
 
 Los canales de comunicación son consumidores o distribuidores del contenido, no el origen del conocimiento.
 
@@ -345,21 +403,21 @@ Hoy los canales pueden ser sitio web y redes sociales. En el futuro podrían ser
 
 La arquitectura deberá permitir incorporar nuevos canales sin modificar el núcleo del dominio.
 
-## 16.3 La inteligencia artificial usará información oficial
+## 19.3 La inteligencia artificial usará información oficial
 
-El chatbot deberá basarse en una arquitectura RAG y responder utilizando información almacenada, validada y publicada desde la plataforma.
+El chatbot deberá basarse en recuperación de conocimiento institucional y responder utilizando información almacenada, validada y publicada desde la plataforma.
 
 No se entrenará un modelo propio como parte del producto.
 
 La inteligencia artificial no deberá reemplazar la responsabilidad institucional sobre la información. Su función será facilitar el acceso al conocimiento oficial.
 
-## 16.4 El sistema debe preservar memoria institucional
+## 19.4 El sistema debe preservar memoria institucional
 
 La plataforma deberá permitir conservar contenido histórico, eventos relevantes, campañas pasadas y evolución institucional.
 
 La línea del tiempo no deberá implementarse como contenido estático, sino como una capacidad administrable.
 
-## 16.5 La arquitectura debe pensar en evolución a largo plazo
+## 19.5 La arquitectura debe pensar en evolución a largo plazo
 
 El sistema deberá diseñarse como una plataforma institucional preparada para evolucionar durante muchos años.
 
@@ -367,11 +425,11 @@ Por ello, se priorizarán mantenibilidad, modularidad, claridad del dominio, seg
 
 ---
 
-# 17. Fronteras del Producto
+# 20. Fronteras del Producto
 
 Para mantener coherencia con el propósito del producto, se definen límites explícitos.
 
-## 17.1 Qué es el sistema
+## 20.1 Qué es el sistema
 
 El sistema es:
 
@@ -383,7 +441,7 @@ El sistema es:
 - un gestor de recursos multimedia reutilizables;
 - un repositorio histórico de información sanitaria e institucional.
 
-## 17.2 Qué no es el sistema
+## 20.2 Qué no es el sistema
 
 El sistema no es:
 
@@ -398,21 +456,40 @@ El sistema no es:
 - un portal institucional meramente informativo;
 - una solución centrada en tecnología sin impacto comunicativo.
 
-Cualquier nueva funcionalidad deberá justificar cómo contribuye a publicar, preservar, distribuir, localizar, comprender o reutilizar información confiable de salud pública.
+Cualquier nueva funcionalidad deberá justificar cómo contribuye a publicar, preservar, distribuir, localizar, comprender o reutilizar conocimiento confiable de salud pública.
 
 ---
 
-# 18. Principios Arquitectónicos Derivados
+# 21. Antiobjetivos del Producto
+
+Para proteger el enfoque institucional, educativo y comunicativo de la plataforma, se establecen los siguientes antiobjetivos.
+
+La plataforma no pretende:
+
+- sustituir al personal de salud;
+- emitir diagnósticos;
+- reemplazar la consulta médica;
+- generar contenido sin supervisión institucional;
+- depender exclusivamente de una red social;
+- almacenar expedientes clínicos;
+- convertirse en un sistema hospitalario, clínico o administrativo ajeno a la comunicación y educación en salud pública;
+- automatizar decisiones que requieran criterio profesional, clínico o institucional.
+
+Estos antiobjetivos deberán considerarse al evaluar nuevas funcionalidades, integraciones o automatizaciones.
+
+---
+
+# 22. Principios Arquitectónicos Derivados
 
 La visión del producto establece las siguientes decisiones de diseño:
 
-- el contenido constituye el núcleo del dominio;
+- el contenido institucional constituye el núcleo del dominio;
 - los canales de comunicación son desacoplados del contenido;
 - la plataforma debe ser modular;
 - la plataforma debe ser escalable;
 - la plataforma debe ser mantenible;
 - la plataforma debe estar preparada para evolucionar a largo plazo;
-- la información deberá poder reutilizarse por diferentes módulos del sistema;
+- el conocimiento institucional deberá poder reutilizarse por diferentes módulos del sistema;
 - la inteligencia artificial utilizará únicamente información oficial almacenada en la plataforma;
 - el acceso a archivos deberá realizarse mediante proveedores de almacenamiento, no desde módulos de negocio;
 - las redes sociales deberán integrarse mediante adaptadores independientes;
@@ -423,7 +500,7 @@ Estos principios serán desarrollados con mayor detalle en los documentos de arq
 
 ---
 
-# 19. Objetivos Estratégicos
+# 23. Objetivos Estratégicos
 
 La plataforma deberá:
 
@@ -443,7 +520,7 @@ La plataforma deberá:
 
 ---
 
-# 20. Indicadores y Criterios de Éxito
+# 24. Indicadores y Criterios de Éxito
 
 El éxito del proyecto no se medirá únicamente por la cantidad de publicaciones.
 
@@ -463,7 +540,7 @@ El producto será exitoso si, con el tiempo:
 
 ---
 
-# 21. Alcance Temporal
+# 25. Alcance Temporal
 
 Este proyecto se diseña considerando una vida útil superior a diez años.
 
@@ -473,7 +550,7 @@ El producto debe poder pasar de un despliegue inicial ágil a una infraestructur
 
 ---
 
-# 22. Relación con Documentos Posteriores
+# 26. Relación con Documentos Posteriores
 
 Este documento será la base para:
 
@@ -496,17 +573,17 @@ Ningún documento posterior deberá contradecir esta visión sin una decisión a
 
 ---
 
-# 23. Declaración Final de Visión
+# 27. Declaración Final de Visión
 
 La Plataforma de Gestión, Comunicación y Educación para la Salud debe convertirse en el centro institucional de conocimiento digital de la Jurisdicción Sanitaria de Huejutla de Reyes.
 
 Su valor principal será publicar información oficial, confiable y comprensible, preservarla como conocimiento institucional y distribuirla mediante los canales que la población utiliza.
 
-La plataforma no se construirá únicamente como una aplicación web, sino como un producto institucional sostenible, preparado para evolucionar y fortalecer durante años la prevención, la educación y la comunicación en salud pública.
+La plataforma no se construirá únicamente como una aplicación web, sino como un producto institucional sostenible, preparado para transformar conocimiento institucional en conocimiento accesible para la población y fortalecer durante años la prevención, la educación y la comunicación en salud pública.
 
 ---
 
-# 24. Estado del Documento
+# 28. Estado del Documento
 
 **Estado:** Aprobado
 
