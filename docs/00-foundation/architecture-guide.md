@@ -38,11 +38,11 @@ El orden de autoridad documental es:
 
 1. `PROJECT_TRANSFER_PACKAGE.md`
 2. `docs/00-foundation/project-charter.md`
-3. `docs/00-project/vision.md`
-4. `docs/00-project/scope.md`
+3. `docs/01-product/vision.md`
+4. `docs/01-product/scope.md`
 5. Documentos posteriores validados
 
-Nota de estructura: si en documentos previos se menciona `docs/00-product`, en el estado actual del repositorio la visión y el alcance vigentes se encuentran en `docs/00-project`.
+Nota de estructura: la visión y el alcance vigentes se encuentran en `docs/01-product`.
 
 Si existe contradicción entre documentos, el equipo o agente responsable deberá reportarla antes de proponer una solución. No deberá resolver contradicciones de forma silenciosa ni asumir cambios de visión, alcance o dominio sin dejar evidencia documental.
 

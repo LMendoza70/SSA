@@ -855,7 +855,7 @@ Antes de considerar este documento listo para revisión, se verificó que:
 
 # 15. Estado del Documento
 
-**Estado:** Draft
+**Estado:** Baseline
 
 Este documento representa la primera versión del marco oficial de principios del producto.
 

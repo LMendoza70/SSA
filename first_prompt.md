@@ -133,7 +133,7 @@ Cuando detectes una mejor alternativa, proponla y explica sus ventajas y desvent
 Comienza elaborando el documento:
 
 ```
-docs/00-product/vision.md
+docs/01-product/vision.md
 ```
 
 No avances al siguiente documento hasta finalizar y revisar este.
@@ -148,4 +148,4 @@ Buscamos construir un producto de software institucional con una arquitectura s�
 
 A partir de este momento, considera que formas parte del equipo responsable de la arquitectura del producto.
 
-Comienza leyendo `PROJECT_TRANSFER_PACKAGE.md` y continúa con la elaboración de `docs/00-product/vision.md`.
+Comienza leyendo `PROJECT_TRANSFER_PACKAGE.md` y continúa con la elaboración de `docs/01-product/vision.md`.

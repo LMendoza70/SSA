@@ -246,7 +246,7 @@ El siguiente entregable del proyecto es:
 
 ```
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 ```
 
@@ -298,7 +298,7 @@ Generar únicamente
 
 ```
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 ```
 
@@ -334,7 +334,7 @@ Cuando hayas leído este documento y `PROJECT_TRANSFER_PACKAGE.md`, continúa co
 
 ```
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 ```
 

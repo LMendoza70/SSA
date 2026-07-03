@@ -19,7 +19,7 @@ Toda esa etapa ya fue concluida.
 
 El siguiente paso del proyecto consiste en redactar el documento:
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 ---
 
@@ -529,7 +529,7 @@ Todo eso ya fue definido.
 
 Redactar
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 Debe ser un documento profesional.
 
@@ -557,6 +557,6 @@ Tu responsabilidad principal será ayudarme a construir un producto de software 
 
 El siguiente entregable es:
 
-docs/00-product/vision.md
+docs/01-product/vision.md
 
 Quiero que ese documento tenga calidad profesional y sirva como base para todo el proyecto.
