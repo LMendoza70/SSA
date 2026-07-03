@@ -1,196 +1,120 @@
 # Architecture Roadmap
 
-## Proyecto
-
-SSA
-
----
-
-# Estado General
+## Estado General
 
 | Fase | Estado |
-|-------|---------|
+|------|---------|
 | Foundation | ✅ Baseline |
 | Product | ✅ Baseline |
 | Domain | ✅ Baseline |
-| Architecture | ⏳ Pendiente |
-| Database | ⏳ Pendiente |
-| API | ⏳ Pendiente |
-| Frontend | ⏳ Pendiente |
-| Backend | ⏳ Pendiente |
-| AI | ⏳ Pendiente |
-| DevOps | ⏳ Pendiente |
+| Architecture | 🚧 Activa |
+| Database | ⏳ |
+| API | ⏳ |
+| Frontend | ⏳ |
+| Backend | ⏳ |
+| AI | ⏳ |
+| DevOps | ⏳ |
 
 ---
 
-# Foundation
+## Línea Base
 
-| Documento | Estado |
-|------------|---------|
-| Project Charter | ✅ Baseline |
-| Architecture Guide | ✅ Baseline |
-
----
-
-# Product
-
-| Documento | Estado |
-|------------|---------|
-| Vision | ✅ Baseline |
-| Scope | ✅ Baseline |
-| Product Principles | ✅ Baseline |
-| Personas | ✅ Baseline |
-
----
-
-# Domain
-
-| Documento | Estado |
-|------------|---------|
-| Ubiquitous Language | ✅ |
-| Domain | ✅ |
-| Business Rules | ✅ |
-| Use Cases | ✅ |
-
----
-
-# Architecture
-
-| Documento | Estado |
-|------------|---------|
-| Architecture | ⬜ |
-| ADRs | ⬜ |
-
----
-
-# Database
-
-| Documento | Estado |
-|------------|---------|
-| Database | ⬜ |
-| ERD | ⬜ |
-| Prisma Schema | ⬜ |
-
----
-
-# API
-
-| Documento | Estado |
-|------------|---------|
-| API | ⬜ |
-| Authentication | ⬜ |
-
----
-
-# Frontend
-
-| Documento | Estado |
-|------------|---------|
-| Frontend | ⬜ |
-
----
-
-# Backend
-
-| Documento | Estado |
-|------------|---------|
-| Backend | ⬜ |
-
----
-
-# Artificial Intelligence
-
-| Documento | Estado |
-|------------|---------|
-| Chatbot | ⬜ |
-| RAG | ⬜ |
-| Embeddings | ⬜ |
-
----
-
-# DevOps
-
-| Documento | Estado |
-|------------|---------|
-| Deployment | ⬜ |
-
----
-
-# Dependencias entre fases
-
-```text
 Foundation
-      │
-      ▼
+
+██████████
+
 Product
-      │
-      ▼
+
+██████████
+
 Domain
-      │
-      ▼
+
+██████████
+
 Architecture
-      │
-      ▼
+
+░░░░░░░░░░
+
 Database
-      │
-      ▼
+
+░░░░░░░░░░
+
 API
-      │
-      ▼
+
+░░░░░░░░░░
+
 Frontend
-      │
-      ▼
+
+░░░░░░░░░░
+
 Backend
-      │
-      ▼
+
+░░░░░░░░░░
+
 AI
-      │
-      ▼
+
+░░░░░░░░░░
+
 DevOps
-```
+
+░░░░░░░░░░
 
 ---
 
-# Estado del Proyecto
+## Dependencias
 
-```text
-████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Foundation
 
-Foundation      ██████████ 100%
+↓
 
-Product         ██████████ 100%
+Product
 
-Domain          ░░░░░░░░░░   0%
+↓
 
-Architecture    ░░░░░░░░░░   0%
+Domain
 
-Database        ░░░░░░░░░░   0%
+↓
 
-API             ░░░░░░░░░░   0%
+Architecture
 
-Frontend        ░░░░░░░░░░   0%
+↓
 
-Backend         ░░░░░░░░░░   0%
+Database
 
-AI              ░░░░░░░░░░   0%
+↓
 
-DevOps          ░░░░░░░░░░   0%
-```
+API
+
+↓
+
+Frontend
+
+↓
+
+Backend
+
+↓
+
+AI
+
+↓
+
+DevOps
 
 ---
 
-# Objetivo inmediato
+## Documento actual
 
-**Fase 02 – Domain**
-
-Primer entregable:
-
-```
-docs/02-domain/ubiquitous-language.md
-```
+docs/03-architecture/architecture.md
 
 ---
 
-# Meta del proyecto
+## Meta
 
-Construir una arquitectura documental consistente que permita la evolución del Sistema de Gestión del Conocimiento Institucional para la Salud Pública durante los próximos diez años, manteniendo la trazabilidad entre negocio, dominio, arquitectura e implementación.
+Finalizar la arquitectura antes de diseñar:
+
+- Base de datos
+- Prisma
+- API
+- Frontend
+- Backend
