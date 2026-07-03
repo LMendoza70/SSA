@@ -12,7 +12,7 @@ SSA
 |-------|---------|
 | Foundation | ✅ Baseline |
 | Product | ✅ Baseline |
-| Domain | ⏳ Pendiente |
+| Domain | ✅ Baseline |
 | Architecture | ⏳ Pendiente |
 | Database | ⏳ Pendiente |
 | API | ⏳ Pendiente |
@@ -47,10 +47,10 @@ SSA
 
 | Documento | Estado |
 |------------|---------|
-| Ubiquitous Language | ⬜ |
-| Domain | ⬜ |
-| Business Rules | ⬜ |
-| Use Cases | ⬜ |
+| Ubiquitous Language | ✅ |
+| Domain | ✅ |
+| Business Rules | ✅ |
+| Use Cases | ✅ |
 
 ---
 
