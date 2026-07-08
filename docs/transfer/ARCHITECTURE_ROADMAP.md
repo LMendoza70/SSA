@@ -7,7 +7,7 @@
 | Foundation | ✅ Baseline |
 | Product | ✅ Baseline |
 | Domain | ✅ Baseline |
-| Architecture | 🚧 Activa |
+| Architecture | ✅ Baseline |
 | Database | ⏳ |
 | API | ⏳ |
 | Frontend | ⏳ |
@@ -33,7 +33,7 @@ Domain
 
 Architecture
 
-░░░░░░░░░░
+██████████
 
 Database
 
