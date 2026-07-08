@@ -8,8 +8,8 @@
 | Product | ✅ Baseline |
 | Domain | ✅ Baseline |
 | Architecture | ✅ Baseline |
-| Database | ⏳ |
-| API | ⏳ |
+| Database | ✅ Baseline |
+| API | ✅ Baseline |
 | Frontend | ⏳ |
 | Backend | ⏳ |
 | AI | ⏳ |
@@ -37,11 +37,11 @@ Architecture
 
 Database
 
-░░░░░░░░░░
+██████████
 
 API
 
-░░░░░░░░░░
+██████████
 
 Frontend
 
