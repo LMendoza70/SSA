@@ -10,7 +10,7 @@
 | Architecture | ✅ Baseline |
 | Database | ✅ Baseline |
 | API | ✅ Baseline |
-| Frontend | ⏳ |
+| Frontend | ✅ Baseline |
 | Backend | ⏳ |
 | AI | ⏳ |
 | DevOps | ⏳ |
@@ -45,7 +45,7 @@ API
 
 Frontend
 
-░░░░░░░░░░
+██████████
 
 Backend
 
