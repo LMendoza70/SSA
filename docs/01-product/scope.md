@@ -7,7 +7,7 @@
 | Documento | Alcance del Producto |
 | Código | DOC-002 |
 | Versión | 1.0.0 |
-| Estado | Draft |
+| Estado | Baseline |
 | Autor | Equipo del Proyecto |
 | Rol arquitectónico | Software Architect & Product Architect |
 | Fecha | 2026-07-02 |
@@ -573,7 +573,7 @@ Para controlar estos riesgos, cualquier ampliación del alcance deberá evaluars
 
 # 19. Estado del Documento
 
-**Estado:** Draft
+**Estado:** Baseline
 
 Este documento representa la definición inicial del alcance de la versión 1.0.
 

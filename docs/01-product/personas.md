@@ -7,7 +7,7 @@
 | Documento | Personas y Actores del Ecosistema de Conocimiento |
 | Código | DOC-005 |
 | Versión | 1.0.0 |
-| Estado | Draft |
+| Estado | Baseline |
 | Autor | Equipo del Proyecto |
 | Rol arquitectónico | Software Architect, Product Architect & Solution Architect |
 | Fecha | 2026-07-03 |

@@ -1,378 +1,278 @@
 # Plataforma de Gestion, Comunicacion y Educacion para la Salud
 
-Repositorio documental y tecnico de la **Plataforma de Gestion, Comunicacion y Educacion para la Salud** para la **Jurisdiccion Sanitaria de Huejutla de Reyes, Hidalgo**.
+Repositorio documental y tecnico de la plataforma institucional para la **Jurisdiccion Sanitaria de Huejutla de Reyes, Hidalgo**.
 
 La capacidad central del producto es:
 
 > **Publicar informacion confiable.**
 
-El producto no es solamente un portal institucional. Su proposito es transformar el conocimiento institucional de salud publica en informacion oficial accesible, clara, confiable y util para la poblacion.
+El sistema no es un CMS generico ni una plataforma clinica. Su proposito es administrar, preservar, publicar, distribuir y consultar conocimiento institucional sobre salud publica de forma clara, confiable, trazable y accesible para la poblacion.
 
 ---
 
-## Proposito del Proyecto
+## Estado Actual del Proyecto
 
-La plataforma permitira a la Jurisdiccion Sanitaria centralizar, organizar, validar, publicar, actualizar, preservar y distribuir informacion oficial de salud publica.
+El proyecto ya completo la baseline documental principal y entro a la etapa de **Implementation / Phase 10 operativa**.
 
-El activo principal del sistema es el **Conocimiento Institucional**. Ese conocimiento puede expresarse mediante publicaciones, campanas, informacion sobre enfermedades, comunicados, avisos, documentos, infografias, preguntas frecuentes, recursos visuales y memoria historica institucional.
+El repositorio, al momento de esta revision, se encuentra en estado **documental**. Todavia no existe una aplicacion implementada con `apps/web`, `apps/api`, `package.json`, scripts de ejecucion, migraciones Prisma, backend NestJS o frontend React.
 
-La tecnologia es un medio para fortalecer la comunicacion publica, la prevencion, la educacion en salud y la confianza institucional.
+La autorizacion vigente permite iniciar unicamente:
+
+```text
+Slice 0 - Preparacion controlada
+```
+
+Esto incluye preparar estructura, documentacion, archivos de ejemplo sin secretos y revision estatica del schema. No incluye migraciones, seeds, conexion real a base de datos, despliegues ni cambios de dominio.
+
+Documento rector de la etapa actual:
+
+- `docs/10-implementation/implementation-start.md`
+
+Checklist operativo:
+
+- `docs/10-implementation/implementation-checklist.md`
 
 ---
 
-## Vision del Producto
+## Resumen de Avance
 
-La plataforma debera convertirse en el principal mecanismo digital de comunicacion entre la Jurisdiccion Sanitaria y la poblacion.
-
-Despues de utilizarla, una persona deberia poder:
-
-- encontrar informacion oficial rapidamente;
-- comprender mejor como prevenir enfermedades;
-- identificar campanas vigentes;
-- resolver dudas frecuentes con orientacion clara;
-- acceder a materiales visuales y documentos confiables;
-- confiar en la informacion publicada;
-- regresar al portal cuando necesite orientacion institucional confiable.
-
-Documento rector:
-
-- `docs/01-product/vision.md`
+| Area | Estado | Observacion |
+|---|---|---|
+| Foundation | Baseline | Charter y guia arquitectonica definidos. |
+| Product | Baseline documental | Vision, alcance, principios y personas documentados. Algunos archivos conservan estado interno `Draft`; revisar antes de cierre formal. |
+| Domain | Baseline documental | Lenguaje ubicuo, dominio, reglas y casos de uso definidos. |
+| Architecture | Baseline documental | Clean Architecture, Modular Monolith y DDD Lite definidos. |
+| Database | Baseline documental | Modelo Prisma de referencia ubicado en `docs/04-database/schema.prisma`. No esta migrado ni validado por Prisma CLI. |
+| API | Baseline | Superficies publica, administrativa y auth documentadas. |
+| Frontend | Baseline documental | Experiencia publica y administrativa definida a nivel arquitectonico. |
+| Backend | Baseline documental | Modulos, limites y plan incremental documentados. |
+| AI | Baseline futura | RAG y chatbot documentados como capacidad futura, fuera del MVP. |
+| DevOps | Baseline | Estrategia MVP proveedor-neutral, sin infraestructura real creada. |
+| Implementation | Baseline de arranque | Autorizado solo Slice 0 - Preparacion controlada. |
+| Codigo de aplicacion | Pendiente | No hay frontend, backend, workspace ni scripts de ejecucion todavia. |
 
 ---
 
 ## Alcance MVP
 
-La version 1.0 esta orientada a entregar valor institucional temprano con un alcance controlado y realista.
+La version 1.0 debe enfocarse en entregar una plataforma institucional capaz de:
 
-El MVP contempla:
-
-- gestion central de publicaciones y contenido institucional;
-- portal publico para consulta de informacion publicada;
-- busqueda basica;
-- linea del tiempo publica y administrable;
-- gestion multimedia basica;
-- preparacion para compartir publicaciones en canales de comunicacion;
-- administracion inicial mediante acceso autenticado;
-- configuracion basica del sitio y elementos destacados;
-- trazabilidad basica de fuente, validacion, autoria operativa y responsabilidad institucional.
+- gestionar contenido institucional desde un panel autenticado;
+- publicar informacion oficial y consultable;
+- ofrecer portal publico responsive;
+- permitir busqueda basica;
+- organizar informacion por tipos editoriales, categorias y etiquetas;
+- administrar campanas y enfermedades como entidades organizadoras;
+- administrar una linea del tiempo institucional;
+- asociar recursos multimedia reutilizables;
+- preparar distribucion asistida hacia canales de comunicacion;
+- conservar trazabilidad minima de autoria operativa, fuente, validacion y responsabilidad institucional.
 
 Quedan fuera del MVP:
 
 - chatbot RAG funcional;
-- publicacion programada;
-- republicacion avanzada;
-- analitica avanzada;
-- multiples roles y permisos complejos;
 - busqueda semantica;
-- flujos editoriales multinivel;
-- expediente clinico;
-- diagnostico;
-- consulta medica;
-- sistemas hospitalarios, de citas, farmacia, inventario o administracion clinica.
-
-Documento rector:
-
-- `docs/01-product/scope.md`
+- embeddings y pgvector en implementacion;
+- publicacion programada;
+- integracion automatica completa con redes sociales;
+- roles avanzados;
+- workflow editorial multinivel;
+- auditoria avanzada;
+- expediente clinico, diagnostico, consulta medica, citas, farmacia o inventario.
 
 ---
 
-## Estado Actual
+## Principios Arquitectonicos
 
-El proyecto ha completado la etapa de documentación (Foundation, Product, Domain, Architecture, Database, API, Frontend, Backend, AI, DevOps) y se encuentra listo para las fases de implementación.
-
-| Fase | Estado | Documentos principales |
-|---|---|---|
-| Foundation | Completado | `project-charter.md`, `architecture-guide.md` |
-| Product | Completado | `vision.md`, `scope.md`, `product-principles.md`, `personas.md` |
-| Domain | Completado | `ubiquitous-language.md`, `domain.md`, `business-rules.md`, `use-cases.md` |
-| Architecture | Completado | `architecture.md`, ADRs |
-| Database | Completado | `database.md`, `erd.md`, `schema-prisma.md`, `schema.prisma` |
-| API | Completado | `api.md`, `authentication.md` |
-| Frontend | Completado | `frontend.md` |
-| Backend | Completado | `backend.md` |
-| AI | Completado | `chatbot.md`, `rag.md`, `embeddings.md` |
-| DevOps | Completado | `deployment.md` |
-
-Nota: el estado formal de cada documento debe tomarse del propio archivo.
-
----
-
-## Documentacion Oficial
-
-La documentacion es la fuente de verdad del proyecto. La conversacion, notas externas o decisiones informales no deben sustituir documentos oficiales.
-
-Orden recomendado de lectura:
-
-1. `docs/transfer/PROJECT_TRANSFER_PACKAGE.md`
-2. `docs/transfer/CONTEXT_TRANSFER_PACKAGE.md`
-3. `docs/transfer/CONTEXT_TRANSFER_PROMPT.md`
-4. `docs/transfer/PHASE_01_TRANSFER_PACKAGE.md`
-5. `docs/transfer/PHASE_02_TRANSFER_PACKAGE.MD`
-6. `docs/transfer/PHASE_03_TRANSFER_PACKAGE.md`
-7. `docs/transfer/ARCHITECTURE_ROADMAP.md`
-8. `docs/00-foundation/project-charter.md`
-9. `docs/00-foundation/architecture-guide.md`
-10. `docs/01-product/vision.md`
-11. `docs/01-product/scope.md`
-12. `docs/01-product/product-principles.md`
-13. `docs/01-product/personas.md`
-14. `docs/02-domain/ubiquitous-language.md`
-15. `docs/02-domain/domain.md`
-16. `docs/02-domain/business-rules.md`
-17. `docs/02-domain/use-cases.md`
-
-Si existe una contradiccion entre documentos, debe reportarse antes de proponer, disenar o implementar una solucion.
-
----
-
-## Estructura Documental
-
-```text
-docs/
-|-- 00-foundation/
-|   |-- project-charter.md
-|   `-- architecture-guide.md
-|-- 01-product/
-|   |-- vision.md
-|   |-- scope.md
-|   |-- product-principles.md
-|   `-- personas.md
-|-- 02-domain/
-|   |-- ubiquitous-language.md
-|   |-- domain.md
-|   |-- business-rules.md
-|   `-- use-cases.md
-|-- 03-architecture/
-|   |-- architecture.md
-|   `-- adr/
-|       `-- README.md
-|-- 04-database/
-|   |-- database.md
-|   |-- erd.md
-|   |-- schema-prisma.md
-|   `-- schema.prisma
-|-- 05-api/
-|   |-- api.md
-|   `-- authentication.md
-|-- 06-frontend/
-|   `-- frontend.md
-|-- 07-backend/
-|   `-- backend.md
-|-- 08-ai/
-|   |-- chatbot.md
-|   |-- rag.md
-|   `-- embeddings.md
-|-- 09-devops/
-|   `-- deployment.md
-`-- transfer/
-    |-- ARCHITECTURE_ROADMAP.md
-    |-- CONTEXT_TRANSFER_PACKAGE.md
-    |-- CONTEXT_TRANSFER_PROMPT.md
-    |-- PHASE_01_TRANSFER_PACKAGE.md
-    |-- PHASE_02_TRANSFER_PACKAGE.MD
-    |-- PHASE_03_TRANSFER_PACKAGE.md
-    `-- PROJECT_TRANSFER_PACKAGE.md
-```
-
----
-
-## Modelo del Dominio
-
-El dominio del producto se entiende como:
-
-> Gestion del ciclo de vida del conocimiento institucional para transformarlo en informacion oficial, confiable, clara, publicable, distribuible, actualizable y preservable.
-
-Decisiones centrales del dominio:
-
-- el activo principal es el Conocimiento Institucional;
-- `Content` se mantiene como abstraccion conceptual central;
-- `Publicacion` es el lenguaje institucional operativo;
-- el flujo oficial es `Fuente -> Validacion -> Redaccion -> Publicacion`;
-- la Jurisdiccion Sanitaria es responsable institucional de toda publicacion;
-- los Programas de Salud son fuentes institucionales de conocimiento, no propietarios del contenido;
-- una Campana es una iniciativa institucional temporal, no una publicacion individual;
-- una Enfermedad es un concepto tematico, no una publicacion simple;
-- la Linea del Tiempo representa memoria historica institucional;
-- los Canales distribuyen informacion, no son fuente de verdad.
-
-Documentos relacionados:
-
-- `docs/02-domain/ubiquitous-language.md`
-- `docs/02-domain/domain.md`
-- `docs/02-domain/business-rules.md`
-- `docs/02-domain/use-cases.md`
-
----
-
-## Principios de Producto
-
-El producto se gobierna por principios documentados en `docs/01-product/product-principles.md`.
-
-Principios centrales:
-
-- la informacion confiable es la capacidad principal;
-- el conocimiento institucional es el activo principal;
-- la claridad para la poblacion tiene prioridad;
-- la prevencion y educacion en salud guian el valor del producto;
-- la plataforma no es clinica, no diagnostica y no sustituye al personal de salud;
-- el contenido institucional debe mantenerse organizado, vigente y trazable;
-- los canales de comunicacion no deben reemplazar la fuente institucional;
-- la documentacion forma parte del producto.
-
----
-
-## Personas y Actores
-
-El proyecto modela Personas como roles dentro del ecosistema del conocimiento institucional, no como perfiles demograficos ni personajes ficticios.
-
-Personas:
-
-- Ciudadano;
-- Responsable Editorial;
-- Profesional de la Salud;
-- Estudiante;
-- Investigador;
-- Medio de Comunicacion;
-- Autoridad Sanitaria;
-- Administrador de Plataforma.
-
-Actores Organizacionales:
-
-- Jurisdiccion Sanitaria de Huejutla de Reyes, Hidalgo;
-- Programas de Salud;
-- Secretaria de Salud;
-- Gobierno;
-- Organismos Internacionales.
-
-Documento relacionado:
-
-- `docs/01-product/personas.md`
-
----
-
-## Casos de Uso del MVP
-
-Los casos de uso describen interacciones actor-dominio, no pantallas ni endpoints.
-
-Casos de uso primarios definidos:
-
-- consultar publicacion;
-- buscar informacion publicada;
-- consultar campana;
-- consultar enfermedad;
-- consultar linea del tiempo;
-- iniciar sesion administrativa;
-- crear publicacion;
-- preparar informacion para publicacion;
-- publicar informacion confiable;
-- actualizar publicacion;
-- retirar publicacion de consulta publica;
-- archivar publicacion;
-- clasificar publicacion;
-- asociar recurso a publicacion;
-- preparar publicacion para canales;
-- gestionar campana;
-- gestionar enfermedad como concepto tematico;
-- gestionar evento historico institucional;
-- consultar trazabilidad.
-
-Documento relacionado:
-
-- `docs/02-domain/use-cases.md`
-
----
-
-## Enfoque Arquitectonico
-
-La arquitectura debera proteger la vision del producto, evitar decisiones tecnicas prematuras y mantener coherencia documental.
-
-Criterios permanentes:
+El desarrollo debe respetar:
 
 - Clean Architecture;
 - SOLID;
+- DRY;
+- KISS;
+- Separation of Concerns;
+- Modular Monolith;
 - DDD Lite;
-- monolito modular;
-- separacion entre dominio, aplicacion, infraestructura y presentacion;
-- desacoplamiento de canales;
-- contenido y conocimiento institucional como nucleo;
-- evolucion sostenible antes que sobreingenieria;
-- documentacion como parte del producto.
+- documentacion como fuente de verdad;
+- dominio antes que base de datos, API o UI;
+- seguridad desde el inicio;
+- bajo acoplamiento a proveedores externos.
 
-Guia rectora:
+Reglas clave que no deben romperse:
 
-- `docs/00-foundation/architecture-guide.md`
-
----
-
-## Tecnologia Prevista
-
-La documentacion arquitectonica vigente considera el siguiente stack como referencia tecnica del proyecto:
-
-- Frontend: React, TypeScript, Vite y Material UI.
-- Backend: Node.js, NestJS y TypeScript.
-- Base de datos: PostgreSQL.
-- ORM: Prisma.
-- Autenticacion: JWT, refresh tokens y Argon2.
-- Editor de contenido: Tiptap.
-- IA futura: chatbot basado en RAG sobre conocimiento institucional validado.
-
-La IA no debe generar informacion publica sin supervision institucional y no es la capacidad central del producto.
+- `Content` y `Publication` son conceptos separados.
+- `Publication` no debe reducirse a un booleano.
+- `contents` es la base editorial comun; no crear sistemas principales separados para news, notices, documents, infographics o faqs.
+- `Campaign` y `Disease` son entidades organizadoras, no `Content`, categorias ni etiquetas.
+- `Source` y `Validation` son entidades separadas.
+- `TraceabilityRecord` representa trazabilidad minima, no auditoria avanzada.
+- La linea del tiempo es memoria institucional administrable, no agenda.
+- La IA queda fuera del MVP funcional.
+- Los canales distribuyen informacion; no son fuente de verdad.
+- Todo almacenamiento de archivos debe pasar por una abstraccion tipo `StorageProvider`.
 
 ---
 
-## Reglas de Trabajo
+## Stack Tecnologico Previsto
 
-Antes de implementar funcionalidades debe respetarse el orden documental:
+Frontend:
+
+- React
+- TypeScript
+- Vite
+- Material UI
+- React Router
+- TanStack Query
+- React Hook Form
+- Zod
+- Axios
+- Tiptap Editor
+
+Backend:
+
+- Node.js
+- NestJS
+- TypeScript
+- Prisma ORM
+
+Base de datos:
+
+- PostgreSQL
+- `pgvector` previsto para una fase futura de IA, no para el MVP funcional
+
+Autenticacion:
+
+- JWT
+- Refresh tokens
+- Cookies HttpOnly
+- Argon2
+- Sin registro publico
+
+DevOps MVP:
+
+- proveedor neutral;
+- menor costo posible sin sacrificar seguridad minima;
+- Docker recomendado, no obligatorio;
+- Kubernetes fuera del MVP;
+- CI basico;
+- despliegue productivo manual/controlado;
+- migraciones Prisma controladas;
+- secretos fuera de Git;
+- HTTPS y CORS restringido en produccion.
+
+---
+
+## Estructura Actual del Repositorio
 
 ```text
-Project Charter
--> Vision
--> Scope
--> Product Principles
--> Personas
--> Ubiquitous Language
--> Domain
--> Business Rules
--> Use Cases
--> Architecture
--> Database
--> Prisma Schema
--> API
--> Frontend
--> Backend
--> AI
--> DevOps
--> Implementation
+.
+|-- AGENTS.md
+|-- README.md
+|-- START_HERE.md
+|-- first_prompt.md
+|-- continue_propmt.md
+|-- LICENSE
+`-- docs/
+    |-- 00-foundation/
+    |-- 01-product/
+    |-- 02-domain/
+    |-- 03-architecture/
+    |-- 04-database/
+    |-- 05-api/
+    |-- 06-frontend/
+    |-- 07-backend/
+    |-- 08-ai/
+    |-- 09-devops/
+    |-- 10-implementation/
+    `-- transfer/
 ```
 
-No debe generarse codigo si estan pendientes documentos esenciales de vision, alcance, principios, lenguaje ubicuo, dominio, reglas de negocio, arquitectura, base de datos o API.
+Nota importante:
+
+- El archivo Prisma de referencia existe actualmente en `docs/04-database/schema.prisma`.
+- Algunos documentos mencionan `prisma/schema.prisma` como ubicacion futura/aprobada, pero esa carpeta todavia no existe en el repositorio actual.
+- `START_HERE.md` conserva contexto historico de una etapa anterior y no representa el estado mas reciente. Para continuar, usar `docs/10-implementation/implementation-start.md`.
 
 ---
 
-## Limites del Producto
+## Estructura Aprobada para Implementation
 
-La plataforma no pretende:
+La estructura objetivo aprobada para preparar el monorepo ligero es:
 
-- sustituir al personal de salud;
-- emitir diagnosticos;
-- reemplazar la consulta medica;
-- almacenar expedientes clinicos;
-- convertirse en un sistema hospitalario;
-- convertirse en sistema de citas, farmacia o inventario medico;
-- generar contenido sin supervision institucional;
-- depender exclusivamente de redes sociales;
-- priorizar tecnologia sobre claridad comunicativa.
+```text
+.
+|-- docs/
+|-- prisma/
+|   `-- schema.prisma
+|-- apps/
+|   |-- web/
+|   `-- api/
+|-- packages/
+|   `-- shared/
+|-- .env.example
+|-- package.json
+`-- README.md
+```
+
+Esta estructura todavia esta pendiente de creacion. Debe abordarse dentro de `Slice 0 - Preparacion controlada`.
 
 ---
 
-## Convenciones
+## Documentacion Principal
 
-- Archivos documentales en Markdown.
-- Nombres de archivos en `kebab-case`.
-- Documentos organizados por carpetas numeradas.
-- Cambios importantes deben mantener trazabilidad con la documentacion oficial.
-- Las decisiones arquitectonicas relevantes deberan registrarse como ADR cuando corresponda.
-- El estado formal de un documento debe declararse dentro del propio archivo.
+Lectura recomendada para ubicarse rapidamente:
+
+1. `docs/10-implementation/implementation-start.md`
+2. `docs/10-implementation/implementation-checklist.md`
+3. `docs/09-devops/PHASE_09_TRANSFER_PACKAGE.md`
+4. `docs/07-backend/implementation-plan.md`
+5. `docs/05-api/api.md`
+6. `docs/04-database/schema-prisma.md`
+7. `docs/04-database/schema.prisma`
+8. `docs/03-architecture/architecture.md`
+9. `docs/02-domain/use-cases.md`
+10. `docs/01-product/scope.md`
+
+Si existe una contradiccion entre documentos, debe registrarse antes de implementar.
+
+---
+
+## Siguiente Paso Recomendado
+
+Continuar con `Slice 0 - Preparacion controlada`:
+
+1. Confirmar la rama de trabajo.
+2. Crear estructura base del monorepo.
+3. Mover o copiar controladamente el schema hacia `prisma/schema.prisma` si se autoriza.
+4. Crear `.env.example` sin secretos.
+5. Preparar `package.json` y workspace `pnpm`.
+6. Revisar `schema.prisma` de forma estatica.
+7. No ejecutar Prisma todavia sin autorizacion explicita.
+
+---
+
+## Acciones No Autorizadas Todavia
+
+No ejecutar sin autorizacion explicita del Lead Developer:
+
+```bash
+npx prisma validate
+npx prisma format
+npx prisma generate
+npx prisma migrate dev
+npx prisma db push
+```
+
+Tampoco esta autorizado todavia:
+
+- crear migraciones;
+- crear seeds;
+- crear usuario administrador inicial;
+- conectar backend con base de datos;
+- desplegar staging o produccion;
+- configurar proveedores reales;
+- modificar el dominio por conveniencia tecnica;
+- introducir IA, chatbot, embeddings o pgvector en el MVP funcional.
 
 ---
 

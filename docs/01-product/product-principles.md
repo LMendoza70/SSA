@@ -7,7 +7,7 @@
 | Documento | Principios del Producto |
 | Código | DOC-004 |
 | Versión | 1.0.0 |
-| Estado | Draft |
+| Estado | Baseline |
 | Autor | Equipo del Proyecto |
 | Rol arquitectónico | Software Architect, Product Architect & Solution Architect |
 | Fecha | 2026-07-02 |
