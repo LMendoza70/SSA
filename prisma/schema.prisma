@@ -1,0 +1,633 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================
+// Enums técnicos revisables
+// No son contrato de API, frontend ni migración definitiva.
+// =========================
+
+enum ContentStatus {
+  DRAFT
+  PREPARED
+  NEEDS_REVIEW
+  READY_FOR_PUBLICATION
+  ARCHIVED
+}
+
+enum PublicationStatus {
+  PUBLISHED
+  UPDATED
+  WITHDRAWN
+  ARCHIVED
+  HISTORICALLY_CONTEXTUALIZED
+}
+
+enum SourceType {
+  OFFICIAL_EXTERNAL
+  INSTITUTIONAL_INTERNAL
+  DOCUMENTARY
+  HISTORICAL
+  JURISDICTION_GENERATED
+}
+
+enum ValidationType {
+  AUTHENTICITY
+  VALIDITY
+  RELEVANCE
+  INSTITUTIONAL_COMPLETE
+}
+
+enum ValidationResult {
+  APPROVED
+  REJECTED
+  NEEDS_CLARIFICATION
+}
+
+enum MediaResourceType {
+  IMAGE
+  INFOGRAPHIC
+  PDF
+  DOCUMENT
+  VIDEO_LINK
+  EXTERNAL_LINK
+}
+
+enum ChannelType {
+  PUBLIC_PORTAL
+  FACEBOOK
+  INSTAGRAM
+  X
+  TIKTOK
+  YOUTUBE
+  WHATSAPP
+  OTHER
+}
+
+enum DistributionStatus {
+  PREPARED
+  MANUALLY_SHARED
+  NOT_SHARED
+  CANCELLED
+}
+
+enum TraceabilityAction {
+  CREATED
+  UPDATED
+  VALIDATED
+  PREPARED
+  PUBLISHED
+  DISTRIBUTION_PREPARED
+  DISTRIBUTED
+  WITHDRAWN
+  ARCHIVED
+  RESTORED
+  CLASSIFIED
+  RESOURCE_ATTACHED
+}
+
+// =========================
+// Identity and operational authorship
+// =========================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  displayName   String
+  passwordHash  String
+  isActive      Boolean  @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  createdContents Content[] @relation("ContentCreatedBy")
+  updatedContents Content[] @relation("ContentUpdatedBy")
+
+  validations         Validation[]
+  traceabilityRecords TraceabilityRecord[]
+
+  @@map("users")
+}
+
+// =========================
+// Editorial core
+// =========================
+
+model ContentType {
+  id          String  @id @default(uuid())
+  code        String  @unique
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contents Content[]
+
+  @@map("content_types")
+}
+
+model Content {
+  id            String        @id @default(uuid())
+  contentTypeId String
+  createdById   String?
+  updatedById   String?
+
+  title       String
+  slug        String        @unique
+  summary     String?
+  body        String?
+  status      ContentStatus @default(DRAFT)
+
+  seoTitle       String?
+  seoDescription String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentType ContentType @relation(fields: [contentTypeId], references: [id])
+  createdBy   User?       @relation("ContentCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?       @relation("ContentUpdatedBy", fields: [updatedById], references: [id])
+
+  publication       Publication?
+  contentSources    ContentSource[]
+  contentValidations ContentValidation[]
+  contentCampaigns  ContentCampaign[]
+  contentDiseases   ContentDisease[]
+  contentMediaResources ContentMediaResource[]
+  contentCategories ContentCategory[]
+  contentTags       ContentTag[]
+  timelineEventContents TimelineEventContent[]
+  traceabilityRecords TraceabilityRecord[]
+
+  @@index([contentTypeId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contents")
+}
+
+model Publication {
+  id        String @id @default(uuid())
+  contentId String @unique
+
+  status      PublicationStatus @default(PUBLISHED)
+  publicSlug  String            @unique
+  publicTitle String?
+  publishedAt DateTime?
+  updatedAtPublic DateTime?
+  withdrawnAt DateTime?
+  archivedAt  DateTime?
+  isVisible   Boolean           @default(true)
+
+  institutionalResponsibility String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  content Content @relation(fields: [contentId], references: [id])
+
+  publicationChannels PublicationChannel[]
+  traceabilityRecords TraceabilityRecord[]
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([isVisible])
+  @@map("publications")
+}
+
+// =========================
+// Sources and validations
+// =========================
+
+model Source {
+  id          String     @id @default(uuid())
+  type        SourceType
+  name        String
+  description String?
+  organization String?
+  url         String?
+  isOfficial  Boolean    @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentSources      ContentSource[]
+  validations         Validation[]
+  traceabilityRecords TraceabilityRecord[]
+
+  @@index([type])
+  @@index([isOfficial])
+  @@map("sources")
+}
+
+model Validation {
+  id            String           @id @default(uuid())
+  sourceId      String?
+  validatedById String?
+
+  type   ValidationType
+  result ValidationResult
+  summary String?
+  validatedAt DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  source      Source? @relation(fields: [sourceId], references: [id])
+  validatedBy User?   @relation(fields: [validatedById], references: [id])
+
+  contentValidations ContentValidation[]
+  traceabilityRecords TraceabilityRecord[]
+
+  @@index([sourceId])
+  @@index([validatedById])
+  @@index([type])
+  @@index([result])
+  @@map("validations")
+}
+
+// =========================
+// Institutional organization
+// =========================
+
+model Campaign {
+  id          String  @id @default(uuid())
+  title       String
+  slug        String  @unique
+  description String?
+  objective   String?
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentCampaigns ContentCampaign[]
+  campaignDiseases CampaignDisease[]
+
+  @@index([isActive])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@map("campaigns")
+}
+
+model Disease {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentDiseases  ContentDisease[]
+  campaignDiseases CampaignDisease[]
+
+  @@index([isActive])
+  @@map("diseases")
+}
+
+// =========================
+// Resources
+// =========================
+
+model MediaResource {
+  id          String            @id @default(uuid())
+  type        MediaResourceType
+  title       String
+  description String?
+  resourceUri String?
+  externalUrl String?
+  mimeType    String?
+  altText     String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentMediaResources ContentMediaResource[]
+  timelineEventMediaResources TimelineEventMediaResource[]
+
+  @@index([type])
+  @@index([isActive])
+  @@map("media_resources")
+}
+
+// =========================
+// Timeline and memory
+// =========================
+
+model TimelineEvent {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String?
+  occurredAt  DateTime?
+  periodLabel String?
+  historicalRelevance String?
+  isVisible   Boolean  @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  timelineEventContents TimelineEventContent[]
+  timelineEventMediaResources TimelineEventMediaResource[]
+
+  @@index([occurredAt])
+  @@index([isVisible])
+  @@map("timeline_events")
+}
+
+// =========================
+// Channels and distribution
+// =========================
+
+model CommunicationChannel {
+  id          String      @id @default(uuid())
+  type        ChannelType
+  name        String
+  description String?
+  isActive    Boolean     @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  publicationChannels PublicationChannel[]
+
+  @@index([type])
+  @@index([isActive])
+  @@map("communication_channels")
+}
+
+// =========================
+// Classification
+// =========================
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentCategories ContentCategory[]
+
+  @@index([isActive])
+  @@map("categories")
+}
+
+model Tag {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  contentTags ContentTag[]
+
+  @@index([isActive])
+  @@map("tags")
+}
+
+// =========================
+// Traceability
+// =========================
+
+model TraceabilityRecord {
+  id            String             @id @default(uuid())
+  userId        String
+  contentId     String?
+  publicationId String?
+  sourceId      String?
+  validationId  String?
+
+  action      TraceabilityAction
+  summary     String?
+  occurredAt  DateTime @default(now())
+  institutionalResponsibility String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user        User         @relation(fields: [userId], references: [id])
+  content     Content?     @relation(fields: [contentId], references: [id])
+  publication Publication? @relation(fields: [publicationId], references: [id])
+  source      Source?      @relation(fields: [sourceId], references: [id])
+  validation  Validation?  @relation(fields: [validationId], references: [id])
+
+  @@index([userId])
+  @@index([contentId])
+  @@index([publicationId])
+  @@index([sourceId])
+  @@index([validationId])
+  @@index([action])
+  @@index([occurredAt])
+  @@map("traceability_records")
+}
+
+// =========================
+// Explicit bridge models
+// =========================
+
+model ContentSource {
+  id        String @id @default(uuid())
+  contentId String
+  sourceId  String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content Content @relation(fields: [contentId], references: [id])
+  source  Source  @relation(fields: [sourceId], references: [id])
+
+  @@unique([contentId, sourceId])
+  @@index([sourceId])
+  @@map("content_sources")
+}
+
+model ContentValidation {
+  id           String @id @default(uuid())
+  contentId    String
+  validationId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content    Content    @relation(fields: [contentId], references: [id])
+  validation Validation @relation(fields: [validationId], references: [id])
+
+  @@unique([contentId, validationId])
+  @@index([validationId])
+  @@map("content_validations")
+}
+
+model ContentCampaign {
+  id         String @id @default(uuid())
+  contentId  String
+  campaignId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content  Content  @relation(fields: [contentId], references: [id])
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([contentId, campaignId])
+  @@index([campaignId])
+  @@map("content_campaigns")
+}
+
+model ContentDisease {
+  id        String @id @default(uuid())
+  contentId String
+  diseaseId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content Content @relation(fields: [contentId], references: [id])
+  disease Disease @relation(fields: [diseaseId], references: [id])
+
+  @@unique([contentId, diseaseId])
+  @@index([diseaseId])
+  @@map("content_diseases")
+}
+
+model CampaignDisease {
+  id         String @id @default(uuid())
+  campaignId String
+  diseaseId  String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+  disease  Disease  @relation(fields: [diseaseId], references: [id])
+
+  @@unique([campaignId, diseaseId])
+  @@index([diseaseId])
+  @@map("campaign_diseases")
+}
+
+model ContentMediaResource {
+  id              String @id @default(uuid())
+  contentId       String
+  mediaResourceId String
+
+  caption String?
+  sortOrder Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content       Content       @relation(fields: [contentId], references: [id])
+  mediaResource MediaResource @relation(fields: [mediaResourceId], references: [id])
+
+  @@unique([contentId, mediaResourceId])
+  @@index([mediaResourceId])
+  @@map("content_media_resources")
+}
+
+model ContentCategory {
+  id         String @id @default(uuid())
+  contentId  String
+  categoryId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content  Content  @relation(fields: [contentId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([contentId, categoryId])
+  @@index([categoryId])
+  @@map("content_categories")
+}
+
+model ContentTag {
+  id        String @id @default(uuid())
+  contentId String
+  tagId     String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content Content @relation(fields: [contentId], references: [id])
+  tag     Tag     @relation(fields: [tagId], references: [id])
+
+  @@unique([contentId, tagId])
+  @@index([tagId])
+  @@map("content_tags")
+}
+
+model PublicationChannel {
+  id                   String @id @default(uuid())
+  publicationId         String
+  communicationChannelId String
+
+  status DistributionStatus @default(PREPARED)
+  preparedText String?
+  preparedAt   DateTime?
+  sharedAt     DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  publication         Publication         @relation(fields: [publicationId], references: [id])
+  communicationChannel CommunicationChannel @relation(fields: [communicationChannelId], references: [id])
+
+  @@unique([publicationId, communicationChannelId])
+  @@index([communicationChannelId])
+  @@index([status])
+  @@map("publication_channels")
+}
+
+model TimelineEventContent {
+  id              String @id @default(uuid())
+  timelineEventId String
+  contentId       String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  timelineEvent TimelineEvent @relation(fields: [timelineEventId], references: [id])
+  content       Content       @relation(fields: [contentId], references: [id])
+
+  @@unique([timelineEventId, contentId])
+  @@index([contentId])
+  @@map("timeline_event_contents")
+}
+
+model TimelineEventMediaResource {
+  id              String @id @default(uuid())
+  timelineEventId String
+  mediaResourceId String
+
+  caption String?
+  sortOrder Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  timelineEvent TimelineEvent @relation(fields: [timelineEventId], references: [id])
+  mediaResource MediaResource @relation(fields: [mediaResourceId], references: [id])
+
+  @@unique([timelineEventId, mediaResourceId])
+  @@index([mediaResourceId])
+  @@map("timeline_event_media_resources")
+}

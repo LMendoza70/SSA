@@ -1,0 +1,22 @@
+{
+  "name": "ssa-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter @ssa/api dev",
+    "dev:web": "pnpm --filter @ssa/web dev",
+    "dev": "pnpm --parallel -r dev",
+    "build:api": "pnpm --filter @ssa/api build",
+    "build:web": "pnpm --filter @ssa/web build",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,css,md}\""
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/engines", "@scarf/scarf", "argon2", "prisma"]
+  }
+}
