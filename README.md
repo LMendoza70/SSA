@@ -18,13 +18,13 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Product | Baseline | Vision, alcance, principios y personas documentados. |
 | Domain | Baseline | Lenguaje ubicuo, dominio, reglas y casos de uso definidos. |
 | Architecture | Baseline | Clean Architecture, Modular Monolith y DDD Lite. |
-| Database | Baseline | Schema Prisma revisado y corregido en `prisma/schema.prisma`. No migrado. |
-| API | Baseline | Superficies publica, administrativa y auth documentadas. |
-| Frontend | Baseline + scaffold | React/Vite/MUI iniciado con estructura base. |
-| Backend | Baseline + implementado | NestJS con health check y autenticacion JWT+Argon2. |
+| Database | Migrada | PostgreSQL conectado vía Prisma 7 con adapter-pg. Migración inicial aplicada. |
+| API | Implementada | Endpoints auth, health y admin/content operativos. Swagger en `/api/docs`. |
+| Frontend | Administrativo operativo | Login, layout protegido, CRUD de contenidos con Tiptap editor. |
+| Backend | Implementado | NestJS con auth JWT+Argon2, módulo Content y Prisma. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
-| Implementation | Activa | Slices 0, 1 y 3 completados. |
+| Implementation | Activa | Slices 0, 1, 2, 3 y 4 completados. |
 
 ---
 
@@ -46,6 +46,13 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Filtro global de errores HTTP
 - [x] Health check: `GET /api/v1/health`
 
+### Slice 2 — Prisma local controlado
+- [x] PostgreSQL local conectado via Prisma 7
+- [x] `@prisma/adapter-pg` + `pg` configurados
+- [x] Migration inicial aplicada (24 modelos, 9 enums)
+- [x] `PrismaModule` (Global) y `PrismaService` en NestJS
+- [x] Usuario admin seed en base de datos
+
 ### Slice 3 — Autenticacion administrativa
 - [x] Login con email + password
 - [x] JWT access token
@@ -54,6 +61,17 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] `GET /api/v1/auth/me` protegido
 - [x] Argon2 para hash de contrasena
 - [x] Sin registro publico
+
+### Slice 4 — Content base
+- [x] Modulo `Content` en NestJS (CRUD completo)
+- [x] Slug unico auto-generado por contenido
+- [x] Estados editoriales: DRAFT, PREPARED, NEEDS_REVIEW, READY_FOR_PUBLICATION, ARCHIVED
+- [x] Clasificacion por `ContentType` (9 tipos semilla)
+- [x] Campos SEO: `seoTitle`, `seoDescription`
+- [x] Autoria preservada (`createdBy`, `updatedBy`)
+- [x] Admin frontend: login, layout protegido, listado con paginacion
+- [x] Formulario crear/editar con Tiptap Editor integrado
+- [x] Selector de `ContentType` y manejo de estados editoriales
 
 ---
 
@@ -65,9 +83,11 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 |   |-- api/                    # NestJS backend
 |   |   |-- src/
 |   |   |   |-- auth/           # Modulo Auth (JWT + Argon2)
+|   |   |   |-- content/        # Modulo Content (CRUD editorial)
 |   |   |   |-- common/         # Filtros globales
 |   |   |   |-- health/         # Health check
-|   |   |   |-- users/          # User repository (in-memory)
+|   |   |   |-- prisma/         # PrismaModule global
+|   |   |   |-- users/          # User repository
 |   |   |   |-- app.module.ts
 |   |   |   `-- main.ts
 |   |   |-- package.json
@@ -75,6 +95,12 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 |   `-- web/                    # React + Vite frontend
 |       |-- src/
 |       |   |-- pages/
+|       |   |   |-- admin/      # Login, AdminLayout
+|       |   |   |   |-- contents/ # ContentListPage, ContentFormPage
+|       |   |-- components/
+|       |   |   |-- admin/     # Sidebar, StatusChip, TiptapEditor
+|       |   |-- hooks/         # useContents, useContentTypes
+|       |   |-- lib/           # api (axios), auth (context)
 |       |   |-- App.tsx
 |       |   |-- main.tsx
 |       |   `-- theme.ts
@@ -127,13 +153,13 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 ### Backend
 - Node.js 24 + TypeScript strict
 - NestJS 11
-- Prisma ORM 7 (pendiente de migracion)
+- Prisma ORM 7 (migrado + seed)
 - JWT + Passport
 - Argon2
 - Swagger
 
 ### Base de datos
-- PostgreSQL (pendiente de conexion)
+- PostgreSQL (conectado via Prisma 7 + adapter-pg)
 - pgvector previsto para fase futura de IA
 
 ---
@@ -178,6 +204,11 @@ http://localhost:3001/api/docs
 | POST | `/api/v1/auth/refresh` | Renovar token | Cookie |
 | POST | `/api/v1/auth/logout` | Cerrar sesion | No |
 | GET | `/api/v1/auth/me` | Perfil del operador | Bearer JWT |
+| GET | `/api/v1/admin/contents` | Listar contenidos (paginado) | Bearer JWT |
+| POST | `/api/v1/admin/contents` | Crear contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents/:id` | Obtener contenido por ID | Bearer JWT |
+| PATCH | `/api/v1/admin/contents/:id` | Actualizar contenido | Bearer JWT |
+| GET | `/api/v1/admin/content-types` | Listar tipos de contenido | Bearer JWT |
 
 ### Credencial de desarrollo
 ```
@@ -189,11 +220,11 @@ Password: admin123
 
 ## Proximos Pasos
 
-- **Slice 2** — Prisma local controlado (conectar PostgreSQL, migrar)
-- **Slice 4** — Content base (CRUD editorial)
-- **Slice 5** — Publication base (exposicion publica)
-- **Slice 6** — Frontend publico
-- Slices restantes segun `docs/10-implementation/implementation-checklist.md`
+- **Slice 5** — Publication base (exposicion publica separada del Content)
+- **Slice 6** — Frontend publico (portal de consulta)
+- **Slice 7** — Multimedia resources (imagenes, PDF, videos)
+- **Slice 8** — Basic classification (categorias, tags)
+- Slices restantes segun `docs/10-implementation/project-slices-checklist.md`
 
 ---
 
@@ -202,16 +233,10 @@ Password: admin123
 Requieren autorizacion explicita del Lead Developer:
 
 ```bash
-npx prisma validate
-npx prisma format
-npx prisma generate
-npx prisma migrate dev
 npx prisma db push
 ```
 
 Tampoco esta autorizado:
-- crear migraciones o seeds
-- conectar backend a base de datos real
 - desplegar staging o produccion
 - introducir IA, chatbot, embeddings o pgvector en el MVP
 
