@@ -24,7 +24,7 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Backend | Implementado | NestJS con auth JWT+Argon2, módulo Content y Prisma. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
-| Implementation | Activa | Slices 0, 1, 2, 3 y 4 completados. |
+| Implementation | Activa | Slices 0, 1, 2, 3, 4 y 5 completados. |
 
 ---
 
@@ -72,6 +72,16 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Admin frontend: login, layout protegido, listado con paginacion
 - [x] Formulario crear/editar con Tiptap Editor integrado
 - [x] Selector de `ContentType` y manejo de estados editoriales
+
+### Slice 5 — Publication Base
+- [x] Modulo `Publication` en NestJS (create, list, withdraw, archive)
+- [x] Publicación desde Content elegible (solo READY_FOR_PUBLICATION)
+- [x] `publicSlug` único auto-generado
+- [x] Estados: PUBLISHED, WITHDRAWN, ARCHIVED, UPDATED
+- [x] Fechas de publicación, retiro y archivo
+- [x] Publicación como entidad (no booleano)
+- [x] Frontend: listado de publicaciones con acciones retirar/archivar
+- [x] Botón "Publicar" en formulario de edición de contenido
 
 ---
 
@@ -209,6 +219,11 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/admin/contents/:id` | Obtener contenido por ID | Bearer JWT |
 | PATCH | `/api/v1/admin/contents/:id` | Actualizar contenido | Bearer JWT |
 | GET | `/api/v1/admin/content-types` | Listar tipos de contenido | Bearer JWT |
+| POST | `/api/v1/admin/contents/:contentId/publication` | Publicar contenido | Bearer JWT |
+| GET | `/api/v1/admin/publications` | Listar publicaciones | Bearer JWT |
+| GET | `/api/v1/admin/publications/:id` | Consultar publicación | Bearer JWT |
+| POST | `/api/v1/admin/publications/:id/withdrawal` | Retirar publicación | Bearer JWT |
+| POST | `/api/v1/admin/publications/:id/archive` | Archivar publicación | Bearer JWT |
 
 ### Credencial de desarrollo
 ```
@@ -220,8 +235,8 @@ Password: admin123
 
 ## Proximos Pasos
 
-- **Slice 5** — Publication base (exposicion publica separada del Content)
 - **Slice 6** — Frontend publico (portal de consulta)
+- **Slice 7** — Multimedia resources (imagenes, PDF, videos)
 - **Slice 7** — Multimedia resources (imagenes, PDF, videos)
 - **Slice 8** — Basic classification (categorias, tags)
 - Slices restantes segun `docs/10-implementation/project-slices-checklist.md`

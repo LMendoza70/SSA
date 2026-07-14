@@ -35,7 +35,9 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch {
         setAccessToken(null);
-        window.location.href = '/admin/login';
+        if (!window.location.pathname.startsWith('/admin/login')) {
+          window.location.href = '/admin/login';
+        }
         return Promise.reject(error);
       }
     }

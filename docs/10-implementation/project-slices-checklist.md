@@ -169,27 +169,27 @@
 
 ### Backend
 
-- [ ] Crear módulo `Publication`
-- [ ] Implementar crear Publication desde Content elegible (`POST /api/v1/admin/contents/:id/publication`)
-- [ ] Implementar listar publicaciones administrativas (`GET /api/v1/admin/publications`)
-- [ ] Implementar consultar publicación (`GET /api/v1/admin/publications/:id`)
-- [ ] Implementar retirar publicación (`POST /api/v1/admin/publications/:id/withdrawal`)
-- [ ] Implementar archivar publicación (`POST /api/v1/admin/publications/:id/archive`)
-- [ ] Manejar `PublicationStatus` (`PUBLISHED`, `WITHDRAWN`, `ARCHIVED`, etc.)
-- [ ] Manejar `publicSlug` único
-- [ ] Manejar fechas de publicación, retiro y archivo
-- [ ] Confirmar que `Publication` no es un booleano
+- [x] Crear módulo `Publication`
+- [x] Implementar crear Publication desde Content elegible (`POST /api/v1/admin/contents/:id/publication`)
+- [x] Implementar listar publicaciones administrativas (`GET /api/v1/admin/publications`)
+- [x] Implementar consultar publicación (`GET /api/v1/admin/publications/:id`)
+- [x] Implementar retirar publicación (`POST /api/v1/admin/publications/:id/withdrawal`)
+- [x] Implementar archivar publicación (`POST /api/v1/admin/publications/:id/archive`)
+- [x] Manejar `PublicationStatus` (`PUBLISHED`, `WITHDRAWN`, `ARCHIVED`, etc.)
+- [x] Manejar `publicSlug` único
+- [x] Manejar fechas de publicación, retiro y archivo
+- [x] Confirmar que `Publication` no es un booleano
 
 ### Frontend (Administrativo)
 
-- [ ] Implementar vista de publicación desde Content
-- [ ] Implementar listado de publicaciones
-- [ ] Implementar acción de retirar/archivar
+- [x] Implementar vista de publicación desde Content
+- [x] Implementar listado de publicaciones
+- [x] Implementar acción de retirar/archivar
 
 ### Prisma / DB
 
-- [ ] Migrar modelo `Publication`
-- [ ] Migrar tabla `publications`
+- [x] Migrar modelo `Publication` (migración previa)
+- [x] Migrar tabla `publications` (migración previa)
 
 **Criterio de salida:** Un Content puede exponerse públicamente mediante Publication sin usar booleano de publicación.
 

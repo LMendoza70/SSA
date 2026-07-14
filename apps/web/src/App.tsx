@@ -6,6 +6,7 @@ import { AdminLayout } from './pages/admin/AdminLayout';
 import { LoginPage } from './pages/admin/LoginPage';
 import { ContentListPage } from './pages/admin/contents/ContentListPage';
 import { ContentFormPage } from './pages/admin/contents/ContentFormPage';
+import { PublicationListPage } from './pages/admin/publications/PublicationListPage';
 import { HomePage } from './pages/HomePage';
 
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
               <Route path="contents" element={<ContentListPage />} />
               <Route path="contents/new" element={<ContentFormPage />} />
               <Route path="contents/:id/edit" element={<ContentFormPage />} />
+              <Route path="publications" element={<PublicationListPage />} />
             </Route>
           </Routes>
         </AuthProvider>

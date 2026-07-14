@@ -10,9 +10,11 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import { useContent, useCreateContent, useUpdateContent } from '../../../hooks/useContents';
 import { useContentTypes } from '../../../hooks/useContentTypes';
+import { useCreatePublication } from '../../../hooks/usePublications';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -34,6 +36,10 @@ export function ContentFormPage() {
   const [seoDescription, setSeoDescription] = useState('');
   const [status, setStatus] = useState<string>(ContentStatus.DRAFT);
   const [error, setError] = useState('');
+  const [pubError, setPubError] = useState('');
+  const [pubSuccess, setPubSuccess] = useState('');
+
+  const createPublication = useCreatePublication();
 
   useEffect(() => {
     if (content) {
@@ -162,6 +168,49 @@ export function ContentFormPage() {
               value={seoDescription}
               onChange={(e) => setSeoDescription(e.target.value)}
             />
+
+            {isEdit && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Publicación</Typography>
+                {pubError && <Alert severity="error" sx={{ mb: 1 }}>{pubError}</Alert>}
+                {pubSuccess && <Alert severity="success" sx={{ mb: 1 }}>{pubSuccess}</Alert>}
+                {content?.publication ? (
+                  <Stack direction="row" spacing={2} alignItems="center" mt={1}>
+                    <Chip
+                      label={`Publicado — ${content.publication.status}`}
+                      color="success"
+                      size="small"
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      Slug público: <strong>{content.publication.publicSlug}</strong>
+                    </Typography>
+                  </Stack>
+                ) : status === ContentStatus.READY_FOR_PUBLICATION ? (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={async () => {
+                      setPubError('');
+                      setPubSuccess('');
+                      try {
+                        await createPublication.mutateAsync({ contentId: id });
+                        setPubSuccess('Contenido publicado exitosamente');
+                      } catch (err: any) {
+                        setPubError(err?.response?.data?.message || 'Error al publicar');
+                      }
+                    }}
+                    disabled={createPublication.isPending}
+                    sx={{ mt: 1 }}
+                  >
+                    {createPublication.isPending ? <CircularProgress size={20} /> : 'Publicar'}
+                  </Button>
+                ) : (
+                  <Typography variant="body2" color="text.secondary" mt={1}>
+                    Cambia el estado a <strong>Listo para publicar</strong> para habilitar la publicación.
+                  </Typography>
+                )}
+              </Box>
+            )}
 
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button variant="outlined" onClick={() => navigate('/admin/contents')}>

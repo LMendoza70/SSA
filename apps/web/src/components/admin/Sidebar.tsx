@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article as ArticleIcon, Logout as LogoutIcon } from '@mui/icons-material';
+import { Article, Publish, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -35,11 +35,11 @@ export function Sidebar() {
       }}
     >
       <Toolbar>
-        <Typography variant="h6" fontWeight={700} color="primary">
+        <Typography variant="h6" fontWeight={700}>
           SSA CMS
         </Typography>
       </Toolbar>
-      <Divider />
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />
       <List sx={{ flex: 1, px: 1 }}>
         <ListItemButton
           selected={location.pathname.startsWith('/admin/contents')}
@@ -47,25 +47,35 @@ export function Sidebar() {
           sx={{ borderRadius: 1, mb: 0.5 }}
         >
           <ListItemIcon>
-            <ArticleIcon />
+            <Article />
           </ListItemIcon>
           <ListItemText primary="Contenidos" />
         </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/publications')}
+          onClick={() => navigate('/admin/publications')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <Publish />
+          </ListItemIcon>
+          <ListItemText primary="Publicaciones" />
+        </ListItemButton>
       </List>
-      <Divider />
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />
       {user && (
         <Box sx={{ p: 2 }}>
-          <Typography variant="body2" color="text.secondary" noWrap>
+          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }} noWrap>
             {user.displayName}
           </Typography>
-          <Typography variant="caption" color="text.disabled" noWrap>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }} noWrap>
             {user.email}
           </Typography>
           <Button
-            startIcon={<LogoutIcon />}
+            startIcon={<Logout />}
             size="small"
             onClick={handleLogout}
-            sx={{ mt: 1 }}
+            sx={{ color: 'rgba(255,255,255,0.8)', mt: 1, '&:hover': { color: '#FFFFFF' } }}
           >
             Cerrar sesión
           </Button>
