@@ -7,7 +7,7 @@ dist/
 .env.production
 
 prisma/generated/
-prisma/migrations/
+apps/api/src/generated/
 
 *.log
 .DS_Store

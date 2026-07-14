@@ -1,4 +1,4 @@
-import type { ContentStatus, ContentTypeCode } from '../enums';
+import type { ContentStatus } from '../enums';
 
 export interface ContentDto {
   id: string;
