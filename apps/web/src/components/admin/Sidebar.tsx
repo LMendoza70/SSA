@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -130,6 +130,16 @@ export function Sidebar() {
             <TimelineIcon />
           </ListItemIcon>
           <ListItemText primary="Línea del Tiempo" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/communication-channels')}
+          onClick={() => navigate('/admin/communication-channels')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <Share />
+          </ListItemIcon>
+          <ListItemText primary="Canales" />
         </ListItemButton>
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />

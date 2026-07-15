@@ -364,23 +364,23 @@
 
 ### Backend
 
-- [ ] Crear módulo `Distribution`
-- [ ] Implementar CRUD de `CommunicationChannel` (admin)
-- [ ] Implementar asociación de canales a Publication (`PublicationChannel`)
-- [ ] Implementar actualización de estado de distribución
-- [ ] Implementar registro de distribución manual/asistida
-- [ ] Confirmar que los canales no son fuente de verdad
+- [x] Crear módulo `Distribution`
+- [x] Implementar CRUD de `CommunicationChannel` (admin)
+- [x] Implementar asociación de canales a Publication (`PublicationChannel`)
+- [x] Implementar actualización de estado de distribución
+- [x] Implementar registro de distribución manual/asistida
+- [x] Confirmar que los canales no son fuente de verdad
 
 ### Frontend
 
-- [ ] Implementar administración de canales de comunicación
-- [ ] Implementar selector de canales al publicar
-- [ ] Implementar registro de distribución
+- [x] Implementar administración de canales de comunicación
+- [x] Implementar selector de canales al publicar
+- [x] Implementar registro de distribución
 
 ### Prisma / DB
 
-- [ ] Migrar modelos `CommunicationChannel`, `PublicationChannel`
-- [ ] Migrar tablas correspondientes
+- [x] Migrar modelos `CommunicationChannel`, `PublicationChannel` (migración inicial previa)
+- [x] Migrar tablas correspondientes
 
 **Criterio de salida:** Una Publication puede prepararse para distribución por canales sin convertirlos en fuente de verdad.
 
@@ -526,7 +526,7 @@
 | 8 — Clasificación básica | ✅ Completado | 100% |
 | 9 — Campaign / Disease | ✅ Completado | 100% |
 | 10 — Timeline | ⏳ Pendiente | 0% |
-| 11 — Canales asistidos | ⏳ Pendiente | 0% |
+| 11 — Canales asistidos | ✅ Completado | 100% |
 | 12 — Trazabilidad mínima | ⏳ Pendiente | 0% |
 | 13 — End-to-End MVP | ⏳ Pendiente | 0% |
 
@@ -534,4 +534,4 @@
 
 ## Próximo Paso Recomendado
 
-**Slice 10 — Timeline** (línea del tiempo institucional).
+**Slice 12 — Trazabilidad Mínima** (registro de eventos del ciclo de vida del contenido).

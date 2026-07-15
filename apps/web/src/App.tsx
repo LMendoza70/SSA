@@ -13,6 +13,7 @@ import { TagListPage } from './pages/admin/tags/TagListPage';
 import CampaignListPage from './pages/admin/campaigns/CampaignListPage';
 import DiseaseListPage from './pages/admin/diseases/DiseaseListPage';
 import TimelineEventListPage from './pages/admin/timeline/TimelineEventListPage';
+import CommunicationChannelListPage from './pages/admin/communication-channels/CommunicationChannelListPage';
 import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
 import PublicCampaignListPage from './pages/public/campaigns/PublicCampaignListPage';
 import PublicCampaignDetailPage from './pages/public/campaigns/PublicCampaignDetailPage';
@@ -59,6 +60,7 @@ export function App() {
               <Route path="campaigns" element={<CampaignListPage />} />
               <Route path="diseases" element={<DiseaseListPage />} />
               <Route path="timeline" element={<TimelineEventListPage />} />
+              <Route path="communication-channels" element={<CommunicationChannelListPage />} />
             </Route>
           </Routes>
         </AuthProvider>

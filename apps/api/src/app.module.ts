@@ -12,6 +12,7 @@ import { MediaModule } from './media/media.module';
 import { ClassificationModule } from './classification/classification.module';
 import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.module';
 import { TimelineModule } from './timeline/timeline.module';
+import { DistributionModule } from './distribution/distribution.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TimelineModule } from './timeline/timeline.module';
     ClassificationModule,
     CampaignDiseaseModule,
     TimelineModule,
+    DistributionModule,
   ],
 })
 export class AppModule {}

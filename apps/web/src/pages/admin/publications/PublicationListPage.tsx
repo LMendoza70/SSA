@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -22,6 +22,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { usePublications, useWithdrawPublication, useArchivePublication } from '../../../hooks/usePublications';
+import { usePublicationChannels, useAssociatePublicationChannels, useChannels, usePublishToChannel } from '../../../hooks/useCommunicationChannels';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
@@ -63,6 +64,27 @@ export function PublicationListPage() {
   const archive = useArchivePublication();
 
   const [confirmDialog, setConfirmDialog] = useState<{ id: string; action: 'withdraw' | 'archive' } | null>(null);
+  const [channelDialog, setChannelDialog] = useState<{ publicationId: string; open: boolean }>({ publicationId: '', open: false });
+  const { data: pubChannels } = usePublicationChannels(channelDialog.publicationId);
+  const { data: allChannels } = useChannels();
+  const associateChannels = useAssociatePublicationChannels();
+  const [selectedChIds, setSelectedChIds] = useState<string[]>([]);
+  const publishToChannel = usePublishToChannel();
+
+  const handleOpenChannels = async (publicationId: string) => {
+    setChannelDialog({ publicationId, open: true });
+  };
+
+  const handleSaveChannels = async () => {
+    await associateChannels.mutateAsync({ publicationId: channelDialog.publicationId, channelIds: selectedChIds });
+    setChannelDialog({ publicationId: '', open: false });
+  };
+
+  useEffect(() => {
+    if (pubChannels) {
+      setSelectedChIds(pubChannels.map((pc: any) => pc.channelId));
+    }
+  }, [pubChannels]);
 
   const handleConfirm = async () => {
     if (!confirmDialog) return;
@@ -137,6 +159,7 @@ export function PublicationListPage() {
                   </TableCell>
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <Button size="small" onClick={() => handleOpenChannels(item.id)}>Canales</Button>
                       {item.status === 'PUBLISHED' && (
                         <Button
                           size="small"
@@ -172,6 +195,69 @@ export function PublicationListPage() {
           labelRowsPerPage="Filas por página"
         />
       </TableContainer>
+
+      <Dialog open={channelDialog.open} onClose={() => setChannelDialog({ publicationId: '', open: false })} maxWidth="sm" fullWidth>
+        <DialogTitle>Canales de distribución</DialogTitle>
+        <DialogContent>
+          <TextField
+            select
+            label="Canales"
+            fullWidth
+            size="small"
+            SelectProps={{
+              multiple: true,
+              value: selectedChIds,
+              onChange: (e: any) => setSelectedChIds(e.target.value as string[]),
+            }}
+            sx={{ mt: 1 }}
+          >
+            {(allChannels || []).filter((ch: any) => ch.isActive).map((ch: any) => (
+              <MenuItem key={ch.id} value={ch.id}>{ch.name}</MenuItem>
+            ))}
+          </TextField>
+          {pubChannels && pubChannels.length > 0 && (
+            <Stack spacing={1} sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" fontWeight={600}>Estado de distribución</Typography>
+              {pubChannels.map((pc: any) => (
+                <Box key={pc.id} display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                  <Box flex={1}>
+                    <Typography variant="body2">{pc.channel?.name || pc.channelId}</Typography>
+                    <Chip
+                      label={pc.status === 'MANUALLY_SHARED' ? 'Publicado' : pc.status === 'PREPARED' ? 'Preparado' : pc.status === 'CANCELLED' ? 'Cancelado' : 'Sin publicar'}
+                      size="small"
+                      color={pc.status === 'MANUALLY_SHARED' ? 'success' : pc.status === 'PREPARED' ? 'info' : 'default'}
+                    />
+                    {pc.sharedAt && (
+                      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                        {new Date(pc.sharedAt).toLocaleString()}
+                      </Typography>
+                    )}
+                  </Box>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    disabled={publishToChannel.isPending}
+                    onClick={async () => {
+                      try {
+                        await publishToChannel.mutateAsync(pc.id);
+                      } catch {
+                        // Error al publicar
+                      }
+                    }}
+                  >
+                    {publishToChannel.isPending ? 'Publicando...' : 'Publicar ahora'}
+                  </Button>
+                </Box>
+              ))}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setChannelDialog({ publicationId: '', open: false })}>Cerrar</Button>
+          <Button variant="contained" onClick={handleSaveChannels}>Guardar canales</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={!!confirmDialog} onClose={() => setConfirmDialog(null)}>
         <DialogTitle>

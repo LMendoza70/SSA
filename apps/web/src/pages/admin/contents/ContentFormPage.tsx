@@ -30,6 +30,7 @@ import { useTags } from '../../../hooks/useTags';
 import { useCampaigns } from '../../../hooks/useCampaigns';
 import { useDiseases } from '../../../hooks/useDiseases';
 import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, useAssociateContentDiseases } from '../../../hooks/useContentCampaignDisease';
+import { useChannels, useAssociatePublicationChannels } from '../../../hooks/useCommunicationChannels';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -56,6 +57,7 @@ export function ContentFormPage() {
   const [pubDialogOpen, setPubDialogOpen] = useState(false);
   const [publicSlug, setPublicSlug] = useState('');
   const [publicTitle, setPublicTitle] = useState('');
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
 
   const createPublication = useCreatePublication();
 
@@ -83,6 +85,8 @@ export function ContentFormPage() {
   const { data: allDiseases } = useDiseases();
   const { data: selectedCampaigns } = useContentCampaigns(id || '');
   const { data: selectedDiseases } = useContentDiseases(id || '');
+  const { data: allChannels } = useChannels();
+  const associateChannels = useAssociatePublicationChannels();
   const associateCampaigns = useAssociateContentCampaigns();
   const associateDiseases = useAssociateContentDiseases();
   const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
@@ -380,6 +384,21 @@ export function ContentFormPage() {
                   {pubSuccess && <Alert severity="success">{pubSuccess}</Alert>}
                   <TextField label="Slug público" fullWidth value={publicSlug} onChange={(e) => setPublicSlug(e.target.value)} helperText="Dejar vacío para auto-generar" />
                   <TextField label="Título público" fullWidth value={publicTitle} onChange={(e) => setPublicTitle(e.target.value)} helperText="Dejar vacío para usar el título del contenido" />
+                  <TextField
+                    select
+                    label="Canales de distribución"
+                    size="small"
+                    SelectProps={{
+                      multiple: true,
+                      value: selectedChannelIds,
+                      onChange: (e: any) => setSelectedChannelIds(e.target.value as string[]),
+                    }}
+                    helperText="Selecciona los canales donde se distribuirá"
+                  >
+                    {(allChannels || []).filter((ch: any) => ch.isActive).map((ch: any) => (
+                      <MenuItem key={ch.id} value={ch.id}>{ch.name}</MenuItem>
+                    ))}
+                  </TextField>
                 </Stack>
               </DialogContent>
               <DialogActions>
@@ -392,11 +411,14 @@ export function ContentFormPage() {
                     setPubError('');
                     setPubSuccess('');
                     try {
-                      await createPublication.mutateAsync({
+                      const pub = await createPublication.mutateAsync({
                         contentId: id,
                         publicSlug: publicSlug || undefined,
                         publicTitle: publicTitle || undefined,
                       });
+                      if (selectedChannelIds.length > 0 && pub?.id) {
+                        await associateChannels.mutateAsync({ publicationId: pub.id, channelIds: selectedChannelIds });
+                      }
                       setPubSuccess('Contenido publicado exitosamente');
                     } catch (err: any) {
                       setPubError(err?.response?.data?.message || 'Error al publicar');
