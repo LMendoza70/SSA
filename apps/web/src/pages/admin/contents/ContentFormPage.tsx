@@ -53,6 +53,9 @@ export function ContentFormPage() {
   const [error, setError] = useState('');
   const [pubError, setPubError] = useState('');
   const [pubSuccess, setPubSuccess] = useState('');
+  const [pubDialogOpen, setPubDialogOpen] = useState(false);
+  const [publicSlug, setPublicSlug] = useState('');
+  const [publicTitle, setPublicTitle] = useState('');
 
   const createPublication = useCreatePublication();
 
@@ -350,20 +353,16 @@ export function ContentFormPage() {
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={async () => {
+                    onClick={() => {
                       setPubError('');
                       setPubSuccess('');
-                      try {
-                        await createPublication.mutateAsync({ contentId: id });
-                        setPubSuccess('Contenido publicado exitosamente');
-                      } catch (err: any) {
-                        setPubError(err?.response?.data?.message || 'Error al publicar');
-                      }
+                      setPublicSlug(content?.slug || '');
+                      setPublicTitle(content?.title || '');
+                      setPubDialogOpen(true);
                     }}
-                    disabled={createPublication.isPending}
                     sx={{ mt: 1 }}
                   >
-                    {createPublication.isPending ? <CircularProgress size={20} /> : 'Publicar'}
+                    Publicar
                   </Button>
                 ) : (
                   <Typography variant="body2" color="text.secondary" mt={1}>
@@ -372,6 +371,42 @@ export function ContentFormPage() {
                 )}
               </Box>
             )}
+
+            <Dialog open={pubDialogOpen} onClose={() => setPubDialogOpen(false)} maxWidth="sm" fullWidth>
+              <DialogTitle>Publicar contenido</DialogTitle>
+              <DialogContent>
+                <Stack spacing={2} sx={{ mt: 1 }}>
+                  {pubError && <Alert severity="error">{pubError}</Alert>}
+                  {pubSuccess && <Alert severity="success">{pubSuccess}</Alert>}
+                  <TextField label="Slug público" fullWidth value={publicSlug} onChange={(e) => setPublicSlug(e.target.value)} helperText="Dejar vacío para auto-generar" />
+                  <TextField label="Título público" fullWidth value={publicTitle} onChange={(e) => setPublicTitle(e.target.value)} helperText="Dejar vacío para usar el título del contenido" />
+                </Stack>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setPubDialogOpen(false)}>Cancelar</Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  disabled={createPublication.isPending}
+                  onClick={async () => {
+                    setPubError('');
+                    setPubSuccess('');
+                    try {
+                      await createPublication.mutateAsync({
+                        contentId: id,
+                        publicSlug: publicSlug || undefined,
+                        publicTitle: publicTitle || undefined,
+                      });
+                      setPubSuccess('Contenido publicado exitosamente');
+                    } catch (err: any) {
+                      setPubError(err?.response?.data?.message || 'Error al publicar');
+                    }
+                  }}
+                >
+                  {createPublication.isPending ? <CircularProgress size={20} /> : 'Publicar'}
+                </Button>
+              </DialogActions>
+            </Dialog>
 
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button variant="outlined" onClick={() => navigate('/admin/contents')}>

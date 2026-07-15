@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContentDto, UpdateContentDto, ContentListQueryDto } from './dto';
+import sanitizeHtml from 'sanitize-html';
 
 function slugify(text: string): string {
   return text
@@ -32,8 +33,8 @@ export class ContentService {
         contentTypeId: dto.contentTypeId,
         title: dto.title,
         slug,
-        summary: dto.summary,
-        body: dto.body,
+        summary: dto.summary ? sanitizeHtml(dto.summary) : undefined,
+        body: dto.body ? sanitizeHtml(dto.body) : undefined,
         seoTitle: dto.seoTitle,
         seoDescription: dto.seoDescription,
         createdById: userId,
@@ -136,8 +137,8 @@ export class ContentService {
       }
       data.contentTypeId = dto.contentTypeId;
     }
-    if (dto.summary !== undefined) data.summary = dto.summary;
-    if (dto.body !== undefined) data.body = dto.body;
+    if (dto.summary !== undefined) data.summary = sanitizeHtml(dto.summary);
+    if (dto.body !== undefined) data.body = sanitizeHtml(dto.body);
     if (dto.seoTitle !== undefined) data.seoTitle = dto.seoTitle;
     if (dto.seoDescription !== undefined) data.seoDescription = dto.seoDescription;
     if (dto.status !== undefined) data.status = dto.status;
@@ -153,6 +154,17 @@ export class ContentService {
     });
 
     return this.toResponse(content);
+  }
+
+  async remove(id: string) {
+    const existing = await this.prisma.content.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException('Contenido no encontrado');
+    }
+    await this.prisma.content.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
   }
 
   private async resolveUniqueSlug(baseSlug: string, excludeId?: string): Promise<string> {

@@ -22,10 +22,11 @@ import {
   Chip,
   IconButton,
 } from '@mui/material';
-import { CloudUpload as UploadIcon, Delete as DeleteIcon, Image as ImageIcon, PictureAsPdf, InsertDriveFile, Link as LinkIcon } from '@mui/icons-material';
+import { CloudUpload as UploadIcon, Delete as DeleteIcon, Edit as EditIcon, Image as ImageIcon, PictureAsPdf, InsertDriveFile, Link as LinkIcon } from '@mui/icons-material';
 import {
   useMediaResources,
   useUploadMedia,
+  useUpdateMedia,
   useDeleteMedia,
 } from '../../../hooks/useMediaResources';
 
@@ -55,6 +56,7 @@ export function MediaManagerPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState('');
+  const [editItem, setEditItem] = useState<any | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useMediaResources({
@@ -64,6 +66,7 @@ export function MediaManagerPage() {
   });
 
   const uploadMedia = useUploadMedia();
+  const updateMedia = useUpdateMedia();
   const deleteMedia = useDeleteMedia();
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,6 +92,22 @@ export function MediaManagerPage() {
       setUploadOpen(false);
     } catch (err: any) {
       setUploadError(err?.response?.data?.message || 'Error al subir archivo');
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!editItem) return;
+    try {
+      await updateMedia.mutateAsync({
+        id: editItem.id,
+        title: editItem.title,
+        description: editItem.description || undefined,
+        altText: editItem.altText || undefined,
+        type: editItem.type,
+      });
+      setEditItem(null);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Error al actualizar');
     }
   };
 
@@ -165,6 +184,9 @@ export function MediaManagerPage() {
                   <TableCell>{item.altText || '-'}</TableCell>
                   <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell align="right">
+                    <IconButton size="small" onClick={() => setEditItem(item)}>
+                      <EditIcon />
+                    </IconButton>
                     <IconButton color="error" size="small" onClick={() => setDeleteConfirm(item.id)}>
                       <DeleteIcon />
                     </IconButton>
@@ -229,6 +251,50 @@ export function MediaManagerPage() {
           <DialogActions>
             <Button onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Eliminar</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={!!editItem} onClose={() => setEditItem(null)} maxWidth="sm" fullWidth>
+          <DialogTitle>Editar recurso multimedia</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <TextField
+                select
+                label="Tipo"
+                value={editItem?.type || ''}
+                onChange={(e) => setEditItem((prev: any) => prev ? { ...prev, type: e.target.value } : null)}
+                fullWidth
+              >
+                {TYPE_OPTIONS.filter((o) => o.value).map((o) => (
+                  <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                label="Título"
+                value={editItem?.title || ''}
+                onChange={(e) => setEditItem((prev: any) => prev ? { ...prev, title: e.target.value } : null)}
+                fullWidth
+              />
+              <TextField
+                label="Descripción"
+                value={editItem?.description || ''}
+                onChange={(e) => setEditItem((prev: any) => prev ? { ...prev, description: e.target.value } : null)}
+                multiline rows={2}
+                fullWidth
+              />
+              <TextField
+                label="Texto alternativo (alt)"
+                value={editItem?.altText || ''}
+                onChange={(e) => setEditItem((prev: any) => prev ? { ...prev, altText: e.target.value } : null)}
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditItem(null)}>Cancelar</Button>
+            <Button variant="contained" onClick={handleEditSave} disabled={updateMedia.isPending}>
+              {updateMedia.isPending ? 'Guardando...' : 'Guardar'}
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>

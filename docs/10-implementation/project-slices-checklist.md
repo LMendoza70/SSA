@@ -113,7 +113,7 @@
 - [x] Configurar `JwtModule` asíncrono desde variables de entorno
 - [x] Proteger rutas administrativas con `JwtAuthGuard`
 - [x] Swappear `InMemoryUserRepository` por `PrismaUserRepository`
-- [ ] Agregar rate limiting a endpoints de login
+- [x] Agregar rate limiting a endpoints de login (5 intentos/minuto)
 
 ### General
 
@@ -133,6 +133,7 @@
 - [x] Crear módulo `Content`
 - [x] Implementar crear Content (`POST /api/v1/admin/contents`)
 - [x] Implementar editar Content (`PATCH /api/v1/admin/contents/:id`)
+- [x] Implementar eliminar Content (soft delete) (`DELETE /api/v1/admin/contents/:id`)
 - [x] Implementar listar Content administrativo (`GET /api/v1/admin/contents`)
 - [x] Implementar consultar Content por ID (`GET /api/v1/admin/contents/:id`)
 - [x] Manejar estados editoriales mínimos (`DRAFT`, `PREPARED`, `NEEDS_REVIEW`, `READY_FOR_PUBLICATION`, `ARCHIVED`)
@@ -246,7 +247,7 @@
 
 ### Frontend
 
-- [x] Implementar gestor multimedia (subida y listado con paginación y filtro por tipo)
+- [x] Implementar gestor multimedia (subida, edición, listado con paginación y filtro por tipo)
 - [x] Implementar selector de recursos para asociar a Content (integrado en formulario de edición)
 - [x] Implementar visualización de recursos en portal público
 - [x] Implementar `altText` para accesibilidad
@@ -280,6 +281,7 @@
 
 - [x] Implementar administración de categorías
 - [x] Implementar administración de etiquetas
+- [x] Implementar administración de tipos de contenido (ContentType)
 - [x] Implementar selectores de clasificación en formulario de Content
 - [ ] Implementar navegación pública por categorías
 - [ ] Implementar filtrado por etiquetas
@@ -313,7 +315,7 @@
 
 - [x] Implementar administración de campañas
 - [x] Implementar administración de enfermedades
-- [ ] Implementar vistas públicas de campañas y enfermedades
+- [x] Implementar vistas públicas de campañas y enfermedades
 - [x] Implementar asociación en formulario de Content
 
 ### Prisma / DB
@@ -483,7 +485,7 @@
 
 - [x] TypeScript strict configurado
 - [x] DTOs validados desde el inicio
-- [ ] Sanitización considerada para contenido enriquecido
+- [x] Sanitización considerada para contenido enriquecido (sanitize-html en body/summary)
 - [x] Refresh token en cookie HttpOnly
 - [ ] Cookies `Secure` en producción
 - [x] Argon2 para contraseñas

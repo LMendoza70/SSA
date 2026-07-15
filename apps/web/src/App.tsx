@@ -12,6 +12,11 @@ import { CategoryListPage } from './pages/admin/categories/CategoryListPage';
 import { TagListPage } from './pages/admin/tags/TagListPage';
 import CampaignListPage from './pages/admin/campaigns/CampaignListPage';
 import DiseaseListPage from './pages/admin/diseases/DiseaseListPage';
+import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
+import PublicCampaignListPage from './pages/public/campaigns/PublicCampaignListPage';
+import PublicCampaignDetailPage from './pages/public/campaigns/PublicCampaignDetailPage';
+import PublicDiseaseListPage from './pages/public/diseases/PublicDiseaseListPage';
+import PublicDiseaseDetailPage from './pages/public/diseases/PublicDiseaseDetailPage';
 import { PublicLayout } from './pages/public/PublicLayout';
 import { PublicHomePage } from './pages/public/PublicHomePage';
 import { PublicPublicationListPage } from './pages/public/PublicPublicationListPage';
@@ -29,6 +34,10 @@ export function App() {
               <Route path="/" element={<PublicHomePage />} />
               <Route path="/publications" element={<PublicPublicationListPage />} />
               <Route path="/publications/:slug" element={<PublicPublicationDetailPage />} />
+              <Route path="/campaigns" element={<PublicCampaignListPage />} />
+              <Route path="/campaigns/:slug" element={<PublicCampaignDetailPage />} />
+              <Route path="/diseases" element={<PublicDiseaseListPage />} />
+              <Route path="/diseases/:slug" element={<PublicDiseaseDetailPage />} />
               <Route path="/search" element={<PublicSearchPage />} />
             </Route>
             <Route path="/admin/login" element={<LoginPage />} />
@@ -41,6 +50,7 @@ export function App() {
               <Route path="media" element={<MediaManagerPage />} />
               <Route path="categories" element={<CategoryListPage />} />
               <Route path="tags" element={<TagListPage />} />
+              <Route path="content-types" element={<ContentTypeListPage />} />
               <Route path="campaigns" element={<CampaignListPage />} />
               <Route path="diseases" element={<DiseaseListPage />} />
             </Route>

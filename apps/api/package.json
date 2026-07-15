@@ -18,6 +18,7 @@
     "@nestjs/passport": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.0.0",
     "@ssa/shared": "workspace:*",
@@ -30,6 +31,7 @@
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sanitize-html": "^2.17.6",
     "zod": "^3.24.0"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@types/node": "^22.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.20.0",
+    "@types/sanitize-html": "^2.16.1",
     "concurrently": "^10.0.3",
     "prisma": "^7.0.0",
     "ts-node": "^10.9.2",

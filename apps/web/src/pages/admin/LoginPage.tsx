@@ -10,10 +10,30 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailErr, setEmailErr] = useState('');
+  const [passErr, setPassErr] = useState('');
+
+  const validate = () => {
+    let valid = true;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailErr('Correo electrónico no válido');
+      valid = false;
+    } else {
+      setEmailErr('');
+    }
+    if (password.length < 6) {
+      setPassErr('Mínimo 6 caracteres');
+      valid = false;
+    } else {
+      setPassErr('');
+    }
+    return valid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!validate()) return;
     setLoading(true);
     try {
       await login(email, password);
@@ -49,7 +69,9 @@ export function LoginPage() {
               fullWidth
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              error={!!emailErr}
+              helperText={emailErr}
+              onChange={(e) => { setEmail(e.target.value); setEmailErr(''); }}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -58,7 +80,9 @@ export function LoginPage() {
               fullWidth
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              error={!!passErr}
+              helperText={passErr}
+              onChange={(e) => { setPassword(e.target.value); setPassErr(''); }}
               sx={{ mb: 3 }}
             />
             <Button

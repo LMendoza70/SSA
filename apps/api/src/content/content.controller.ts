@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ContentService } from './content.service';
@@ -29,6 +29,13 @@ export class ContentController {
   @ApiOperation({ summary: 'Obtener contenido por ID' })
   async findById(@Param('id') id: string): Promise<ContentResponseDto> {
     return this.contentService.findById(id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar contenido (soft delete)' })
+  async remove(@Param('id') id: string) {
+    await this.contentService.remove(id);
+    return { message: 'Contenido eliminado' };
   }
 
   @Patch(':id')

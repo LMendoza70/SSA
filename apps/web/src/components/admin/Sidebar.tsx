@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -90,6 +90,16 @@ export function Sidebar() {
             <Label />
           </ListItemIcon>
           <ListItemText primary="Etiquetas" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/content-types')}
+          onClick={() => navigate('/admin/content-types')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <ListAlt />
+          </ListItemIcon>
+          <ListItemText primary="Tipos de contenido" />
         </ListItemButton>
         <ListItemButton
           selected={location.pathname.startsWith('/admin/campaigns')}

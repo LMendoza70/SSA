@@ -19,9 +19,9 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Domain | Baseline | Lenguaje ubicuo, dominio, reglas y casos de uso definidos. |
 | Architecture | Baseline | Clean Architecture, Modular Monolith y DDD Lite. |
 | Database | Migrada | PostgreSQL conectado vía Prisma 7 con adapter-pg. Migración inicial aplicada. |
-| API | Implementada | Endpoints auth, health, admin/content y public operativos. Swagger en `/api/docs`. |
+| API | Implementada | Endpoints auth, health, admin/content, classification, campaign-disease, media y public operativos. Swagger en `/api/docs`. |
 | Frontend | Administrativo + Portal público | Login, layout protegido, CRUD de contenidos, portal público con listado/detalle/búsqueda. |
-| Backend | Implementado | NestJS con auth JWT+Argon2, módulos Content, Publication y Public. |
+| Backend | Implementado | NestJS con auth JWT+Argon2, rate limiting en login, módulos Content, Publication, Public, Classification, CampaignDisease, Media. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
 | Implementation | Activa | Slices 0–9 completados. |
@@ -104,7 +104,7 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Asociación de recursos a contenidos
 - [x] Endpoint público de multimedia por contenido
 - [x] Archivos estáticos servidos bajo `/uploads`
-- [x] Frontend: gestor multimedia con subida, listado, paginación y filtro
+- [x] Frontend: gestor multimedia con subida, edición, listado, paginación y filtro
 - [x] Selector multimedia integrado en formulario de edición de contenido
 - [x] Visualización de multimedia en portal público
 - [x] Enlace "Multimedia" en sidebar administrativo
@@ -113,10 +113,11 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Módulo `Classification` con CRUD de categorías, etiquetas y tipos de contenido
 - [x] Asociación de categorías y etiquetas a contenido
 - [x] Endpoints públicos de clasificación (`GET /api/v1/public/categories`, `/tags`, `/content-types`)
-- [x] Frontend: administración de categorías y etiquetas (listado + creación)
+- [x] Frontend: administración de categorías, etiquetas y tipos de contenido (listado + CRUD)
 - [x] Hooks frontend: `useCategories`, `useTags`, `useContentClassification`
 - [x] Selectores de clasificación integrados en formulario de edición de contenido
-- [x] Sidebar con enlaces a Categorías y Etiquetas
+- [x] Sidebar con enlaces a Categorías, Etiquetas y Tipos de contenido
+- [x] Página admin de Tipos de contenido (CRUD completo + activar/desactivar)
 
 ### Slice 9 — Campaign / Disease
 - [x] Módulo `CampaignDisease` con CRUD de campañas y enfermedades
@@ -127,6 +128,9 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Hooks frontend: `useCampaigns`, `useDiseases`, `useContentCampaignDisease`
 - [x] Selectores de campañas y enfermedades en formulario de Content
 - [x] Sidebar con enlaces a Campañas y Enfermedades
+- [x] Vistas públicas de campañas y enfermedades
+- [x] Vistas públicas de campañas y enfermedades con listado y detalle
+- [x] Navegación pública en header y footer hacia Campañas y Enfermedades
 
 ---
 
@@ -268,8 +272,10 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/auth/me` | Perfil del operador | Bearer JWT |
 | GET | `/api/v1/admin/contents` | Listar contenidos (paginado) | Bearer JWT |
 | POST | `/api/v1/admin/contents` | Crear contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents` | Listar contenidos (paginado) | Bearer JWT |
 | GET | `/api/v1/admin/contents/:id` | Obtener contenido por ID | Bearer JWT |
 | PATCH | `/api/v1/admin/contents/:id` | Actualizar contenido | Bearer JWT |
+| DELETE | `/api/v1/admin/contents/:id` | Eliminar contenido (soft delete) | Bearer JWT |
 | GET | `/api/v1/admin/content-types` | Listar tipos de contenido | Bearer JWT |
 | POST | `/api/v1/admin/contents/:contentId/publication` | Publicar contenido | Bearer JWT |
 | GET | `/api/v1/admin/publications` | Listar publicaciones | Bearer JWT |
@@ -307,6 +313,8 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/admin/tags/:id` | Obtener etiqueta | Bearer JWT |
 | PATCH | `/api/v1/admin/tags/:id` | Actualizar etiqueta | Bearer JWT |
 | DELETE | `/api/v1/admin/tags/:id` | Eliminar etiqueta | Bearer JWT |
+| GET | `/api/v1/admin/content-types` | Listar tipos de contenido (?all=true para inactivos) | Bearer JWT |
+| GET | `/api/v1/admin/content-types/:id` | Obtener tipo de contenido | Bearer JWT |
 | POST | `/api/v1/admin/content-types` | Crear tipo de contenido | Bearer JWT |
 | PATCH | `/api/v1/admin/content-types/:id` | Actualizar tipo de contenido | Bearer JWT |
 | DELETE | `/api/v1/admin/content-types/:id` | Eliminar tipo de contenido | Bearer JWT |

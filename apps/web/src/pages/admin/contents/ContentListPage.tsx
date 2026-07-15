@@ -18,8 +18,8 @@ import {
   IconButton,
   Chip,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon } from '@mui/icons-material';
-import { useContents } from '../../../hooks/useContents';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { useContents, useDeleteContent } from '../../../hooks/useContents';
 import { useContentTypes } from '../../../hooks/useContentTypes';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -31,6 +31,7 @@ const STATUS_OPTIONS = [
 
 export function ContentListPage() {
   const navigate = useNavigate();
+  const deleteContent = useDeleteContent();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [status, setStatus] = useState('');
@@ -137,6 +138,9 @@ export function ContentListPage() {
                   <TableCell align="right">
                     <IconButton onClick={() => navigate(`/admin/contents/${item.id}/edit`)}>
                       <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => { if (confirm('¿Eliminar este contenido?')) deleteContent.mutate(item.id); }} color="error">
+                      <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>

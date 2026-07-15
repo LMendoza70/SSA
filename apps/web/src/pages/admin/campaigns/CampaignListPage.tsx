@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  IconButton,
+  IconButton, Switch, FormControlLabel,
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { useCampaigns, useCreateCampaign, useUpdateCampaign, useDeleteCampaign } from '../../../hooks/useCampaigns';
@@ -19,6 +19,7 @@ export default function CampaignListPage() {
   const [objective, setObjective] = useState('');
   const [startsAt, setStartsAt] = useState('');
   const [endsAt, setEndsAt] = useState('');
+  const [isActive, setIsActive] = useState(true);
 
   const handleOpen = (campaign?: any) => {
     if (campaign) {
@@ -28,6 +29,7 @@ export default function CampaignListPage() {
       setObjective(campaign.objective || '');
       setStartsAt(campaign.startsAt ? campaign.startsAt.slice(0, 10) : '');
       setEndsAt(campaign.endsAt ? campaign.endsAt.slice(0, 10) : '');
+      setIsActive(campaign.isActive);
     } else {
       setEditId(null);
       setTitle('');
@@ -35,6 +37,7 @@ export default function CampaignListPage() {
       setObjective('');
       setStartsAt('');
       setEndsAt('');
+      setIsActive(true);
     }
     setOpen(true);
   };
@@ -48,7 +51,7 @@ export default function CampaignListPage() {
       endsAt: endsAt || undefined,
     };
     if (editId) {
-      await updateCampaign.mutateAsync({ id: editId, ...data });
+      await updateCampaign.mutateAsync({ id: editId, ...data, isActive });
     } else {
       await createCampaign.mutateAsync(data);
     }
@@ -112,6 +115,7 @@ export default function CampaignListPage() {
           <TextField label="Objetivo" fullWidth margin="normal" multiline rows={2} value={objective} onChange={(e) => setObjective(e.target.value)} />
           <TextField label="Fecha de inicio" type="date" fullWidth margin="normal" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} InputLabelProps={{ shrink: true }} />
           <TextField label="Fecha de fin" type="date" fullWidth margin="normal" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} InputLabelProps={{ shrink: true }} />
+          {editId && <FormControlLabel control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />} label="Activa" />}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancelar</Button>

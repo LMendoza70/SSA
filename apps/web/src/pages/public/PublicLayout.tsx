@@ -47,6 +47,12 @@ export function PublicLayout() {
             <Button component={Link} to="/publications" color="inherit">
               Publicaciones
             </Button>
+            <Button component={Link} to="/campaigns" color="inherit">
+              Campañas
+            </Button>
+            <Button component={Link} to="/diseases" color="inherit">
+              Enfermedades
+            </Button>
           </Stack>
 
           <Box flex={1} />
@@ -102,6 +108,12 @@ export function PublicLayout() {
               <Stack spacing={0.5}>
                 <Button component={Link} to="/publications" size="small" sx={{ color: '#FFFFFF', opacity: 0.8, justifyContent: 'flex-start', '&:hover': { opacity: 1 } }}>
                   Publicaciones
+                </Button>
+                <Button component={Link} to="/campaigns" size="small" sx={{ color: '#FFFFFF', opacity: 0.8, justifyContent: 'flex-start', '&:hover': { opacity: 1 } }}>
+                  Campañas
+                </Button>
+                <Button component={Link} to="/diseases" size="small" sx={{ color: '#FFFFFF', opacity: 0.8, justifyContent: 'flex-start', '&:hover': { opacity: 1 } }}>
+                  Enfermedades
                 </Button>
               </Stack>
             </Box>

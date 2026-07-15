@@ -47,3 +47,13 @@ export function useUpdateContent() {
     },
   });
 }
+
+export function useDeleteContent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/admin/contents/${id}`).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contents'] });
+    },
+  });
+}
