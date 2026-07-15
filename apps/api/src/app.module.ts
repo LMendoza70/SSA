@@ -11,6 +11,7 @@ import { PublicModule } from './public/public.module';
 import { MediaModule } from './media/media.module';
 import { ClassificationModule } from './classification/classification.module';
 import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.module';
+import { TimelineModule } from './timeline/timeline.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.modul
     MediaModule,
     ClassificationModule,
     CampaignDiseaseModule,
+    TimelineModule,
   ],
 })
 export class AppModule {}

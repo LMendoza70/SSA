@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -120,6 +120,16 @@ export function Sidebar() {
             <HealthAndSafety />
           </ListItemIcon>
           <ListItemText primary="Enfermedades" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/timeline')}
+          onClick={() => navigate('/admin/timeline')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <TimelineIcon />
+          </ListItemIcon>
+          <ListItemText primary="Línea del Tiempo" />
         </ListItemButton>
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />

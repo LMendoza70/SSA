@@ -122,6 +122,94 @@ export class PublicController {
     return disease;
   }
 
+  @Get('timeline-events')
+  @ApiOperation({ summary: 'Listar eventos públicos de línea del tiempo' })
+  async publicTimelineEvents() {
+    const events = await this.prisma.timelineEvent.findMany({
+      where: {
+        isVisible: true,
+        deletedAt: null,
+      },
+      orderBy: { occurredAt: 'desc' },
+      include: {
+        timelineEventMediaResources: {
+          include: { mediaResource: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        timelineEventContents: {
+          include: { content: { select: { id: true, title: true, slug: true } } },
+        },
+      },
+    });
+
+    return events.map((e) => ({
+      id: e.id,
+      title: e.title,
+      slug: e.slug,
+      description: e.description,
+      occurredAt: e.occurredAt?.toISOString(),
+      periodLabel: e.periodLabel,
+      historicalRelevance: e.historicalRelevance,
+      mediaResources: e.timelineEventMediaResources.map((em) => ({
+        id: em.mediaResource.id,
+        type: em.mediaResource.type,
+        title: em.mediaResource.title,
+        url: em.mediaResource.resourceUri
+          ? this.storage.getUrl(em.mediaResource.resourceUri)
+          : em.mediaResource.externalUrl,
+        altText: em.mediaResource.altText,
+        caption: em.caption,
+      })),
+      relatedContents: e.timelineEventContents.map((ec) => ec.content),
+    }));
+  }
+
+  @Get('timeline-events/:slug')
+  @ApiOperation({ summary: 'Ver detalle de evento de línea del tiempo por slug' })
+  async publicTimelineEventBySlug(@Param('slug') slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      include: {
+        timelineEventMediaResources: {
+          include: { mediaResource: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        timelineEventContents: {
+          include: {
+            content: {
+              select: { id: true, title: true, slug: true, summary: true, contentType: { select: { id: true, code: true, name: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+
+    return {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      description: event.description,
+      occurredAt: event.occurredAt?.toISOString(),
+      periodLabel: event.periodLabel,
+      historicalRelevance: event.historicalRelevance,
+      mediaResources: event.timelineEventMediaResources.map((em) => ({
+        id: em.mediaResource.id,
+        type: em.mediaResource.type,
+        title: em.mediaResource.title,
+        url: em.mediaResource.resourceUri
+          ? this.storage.getUrl(em.mediaResource.resourceUri)
+          : em.mediaResource.externalUrl,
+        altText: em.mediaResource.altText,
+        caption: em.caption,
+      })),
+      relatedContents: event.timelineEventContents.map((ec) => ec.content),
+    };
+  }
+
   @Get('media/by-content/:contentId')
   @ApiOperation({ summary: 'Obtener recursos multimedia de un contenido' })
   async getContentMedia(@Param('contentId') contentId: string) {

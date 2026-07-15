@@ -53,6 +53,9 @@ export function PublicLayout() {
             <Button component={Link} to="/diseases" color="inherit">
               Enfermedades
             </Button>
+            <Button component={Link} to="/timeline" color="inherit">
+              Historia
+            </Button>
           </Stack>
 
           <Box flex={1} />
@@ -114,6 +117,9 @@ export function PublicLayout() {
                 </Button>
                 <Button component={Link} to="/diseases" size="small" sx={{ color: '#FFFFFF', opacity: 0.8, justifyContent: 'flex-start', '&:hover': { opacity: 1 } }}>
                   Enfermedades
+                </Button>
+                <Button component={Link} to="/timeline" size="small" sx={{ color: '#FFFFFF', opacity: 0.8, justifyContent: 'flex-start', '&:hover': { opacity: 1 } }}>
+                  Línea del Tiempo
                 </Button>
               </Stack>
             </Box>

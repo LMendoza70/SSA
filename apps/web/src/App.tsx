@@ -12,11 +12,14 @@ import { CategoryListPage } from './pages/admin/categories/CategoryListPage';
 import { TagListPage } from './pages/admin/tags/TagListPage';
 import CampaignListPage from './pages/admin/campaigns/CampaignListPage';
 import DiseaseListPage from './pages/admin/diseases/DiseaseListPage';
+import TimelineEventListPage from './pages/admin/timeline/TimelineEventListPage';
 import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
 import PublicCampaignListPage from './pages/public/campaigns/PublicCampaignListPage';
 import PublicCampaignDetailPage from './pages/public/campaigns/PublicCampaignDetailPage';
 import PublicDiseaseListPage from './pages/public/diseases/PublicDiseaseListPage';
 import PublicDiseaseDetailPage from './pages/public/diseases/PublicDiseaseDetailPage';
+import PublicTimelinePage from './pages/public/timeline/PublicTimelinePage';
+import PublicTimelineEventDetailPage from './pages/public/timeline/PublicTimelineEventDetailPage';
 import { PublicLayout } from './pages/public/PublicLayout';
 import { PublicHomePage } from './pages/public/PublicHomePage';
 import { PublicPublicationListPage } from './pages/public/PublicPublicationListPage';
@@ -38,6 +41,8 @@ export function App() {
               <Route path="/campaigns/:slug" element={<PublicCampaignDetailPage />} />
               <Route path="/diseases" element={<PublicDiseaseListPage />} />
               <Route path="/diseases/:slug" element={<PublicDiseaseDetailPage />} />
+              <Route path="/timeline" element={<PublicTimelinePage />} />
+              <Route path="/timeline/:slug" element={<PublicTimelineEventDetailPage />} />
               <Route path="/search" element={<PublicSearchPage />} />
             </Route>
             <Route path="/admin/login" element={<LoginPage />} />
@@ -53,6 +58,7 @@ export function App() {
               <Route path="content-types" element={<ContentTypeListPage />} />
               <Route path="campaigns" element={<CampaignListPage />} />
               <Route path="diseases" element={<DiseaseListPage />} />
+              <Route path="timeline" element={<TimelineEventListPage />} />
             </Route>
           </Routes>
         </AuthProvider>
