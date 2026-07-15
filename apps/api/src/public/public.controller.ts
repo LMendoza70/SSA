@@ -70,10 +70,21 @@ export class PublicController {
   }
 
   @Get('campaigns')
-  @ApiOperation({ summary: 'Listar campañas públicas' })
+  @ApiOperation({ summary: 'Listar campañas públicas vigentes' })
   async publicCampaigns() {
+    const now = new Date();
     return this.prisma.campaign.findMany({
-      where: { isActive: true, deletedAt: null },
+      where: {
+        isActive: true,
+        deletedAt: null,
+        OR: [
+          { startsAt: null },
+          { startsAt: { lte: now } },
+        ],
+        AND: [
+          { OR: [ { endsAt: null }, { endsAt: { gte: now } } ] },
+        ],
+      },
       orderBy: { startsAt: { sort: 'desc', nulls: 'last' } },
     });
   }

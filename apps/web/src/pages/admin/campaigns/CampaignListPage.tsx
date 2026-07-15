@@ -17,6 +17,8 @@ export default function CampaignListPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [objective, setObjective] = useState('');
+  const [startsAt, setStartsAt] = useState('');
+  const [endsAt, setEndsAt] = useState('');
 
   const handleOpen = (campaign?: any) => {
     if (campaign) {
@@ -24,17 +26,27 @@ export default function CampaignListPage() {
       setTitle(campaign.title);
       setDescription(campaign.description || '');
       setObjective(campaign.objective || '');
+      setStartsAt(campaign.startsAt ? campaign.startsAt.slice(0, 10) : '');
+      setEndsAt(campaign.endsAt ? campaign.endsAt.slice(0, 10) : '');
     } else {
       setEditId(null);
       setTitle('');
       setDescription('');
       setObjective('');
+      setStartsAt('');
+      setEndsAt('');
     }
     setOpen(true);
   };
 
   const handleSave = async () => {
-    const data = { title, description: description || undefined, objective: objective || undefined };
+    const data = {
+      title,
+      description: description || undefined,
+      objective: objective || undefined,
+      startsAt: startsAt || undefined,
+      endsAt: endsAt || undefined,
+    };
     if (editId) {
       await updateCampaign.mutateAsync({ id: editId, ...data });
     } else {
@@ -63,21 +75,23 @@ export default function CampaignListPage() {
           <TableHead>
             <TableRow>
               <TableCell>Título</TableCell>
-              <TableCell>Objetivo</TableCell>
+              <TableCell>Inicio</TableCell>
+              <TableCell>Fin</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={4}>Cargando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={5}>Cargando...</TableCell></TableRow>
             ) : (campaigns || []).length === 0 ? (
-              <TableRow><TableCell colSpan={4}>Sin campañas registradas</TableCell></TableRow>
+              <TableRow><TableCell colSpan={5}>Sin campañas registradas</TableCell></TableRow>
             ) : (
               (campaigns || []).map((c: any) => (
                 <TableRow key={c.id}>
                   <TableCell>{c.title}</TableCell>
-                  <TableCell>{c.objective || '—'}</TableCell>
+                  <TableCell>{c.startsAt ? new Date(c.startsAt).toLocaleDateString() : '—'}</TableCell>
+                  <TableCell>{c.endsAt ? new Date(c.endsAt).toLocaleDateString() : '—'}</TableCell>
                   <TableCell>{c.isActive ? 'Activa' : 'Inactiva'}</TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => handleOpen(c)} size="small"><Edit /></IconButton>
@@ -96,6 +110,8 @@ export default function CampaignListPage() {
           <TextField label="Título" fullWidth margin="normal" value={title} onChange={(e) => setTitle(e.target.value)} />
           <TextField label="Descripción" fullWidth margin="normal" multiline rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
           <TextField label="Objetivo" fullWidth margin="normal" multiline rows={2} value={objective} onChange={(e) => setObjective(e.target.value)} />
+          <TextField label="Fecha de inicio" type="date" fullWidth margin="normal" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} InputLabelProps={{ shrink: true }} />
+          <TextField label="Fecha de fin" type="date" fullWidth margin="normal" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} InputLabelProps={{ shrink: true }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancelar</Button>
