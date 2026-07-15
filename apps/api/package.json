@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "predev": "kill-port 3001",
     "dev": "tsc && node dist/main",
     "dev:watch": "pnpm exec concurrently -k \"tsc --watch\" \"node --watch dist/main\"",
     "build": "nest build",

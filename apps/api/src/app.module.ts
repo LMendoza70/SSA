@@ -7,6 +7,8 @@ import { ContentModule } from './content/content.module';
 import { PublicationModule } from './publication/publication.module';
 import { PublicModule } from './public/public.module';
 import { MediaModule } from './media/media.module';
+import { ClassificationModule } from './classification/classification.module';
+import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { MediaModule } from './media/media.module';
     PublicationModule,
     PublicModule,
     MediaModule,
+    ClassificationModule,
+    CampaignDiseaseModule,
   ],
 })
 export class AppModule {}

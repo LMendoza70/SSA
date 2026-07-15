@@ -8,6 +8,10 @@ import { ContentListPage } from './pages/admin/contents/ContentListPage';
 import { ContentFormPage } from './pages/admin/contents/ContentFormPage';
 import { PublicationListPage } from './pages/admin/publications/PublicationListPage';
 import { MediaManagerPage } from './pages/admin/media/MediaManagerPage';
+import { CategoryListPage } from './pages/admin/categories/CategoryListPage';
+import { TagListPage } from './pages/admin/tags/TagListPage';
+import CampaignListPage from './pages/admin/campaigns/CampaignListPage';
+import DiseaseListPage from './pages/admin/diseases/DiseaseListPage';
 import { PublicLayout } from './pages/public/PublicLayout';
 import { PublicHomePage } from './pages/public/PublicHomePage';
 import { PublicPublicationListPage } from './pages/public/PublicPublicationListPage';
@@ -35,6 +39,10 @@ export function App() {
               <Route path="contents/:id/edit" element={<ContentFormPage />} />
               <Route path="publications" element={<PublicationListPage />} />
               <Route path="media" element={<MediaManagerPage />} />
+              <Route path="categories" element={<CategoryListPage />} />
+              <Route path="tags" element={<TagListPage />} />
+              <Route path="campaigns" element={<CampaignListPage />} />
+              <Route path="diseases" element={<DiseaseListPage />} />
             </Route>
           </Routes>
         </AuthProvider>

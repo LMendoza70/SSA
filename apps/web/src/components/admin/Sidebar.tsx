@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -70,6 +70,46 @@ export function Sidebar() {
             <PermMedia />
           </ListItemIcon>
           <ListItemText primary="Multimedia" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/categories')}
+          onClick={() => navigate('/admin/categories')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <Category />
+          </ListItemIcon>
+          <ListItemText primary="Categorías" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/tags')}
+          onClick={() => navigate('/admin/tags')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <Label />
+          </ListItemIcon>
+          <ListItemText primary="Etiquetas" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/campaigns')}
+          onClick={() => navigate('/admin/campaigns')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <Campaign />
+          </ListItemIcon>
+          <ListItemText primary="Campañas" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/diseases')}
+          onClick={() => navigate('/admin/diseases')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <HealthAndSafety />
+          </ListItemIcon>
+          <ListItemText primary="Enfermedades" />
         </ListItemButton>
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />

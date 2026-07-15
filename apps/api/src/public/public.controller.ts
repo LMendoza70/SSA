@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Inject } from '@nestjs/common';
+import { Controller, Get, Param, Query, Inject, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { PublicService } from './public.service';
 import { StorageProvider } from '../media/storage-provider.interface';
@@ -40,6 +40,75 @@ export class PublicController {
   @ApiOperation({ summary: 'Búsqueda pública básica' })
   async search(@Query() query: PublicSearchQueryDto) {
     return this.publicService.search(query);
+  }
+
+  @Get('categories')
+  @ApiOperation({ summary: 'Listar categorías públicas' })
+  async publicCategories() {
+    return this.prisma.category.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  @Get('tags')
+  @ApiOperation({ summary: 'Listar etiquetas públicas' })
+  async publicTags() {
+    return this.prisma.tag.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  @Get('content-types')
+  @ApiOperation({ summary: 'Listar tipos de contenido públicos' })
+  async publicContentTypes() {
+    return this.prisma.contentType.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  @Get('campaigns')
+  @ApiOperation({ summary: 'Listar campañas públicas' })
+  async publicCampaigns() {
+    return this.prisma.campaign.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { startsAt: { sort: 'desc', nulls: 'last' } },
+    });
+  }
+
+  @Get('campaigns/:slug')
+  @ApiOperation({ summary: 'Ver detalle de campaña pública por slug' })
+  async publicCampaignBySlug(@Param('slug') slug: string) {
+    const campaign = await this.prisma.campaign.findUnique({
+      where: { slug },
+    });
+    if (!campaign || campaign.deletedAt) {
+      throw new NotFoundException('Campaña no encontrada');
+    }
+    return campaign;
+  }
+
+  @Get('diseases')
+  @ApiOperation({ summary: 'Listar enfermedades públicas' })
+  async publicDiseases() {
+    return this.prisma.disease.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  @Get('diseases/:slug')
+  @ApiOperation({ summary: 'Ver detalle de enfermedad pública por slug' })
+  async publicDiseaseBySlug(@Param('slug') slug: string) {
+    const disease = await this.prisma.disease.findUnique({
+      where: { slug },
+    });
+    if (!disease || disease.deletedAt) {
+      throw new NotFoundException('Enfermedad no encontrada');
+    }
+    return disease;
   }
 
   @Get('media/by-content/:contentId')

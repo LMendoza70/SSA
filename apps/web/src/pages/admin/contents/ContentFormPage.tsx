@@ -24,6 +24,12 @@ import { useContent, useCreateContent, useUpdateContent } from '../../../hooks/u
 import { useContentTypes } from '../../../hooks/useContentTypes';
 import { useCreatePublication } from '../../../hooks/usePublications';
 import { useContentMedia, useAssociateMedia, useMediaResources } from '../../../hooks/useMediaResources';
+import { useContentCategories, useContentTags, useAssociateContentCategories, useAssociateContentTags } from '../../../hooks/useContentClassification';
+import { useCategories } from '../../../hooks/useCategories';
+import { useTags } from '../../../hooks/useTags';
+import { useCampaigns } from '../../../hooks/useCampaigns';
+import { useDiseases } from '../../../hooks/useDiseases';
+import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, useAssociateContentDiseases } from '../../../hooks/useContentCampaignDisease';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -52,6 +58,40 @@ export function ContentFormPage() {
 
   const { data: contentMedia } = useContentMedia(id || '');
   const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
+
+  const { data: allCategories } = useCategories();
+  const { data: allTags } = useTags();
+  const { data: selectedCategories } = useContentCategories(id || '');
+  const { data: selectedTags } = useContentTags(id || '');
+  const associateCategories = useAssociateContentCategories();
+  const associateTags = useAssociateContentTags();
+  const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedCategories) setSelectedCatIds(selectedCategories.map((c: any) => c.id));
+  }, [selectedCategories]);
+
+  useEffect(() => {
+    if (selectedTags) setSelectedTagIds(selectedTags.map((t: any) => t.id));
+  }, [selectedTags]);
+
+  const { data: allCampaigns } = useCampaigns();
+  const { data: allDiseases } = useDiseases();
+  const { data: selectedCampaigns } = useContentCampaigns(id || '');
+  const { data: selectedDiseases } = useContentDiseases(id || '');
+  const associateCampaigns = useAssociateContentCampaigns();
+  const associateDiseases = useAssociateContentDiseases();
+  const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
+  const [selectedDiseaseIds, setSelectedDiseaseIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedCampaigns) setSelectedCampaignIds(selectedCampaigns.map((c: any) => c.id));
+  }, [selectedCampaigns]);
+
+  useEffect(() => {
+    if (selectedDiseases) setSelectedDiseaseIds(selectedDiseases.map((d: any) => d.id));
+  }, [selectedDiseases]);
 
   useEffect(() => {
     if (content) {
@@ -162,6 +202,90 @@ export function ContentFormPage() {
               <Typography variant="subtitle2" mb={1}>Cuerpo del contenido</Typography>
               <TiptapEditor value={body} onChange={setBody} />
             </Box>
+
+            {isEdit && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Clasificación</Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                  <TextField
+                    select
+                    label="Categorías"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedCatIds, onChange: (e: any) => setSelectedCatIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allCategories || []).map((cat: any) => (
+                      <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    label="Etiquetas"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedTagIds, onChange: (e: any) => setSelectedTagIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allTags || []).map((tag: any) => (
+                      <MenuItem key={tag.id} value={tag.id}>{tag.name}</MenuItem>
+                    ))}
+                  </TextField>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={async () => {
+                      if (id) {
+                        await associateCategories.mutateAsync({ contentId: id, categoryIds: selectedCatIds });
+                        await associateTags.mutateAsync({ contentId: id, tagIds: selectedTagIds });
+                      }
+                    }}
+                  >
+                    Guardar clasificación
+                  </Button>
+                </Stack>
+              </Box>
+            )}
+
+            {isEdit && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Campañas y Enfermedades</Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                  <TextField
+                    select
+                    label="Campañas"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedCampaignIds, onChange: (e: any) => setSelectedCampaignIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allCampaigns || []).map((c: any) => (
+                      <MenuItem key={c.id} value={c.id}>{c.title}</MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    label="Enfermedades"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedDiseaseIds, onChange: (e: any) => setSelectedDiseaseIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allDiseases || []).map((d: any) => (
+                      <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+                    ))}
+                  </TextField>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={async () => {
+                      if (id) {
+                        await associateCampaigns.mutateAsync({ contentId: id, campaignIds: selectedCampaignIds });
+                        await associateDiseases.mutateAsync({ contentId: id, diseaseIds: selectedDiseaseIds });
+                      }
+                    }}
+                  >
+                    Guardar
+                  </Button>
+                </Stack>
+              </Box>
+            )}
 
             {isEdit && (
               <Box>

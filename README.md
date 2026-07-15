@@ -24,7 +24,7 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Backend | Implementado | NestJS con auth JWT+Argon2, módulos Content, Publication y Public. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
-| Implementation | Activa | Slices 0–7 completados. |
+| Implementation | Activa | Slices 0–9 completados. |
 
 ---
 
@@ -109,6 +109,25 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Visualización de multimedia en portal público
 - [x] Enlace "Multimedia" en sidebar administrativo
 
+### Slice 8 — Clasificación Básica
+- [x] Módulo `Classification` con CRUD de categorías, etiquetas y tipos de contenido
+- [x] Asociación de categorías y etiquetas a contenido
+- [x] Endpoints públicos de clasificación (`GET /api/v1/public/categories`, `/tags`, `/content-types`)
+- [x] Frontend: administración de categorías y etiquetas (listado + creación)
+- [x] Hooks frontend: `useCategories`, `useTags`, `useContentClassification`
+- [x] Selectores de clasificación integrados en formulario de edición de contenido
+- [x] Sidebar con enlaces a Categorías y Etiquetas
+
+### Slice 9 — Campaign / Disease
+- [x] Módulo `CampaignDisease` con CRUD de campañas y enfermedades
+- [x] Asociación Content ↔ Campaign y Content ↔ Disease
+- [x] Asociación Campaign ↔ Disease
+- [x] Endpoints públicos (`GET /api/v1/public/campaigns`, `/diseases`)
+- [x] Frontend: administración de campañas y enfermedades
+- [x] Hooks frontend: `useCampaigns`, `useDiseases`, `useContentCampaignDisease`
+- [x] Selectores de campañas y enfermedades en formulario de Content
+- [x] Sidebar con enlaces a Campañas y Enfermedades
+
 ---
 
 ## Estructura del Repositorio
@@ -126,6 +145,8 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 |   |   |   |-- prisma/         # PrismaModule global
 |   |   |   |-- public/         # Modulo Public (endpoints públicos)
 |   |   |   |-- publication/    # Modulo Publication
+|   |   |   |-- classification/    # Modulo Classification (categorías, etiquetas, content-types)
+|   |   |   |-- campaign-disease/   # Modulo CampaignDisease (campañas y enfermedades)
 |   |   |   |-- users/          # User repository
 |   |   |   |-- app.module.ts
 |   |   |   `-- main.ts
@@ -133,12 +154,14 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 |   |   `-- tsconfig.json
 |   `-- web/                    # React + Vite frontend
 |       |-- src/
-|       |   |-- pages/
-|       |   |   |-- admin/      # Login, AdminLayout
-|       |   |   |   |-- contents/ # ContentListPage, ContentFormPage
-|       |   |-- components/
-|       |   |   |-- admin/     # Sidebar, StatusChip, TiptapEditor
-|       |   |-- hooks/         # useContents, useContentTypes
+|   |   |-- pages/
+|   |   |   |-- admin/      # Login, AdminLayout
+|   |   |   |   |-- contents/ # ContentListPage, ContentFormPage
+|   |   |   |   |-- categories/ # CategoryListPage
+|   |   |   |   |-- tags/       # TagListPage
+|   |   |-- components/
+|   |   |   |-- admin/     # Sidebar, StatusChip, TiptapEditor
+|   |   |-- hooks/         # useContents, useContentTypes, useCategories, useTags
 |       |   |-- lib/           # api (axios), auth (context)
 |       |   |-- App.tsx
 |       |   |-- main.tsx
@@ -257,6 +280,13 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/public/publications/:slug` | Detalle público por slug | No |
 | GET | `/api/v1/public/featured-publications` | Publicaciones destacadas | No |
 | GET | `/api/v1/public/search` | Búsqueda pública básica | No |
+| GET | `/api/v1/public/categories` | Listar categorías públicas | No |
+| GET | `/api/v1/public/tags` | Listar etiquetas públicas | No |
+| GET | `/api/v1/public/content-types` | Listar tipos de contenido públicos | No |
+| GET | `/api/v1/public/campaigns` | Listar campañas públicas | No |
+| GET | `/api/v1/public/campaigns/:slug` | Detalle de campaña pública | No |
+| GET | `/api/v1/public/diseases` | Listar enfermedades públicas | No |
+| GET | `/api/v1/public/diseases/:slug` | Detalle de enfermedad pública | No |
 | GET | `/api/v1/public/media/by-content/:contentId` | Multimedia de un contenido | No |
 | POST | `/api/v1/admin/media-resources/upload` | Subir archivo multimedia | Bearer JWT |
 | POST | `/api/v1/admin/media-resources/external` | Crear recurso externo | Bearer JWT |
@@ -267,6 +297,39 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/admin/media-resources/by-content/:contentId` | Recursos de un contenido | Bearer JWT |
 | PUT | `/api/v1/admin/media-resources/associate/:contentId` | Asociar recursos a contenido | Bearer JWT |
 | DELETE | `/api/v1/admin/media-resources/associate/:contentId/:resourceId` | Desasociar recurso | Bearer JWT |
+| POST | `/api/v1/admin/categories` | Crear categoría | Bearer JWT |
+| GET | `/api/v1/admin/categories` | Listar categorías | Bearer JWT |
+| GET | `/api/v1/admin/categories/:id` | Obtener categoría | Bearer JWT |
+| PATCH | `/api/v1/admin/categories/:id` | Actualizar categoría | Bearer JWT |
+| DELETE | `/api/v1/admin/categories/:id` | Eliminar categoría | Bearer JWT |
+| POST | `/api/v1/admin/tags` | Crear etiqueta | Bearer JWT |
+| GET | `/api/v1/admin/tags` | Listar etiquetas | Bearer JWT |
+| GET | `/api/v1/admin/tags/:id` | Obtener etiqueta | Bearer JWT |
+| PATCH | `/api/v1/admin/tags/:id` | Actualizar etiqueta | Bearer JWT |
+| DELETE | `/api/v1/admin/tags/:id` | Eliminar etiqueta | Bearer JWT |
+| POST | `/api/v1/admin/content-types` | Crear tipo de contenido | Bearer JWT |
+| PATCH | `/api/v1/admin/content-types/:id` | Actualizar tipo de contenido | Bearer JWT |
+| DELETE | `/api/v1/admin/content-types/:id` | Eliminar tipo de contenido | Bearer JWT |
+| POST | `/api/v1/admin/contents/:contentId/categories` | Asociar categorías a contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents/:contentId/categories` | Categorías de un contenido | Bearer JWT |
+| POST | `/api/v1/admin/contents/:contentId/tags` | Asociar etiquetas a contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents/:contentId/tags` | Etiquetas de un contenido | Bearer JWT |
+| POST | `/api/v1/admin/campaigns` | Crear campaña | Bearer JWT |
+| GET | `/api/v1/admin/campaigns` | Listar campañas | Bearer JWT |
+| GET | `/api/v1/admin/campaigns/:id` | Obtener campaña | Bearer JWT |
+| PATCH | `/api/v1/admin/campaigns/:id` | Actualizar campaña | Bearer JWT |
+| DELETE | `/api/v1/admin/campaigns/:id` | Eliminar campaña | Bearer JWT |
+| POST | `/api/v1/admin/diseases` | Crear enfermedad | Bearer JWT |
+| GET | `/api/v1/admin/diseases` | Listar enfermedades | Bearer JWT |
+| GET | `/api/v1/admin/diseases/:id` | Obtener enfermedad | Bearer JWT |
+| PATCH | `/api/v1/admin/diseases/:id` | Actualizar enfermedad | Bearer JWT |
+| DELETE | `/api/v1/admin/diseases/:id` | Eliminar enfermedad | Bearer JWT |
+| POST | `/api/v1/admin/contents/:contentId/campaigns` | Asociar campañas a contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents/:contentId/campaigns` | Campañas de un contenido | Bearer JWT |
+| POST | `/api/v1/admin/contents/:contentId/diseases` | Asociar enfermedades a contenido | Bearer JWT |
+| GET | `/api/v1/admin/contents/:contentId/diseases` | Enfermedades de un contenido | Bearer JWT |
+| POST | `/api/v1/admin/campaigns/:campaignId/diseases` | Asociar enfermedades a campaña | Bearer JWT |
+| GET | `/api/v1/admin/campaigns/:campaignId/diseases` | Enfermedades de una campaña | Bearer JWT |
 
 ### Credencial de desarrollo
 ```
@@ -280,7 +343,9 @@ Password: admin123
 
 - **Slice 6** — ✅ Completado (portal público funcional)
 - **Slice 7** — ✅ Completado (gestor multimedia)
-- **Slice 8** — Clasificación básica (categorías, etiquetas)
+- **Slice 8** — ✅ Completado (clasificación básica)
+- **Slice 9** — ✅ Completado (campañas y enfermedades)
+- **Slice 10** — Timeline (línea del tiempo)
 - Slices restantes segun `docs/10-implementation/project-slices-checklist.md`
 
 ---

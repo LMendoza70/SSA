@@ -7,7 +7,7 @@
 | Documento | Checklist General de Slices |
 | Fase | Implementation / Phase 10 operativa |
 | Fecha | 2026-07-14 |
-| Estado | Slices 0–6 completados |
+| Estado | Slices 0–9 completados |
 
 ---
 
@@ -268,27 +268,27 @@
 
 ### Backend
 
-- [ ] Implementar CRUD de `Category` (admin)
-- [ ] Implementar CRUD de `Tag` (admin)
-- [ ] Implementar CRUD de `ContentType` (admin)
-- [ ] Implementar asociación de categorías a Content
-- [ ] Implementar asociación de etiquetas a Content
-- [ ] Implementar endpoints públicos de clasificación (`GET /api/v1/public/categories`, `/tags`, `/content-types`)
+- [x] Implementar CRUD de `Category` (admin)
+- [x] Implementar CRUD de `Tag` (admin)
+- [x] Implementar CRUD de `ContentType` (admin)
+- [x] Implementar asociación de categorías a Content
+- [x] Implementar asociación de etiquetas a Content
+- [x] Implementar endpoints públicos de clasificación (`GET /api/v1/public/categories`, `/tags`, `/content-types`)
 - [ ] Implementar filtros por clasificación en listados públicos
 
 ### Frontend
 
-- [ ] Implementar administración de categorías
-- [ ] Implementar administración de etiquetas
-- [ ] Implementar selectores de clasificación en formulario de Content
+- [x] Implementar administración de categorías
+- [x] Implementar administración de etiquetas
+- [x] Implementar selectores de clasificación en formulario de Content
 - [ ] Implementar navegación pública por categorías
 - [ ] Implementar filtrado por etiquetas
 
 ### Prisma / DB
 
-- [ ] Migrar modelos `Category`, `Tag`
-- [ ] Migrar modelos puente `ContentCategory`, `ContentTag`
-- [ ] Migrar tablas correspondientes
+- [x] Migrar modelos `Category`, `Tag`
+- [x] Migrar modelos puente `ContentCategory`, `ContentTag`
+- [x] Migrar tablas correspondientes
 
 **Criterio de salida:** La información puede encontrarse por criterios editoriales comprensibles.
 
@@ -300,27 +300,27 @@
 
 ### Backend
 
-- [ ] Implementar CRUD de `Campaign` (admin)
-- [ ] Implementar CRUD de `Disease` (admin)
-- [ ] Implementar relación Content ↔ Campaign
-- [ ] Implementar relación Content ↔ Disease
-- [ ] Implementar relación Campaign ↔ Disease
-- [ ] Implementar endpoints públicos de campañas (`GET /api/v1/public/campaigns`)
-- [ ] Implementar endpoints públicos de enfermedades (`GET /api/v1/public/diseases`)
-- [ ] Confirmar que Campaign y Disease NO son Content, categorías ni etiquetas
+- [x] Implementar CRUD de `Campaign` (admin)
+- [x] Implementar CRUD de `Disease` (admin)
+- [x] Implementar relación Content ↔ Campaign
+- [x] Implementar relación Content ↔ Disease
+- [x] Implementar relación Campaign ↔ Disease
+- [x] Implementar endpoints públicos de campañas (`GET /api/v1/public/campaigns`)
+- [x] Implementar endpoints públicos de enfermedades (`GET /api/v1/public/diseases`)
+- [x] Confirmar que Campaign y Disease NO son Content, categorías ni etiquetas
 
 ### Frontend
 
-- [ ] Implementar administración de campañas
-- [ ] Implementar administración de enfermedades
+- [x] Implementar administración de campañas
+- [x] Implementar administración de enfermedades
 - [ ] Implementar vistas públicas de campañas y enfermedades
-- [ ] Implementar asociación en formulario de Content
+- [x] Implementar asociación en formulario de Content
 
 ### Prisma / DB
 
-- [ ] Migrar modelos `Campaign`, `Disease`
-- [ ] Migrar modelos puente `ContentCampaign`, `ContentDisease`, `CampaignDisease`
-- [ ] Migrar tablas correspondientes
+- [x] Migrar modelos `Campaign`, `Disease`
+- [x] Migrar modelos puente `ContentCampaign`, `ContentDisease`, `CampaignDisease`
+- [x] Migrar tablas correspondientes
 
 **Criterio de salida:** Campañas y enfermedades organizan publicaciones sin convertirse en Content, categoría ni etiqueta.
 
@@ -521,8 +521,8 @@
 | 5 — Publication base | ✅ Completado | 100% |
 | 6 — Consulta pública mínima | ✅ Completado | 100% |
 | 7 — Recursos multimedia | ✅ Completado | 100% |
-| 8 — Clasificación básica | ⏳ Pendiente | 0% |
-| 9 — Campaign / Disease | ⏳ Pendiente | 0% |
+| 8 — Clasificación básica | ✅ Completado | 100% |
+| 9 — Campaign / Disease | ✅ Completado | 100% |
 | 10 — Timeline | ⏳ Pendiente | 0% |
 | 11 — Canales asistidos | ⏳ Pendiente | 0% |
 | 12 — Trazabilidad mínima | ⏳ Pendiente | 0% |
@@ -532,4 +532,4 @@
 
 ## Próximo Paso Recomendado
 
-**Slice 8 — Clasificación básica** (categorías, etiquetas).
+**Slice 10 — Timeline** (línea del tiempo institucional).
