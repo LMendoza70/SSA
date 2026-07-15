@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useEditor, EditorContent, type Content } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
@@ -9,13 +10,24 @@ interface TiptapEditorProps {
 }
 
 export function TiptapEditor({ value, onChange }: TiptapEditorProps) {
+  const prevValueRef = useRef(value);
+
   const editor = useEditor({
     extensions: [StarterKit],
     content: value as Content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      prevValueRef.current = html;
+      onChange(html);
     },
   });
+
+  useEffect(() => {
+    if (editor && value !== prevValueRef.current) {
+      prevValueRef.current = value;
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   if (!editor) return null;
 

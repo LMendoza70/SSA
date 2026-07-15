@@ -7,7 +7,12 @@ import { LoginPage } from './pages/admin/LoginPage';
 import { ContentListPage } from './pages/admin/contents/ContentListPage';
 import { ContentFormPage } from './pages/admin/contents/ContentFormPage';
 import { PublicationListPage } from './pages/admin/publications/PublicationListPage';
-import { HomePage } from './pages/HomePage';
+import { MediaManagerPage } from './pages/admin/media/MediaManagerPage';
+import { PublicLayout } from './pages/public/PublicLayout';
+import { PublicHomePage } from './pages/public/PublicHomePage';
+import { PublicPublicationListPage } from './pages/public/PublicPublicationListPage';
+import { PublicPublicationDetailPage } from './pages/public/PublicPublicationDetailPage';
+import { PublicSearchPage } from './pages/public/PublicSearchPage';
 
 export function App() {
   return (
@@ -16,7 +21,12 @@ export function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<PublicHomePage />} />
+              <Route path="/publications" element={<PublicPublicationListPage />} />
+              <Route path="/publications/:slug" element={<PublicPublicationDetailPage />} />
+              <Route path="/search" element={<PublicSearchPage />} />
+            </Route>
             <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="contents" replace />} />
@@ -24,6 +34,7 @@ export function App() {
               <Route path="contents/new" element={<ContentFormPage />} />
               <Route path="contents/:id/edit" element={<ContentFormPage />} />
               <Route path="publications" element={<PublicationListPage />} />
+              <Route path="media" element={<MediaManagerPage />} />
             </Route>
           </Routes>
         </AuthProvider>

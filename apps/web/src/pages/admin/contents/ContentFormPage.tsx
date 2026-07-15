@@ -11,10 +11,19 @@ import {
   Alert,
   CircularProgress,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Card,
+  CardMedia,
+  CardContent,
+  Grid,
 } from '@mui/material';
 import { useContent, useCreateContent, useUpdateContent } from '../../../hooks/useContents';
 import { useContentTypes } from '../../../hooks/useContentTypes';
 import { useCreatePublication } from '../../../hooks/usePublications';
+import { useContentMedia, useAssociateMedia, useMediaResources } from '../../../hooks/useMediaResources';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -40,6 +49,9 @@ export function ContentFormPage() {
   const [pubSuccess, setPubSuccess] = useState('');
 
   const createPublication = useCreatePublication();
+
+  const { data: contentMedia } = useContentMedia(id || '');
+  const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
 
   useEffect(() => {
     if (content) {
@@ -151,6 +163,31 @@ export function ContentFormPage() {
               <TiptapEditor value={body} onChange={setBody} />
             </Box>
 
+            {isEdit && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Multimedia</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                  {(contentMedia || []).map((item: any) => (
+                    <Card key={item.id} variant="outlined" sx={{ width: 120 }}>
+                      {item.url && (item.type === 'IMAGE' || item.type === 'INFOGRAPHIC') ? (
+                        <CardMedia component="img" height={80} image={item.url} alt={item.altText || item.title} sx={{ objectFit: 'cover' }} />
+                      ) : (
+                        <Box sx={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'action.hover' }}>
+                          <Typography variant="caption">{item.type}</Typography>
+                        </Box>
+                      )}
+                      <CardContent sx={{ p: 0.5, '&:last-child': { pb: 0.5 } }}>
+                        <Typography variant="caption" noWrap>{item.title}</Typography>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+                <Button size="small" sx={{ mt: 1 }} onClick={() => setMediaSelectorOpen(true)}>
+                  {contentMedia?.length ? 'Administrar multimedia' : 'Asociar multimedia'}
+                </Button>
+              </Box>
+            )}
+
             <Typography variant="subtitle1" fontWeight={600} mt={2}>SEO</Typography>
 
             <TextField
@@ -229,6 +266,86 @@ export function ContentFormPage() {
           </Stack>
         </Box>
       </Paper>
+
+      <Dialog open={mediaSelectorOpen} onClose={() => setMediaSelectorOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Seleccionar recursos multimedia</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 0.5 }}>
+            <Grid size={{ xs: 12 }}>
+              {mediaSelectorOpen && <MediaSelectorInternal contentId={id!} onClose={() => setMediaSelectorOpen(false)} />}
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMediaSelectorOpen(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
+  );
+}
+
+function MediaSelectorInternal({ contentId, onClose }: { contentId: string; onClose: () => void }) {
+  const { data } = useMediaResources({ limit: 100 });
+  const [selected, setSelected] = useState<string[]>([]);
+  const associateMedia = useAssociateMedia();
+
+  const handleToggle = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleAssociate = async () => {
+    if (selected.length === 0) return;
+    await associateMedia.mutateAsync({ contentId, mediaResourceIds: selected });
+    onClose();
+  };
+
+  return (
+    <>
+      <Grid container spacing={2}>
+        {(data?.data || []).map((item: any) => {
+          const isSelected = selected.includes(item.id);
+          const isImage = item.type === 'IMAGE' || item.type === 'INFOGRAPHIC';
+          return (
+            <Grid size={{ xs: 6, sm: 4, md: 3 }} key={item.id}>
+              <Card
+                variant="outlined"
+                sx={{
+                  cursor: 'pointer',
+                  borderColor: isSelected ? 'primary.main' : undefined,
+                  borderWidth: isSelected ? 2 : 1,
+                }}
+                onClick={() => handleToggle(item.id)}
+              >
+                {isImage && item.url ? (
+                  <CardMedia component="img" height={100} image={item.url} alt={item.altText || item.title} sx={{ objectFit: 'cover' }} />
+                ) : (
+                  <Box sx={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'action.hover' }}>
+                    <Typography variant="caption" color="text.secondary">{item.type}</Typography>
+                  </Box>
+                )}
+                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                  <Typography variant="caption" noWrap>{item.title}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+        {(data?.data || []).length === 0 && (
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
+              No hay recursos multimedia disponibles. Sube recursos desde el gestor multimedia.
+            </Typography>
+          </Grid>
+        )}
+      </Grid>
+      <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button variant="contained" onClick={handleAssociate} disabled={selected.length === 0 || associateMedia.isPending}>
+          {associateMedia.isPending ? 'Asociando...' : `Asociar (${selected.length})`}
+        </Button>
+      </Stack>
+    </>
   );
 }

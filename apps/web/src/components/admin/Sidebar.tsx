@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Logout } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -60,6 +60,16 @@ export function Sidebar() {
             <Publish />
           </ListItemIcon>
           <ListItemText primary="Publicaciones" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/media')}
+          onClick={() => navigate('/admin/media')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon>
+            <PermMedia />
+          </ListItemIcon>
+          <ListItemText primary="Multimedia" />
         </ListItemButton>
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />

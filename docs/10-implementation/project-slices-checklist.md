@@ -7,7 +7,7 @@
 | Documento | Checklist General de Slices |
 | Fase | Implementation / Phase 10 operativa |
 | Fecha | 2026-07-14 |
-| Estado | Slices 0, 1, 2 y 3 completados |
+| Estado | Slices 0–6 completados |
 
 ---
 
@@ -201,22 +201,22 @@
 
 ### Backend
 
-- [ ] Implementar listar publicaciones públicas (`GET /api/v1/public/publications`)
-- [ ] Implementar consultar detalle público por slug (`GET /api/v1/public/publications/:slug`)
-- [ ] Implementar listar publicaciones destacadas (`GET /api/v1/public/featured-publications`)
-- [ ] Implementar búsqueda básica pública (`GET /api/v1/public/search`)
-- [ ] Asegurar que borradores y contenido no publicado NO sean accesibles públicamente
+- [x] Implementar listar publicaciones públicas (`GET /api/v1/public/publications`)
+- [x] Implementar consultar detalle público por slug (`GET /api/v1/public/publications/:slug`)
+- [x] Implementar listar publicaciones destacadas (`GET /api/v1/public/featured-publications`)
+- [x] Implementar búsqueda básica pública (`GET /api/v1/public/search`)
+- [x] Asegurar que borradores y contenido no publicado NO sean accesibles públicamente
 - [ ] Diferenciar contenido vigente de histórico
 
 ### Frontend (Público)
 
-- [ ] Implementar layout público base (header, footer, navegación)
-- [ ] Implementar página de inicio con contenido destacado
-- [ ] Implementar listado público de publicaciones
-- [ ] Implementar detalle público de publicación
-- [ ] Implementar búsqueda básica
-- [ ] Implementar diseño responsive
-- [ ] Implementar SEO básico (meta tags, Open Graph)
+- [x] Implementar layout público base (header, footer, navegación)
+- [x] Implementar página de inicio con contenido destacado
+- [x] Implementar listado público de publicaciones
+- [x] Implementar detalle público de publicación
+- [x] Implementar búsqueda básica
+- [x] Implementar diseño responsive
+- [x] Implementar SEO básico (meta tags, Open Graph)
 - [ ] Implementar navegación por tipos de contenido y categorías
 
 **Criterio de salida:** La población puede consultar información oficial publicada desde el portal público mínimo.
@@ -229,29 +229,34 @@
 
 ### Backend
 
-- [ ] Crear módulo `Media`
-- [ ] Implementar `StorageProvider` como abstracción de almacenamiento
-- [ ] Implementar `LocalStorageProvider` (almacenamiento en filesystem local)
-- [ ] Implementar crear `MediaResource` (`POST /api/v1/admin/media-resources`)
-- [ ] Implementar listar recursos (`GET /api/v1/admin/media-resources`)
-- [ ] Implementar consultar recurso (`GET /api/v1/admin/media-resources/:id`)
-- [ ] Implementar actualizar metadatos (`PATCH /api/v1/admin/media-resources/:id`)
-- [ ] Implementar asociar recursos a Content (`PUT /api/v1/admin/contents/:id/media-resources`)
-- [ ] Implementar eliminación lógica de recurso
-- [ ] Validar tipos MIME y tamaños de archivo
+- [x] Crear módulo `Media`
+- [x] Implementar `StorageProvider` como abstracción de almacenamiento (interfaz + token)
+- [x] Implementar `LocalStorageProvider` (almacenamiento en filesystem local)
+- [x] Implementar subir archivo (`POST /api/v1/admin/media-resources/upload`)
+- [x] Implementar crear recurso externo (`POST /api/v1/admin/media-resources/external`)
+- [x] Implementar listar recursos (`GET /api/v1/admin/media-resources`)
+- [x] Implementar consultar recurso (`GET /api/v1/admin/media-resources/:id`)
+- [x] Implementar actualizar metadatos (`PATCH /api/v1/admin/media-resources/:id`)
+- [x] Implementar eliminación lógica de recurso (`DELETE /api/v1/admin/media-resources/:id`)
+- [x] Implementar asociar recursos a Content (`PUT /api/v1/admin/media-resources/associate/:contentId`)
+- [x] Implementar desasociar recurso de Content
+- [x] Implementar endpoint público de multimedia por contenido (`GET /api/v1/public/media/by-content/:contentId`)
+- [x] Validar tipos MIME y tamaños de archivo (máx 10MB)
+- [x] Configurar límite de body parser y servir archivos estáticos (`/uploads`)
 
 ### Frontend
 
-- [ ] Implementar gestor multimedia (subida y listado)
-- [ ] Implementar selector de recursos para asociar a Content
-- [ ] Implementar visualización de recursos en portal público
-- [ ] Implementar `altText` para accesibilidad
+- [x] Implementar gestor multimedia (subida y listado con paginación y filtro por tipo)
+- [x] Implementar selector de recursos para asociar a Content (integrado en formulario de edición)
+- [x] Implementar visualización de recursos en portal público
+- [x] Implementar `altText` para accesibilidad
+- [x] Agregar enlace "Multimedia" en sidebar administrativo
 
 ### Prisma / DB
 
-- [ ] Migrar modelo `MediaResource`
-- [ ] Migrar modelo `ContentMediaResource`
-- [ ] Migrar tablas `media_resources` y `content_media_resources`
+- [x] Migrar modelo `MediaResource` (migración inicial previa)
+- [x] Migrar modelo `ContentMediaResource` (migración inicial previa)
+- [x] Migrar tablas `media_resources` y `content_media_resources` (migración inicial previa)
 
 **Criterio de salida:** Los contenidos pueden asociar recursos multimedia reutilizables.
 
@@ -512,10 +517,10 @@
 | 1 — Backend base + health check | ✅ Completado | 100% |
 | 2 — Prisma local controlado | ✅ Completado | 100% |
 | 3 — Autenticación administrativa | ✅ Completado | 100% |
-| 4 — Content base | ⏳ Pendiente | 0% |
-| 5 — Publication base | ⏳ Pendiente | 0% |
-| 6 — Consulta pública mínima | ⏳ Pendiente | 0% |
-| 7 — Recursos multimedia | ⏳ Pendiente | 0% |
+| 4 — Content base | ✅ Completado | 100% |
+| 5 — Publication base | ✅ Completado | 100% |
+| 6 — Consulta pública mínima | ✅ Completado | 100% |
+| 7 — Recursos multimedia | ✅ Completado | 100% |
 | 8 — Clasificación básica | ⏳ Pendiente | 0% |
 | 9 — Campaign / Disease | ⏳ Pendiente | 0% |
 | 10 — Timeline | ⏳ Pendiente | 0% |
@@ -527,4 +532,4 @@
 
 ## Próximo Paso Recomendado
 
-**Slice 4 — Content base** (PostgreSQL + Prisma ya operativos desde Slice 2).
+**Slice 8 — Clasificación básica** (categorías, etiquetas).

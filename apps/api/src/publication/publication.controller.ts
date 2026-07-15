@@ -6,13 +6,14 @@ import { PublicationService } from './publication.service';
 import { CreatePublicationDto, PublicationListQueryDto, PublicationResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@Controller('admin')
 @ApiTags('Admin / Publications')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PublicationController {
   constructor(private readonly publicationService: PublicationService) {}
 
-  @Post('admin/contents/:contentId/publication')
+  @Post('contents/:contentId/publication')
   @ApiOperation({ summary: 'Crear publicación desde un Content elegible' })
   async create(
     @Param('contentId') contentId: string,
@@ -23,19 +24,19 @@ export class PublicationController {
     return this.publicationService.create(contentId, dto, userId);
   }
 
-  @Get('admin/publications')
+  @Get('publications')
   @ApiOperation({ summary: 'Listar publicaciones administrativas' })
   async findAll(@Query() query: PublicationListQueryDto) {
     return this.publicationService.findAll(query);
   }
 
-  @Get('admin/publications/:id')
+  @Get('publications/:id')
   @ApiOperation({ summary: 'Consultar publicación por ID' })
   async findById(@Param('id') id: string): Promise<PublicationResponseDto> {
     return this.publicationService.findById(id);
   }
 
-  @Post('admin/publications/:id/withdrawal')
+  @Post('publications/:id/withdrawal')
   @ApiOperation({ summary: 'Retirar publicación activa' })
   async withdraw(
     @Param('id') id: string,
@@ -45,7 +46,7 @@ export class PublicationController {
     return this.publicationService.withdraw(id, userId);
   }
 
-  @Post('admin/publications/:id/archive')
+  @Post('publications/:id/archive')
   @ApiOperation({ summary: 'Archivar publicación' })
   async archive(
     @Param('id') id: string,

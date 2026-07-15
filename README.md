@@ -19,12 +19,12 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Domain | Baseline | Lenguaje ubicuo, dominio, reglas y casos de uso definidos. |
 | Architecture | Baseline | Clean Architecture, Modular Monolith y DDD Lite. |
 | Database | Migrada | PostgreSQL conectado vía Prisma 7 con adapter-pg. Migración inicial aplicada. |
-| API | Implementada | Endpoints auth, health y admin/content operativos. Swagger en `/api/docs`. |
-| Frontend | Administrativo operativo | Login, layout protegido, CRUD de contenidos con Tiptap editor. |
-| Backend | Implementado | NestJS con auth JWT+Argon2, módulo Content y Prisma. |
+| API | Implementada | Endpoints auth, health, admin/content y public operativos. Swagger en `/api/docs`. |
+| Frontend | Administrativo + Portal público | Login, layout protegido, CRUD de contenidos, portal público con listado/detalle/búsqueda. |
+| Backend | Implementado | NestJS con auth JWT+Argon2, módulos Content, Publication y Public. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
-| Implementation | Activa | Slices 0, 1, 2, 3, 4 y 5 completados. |
+| Implementation | Activa | Slices 0–7 completados. |
 
 ---
 
@@ -83,6 +83,32 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Frontend: listado de publicaciones con acciones retirar/archivar
 - [x] Botón "Publicar" en formulario de edición de contenido
 
+### Slice 6 — Consulta Pública Mínima
+- [x] Módulo `Public` en NestJS con endpoints públicos
+- [x] `GET /api/v1/public/publications` — listado público paginado
+- [x] `GET /api/v1/public/publications/:slug` — detalle público por slug
+- [x] `GET /api/v1/public/featured-publications` — destacados
+- [x] `GET /api/v1/public/search?q=` — búsqueda pública básica
+- [x] Layout público con header, footer y navegación
+- [x] Homepage con hero y contenido destacado
+- [x] Listado público de publicaciones
+- [x] Detalle público de publicación
+- [x] Búsqueda pública básica
+- [x] SEO básico (meta tags, Open Graph)
+- [x] Diseño responsive
+
+### Slice 7 — Recursos Multimedia
+- [x] Abstracción `StorageProvider` + `LocalStorageProvider` (filesystem local)
+- [x] Módulo `Media` con CRUD completo de recursos multimedia
+- [x] Subida de archivos con validación de tipos MIME y tamaño (10MB máx)
+- [x] Asociación de recursos a contenidos
+- [x] Endpoint público de multimedia por contenido
+- [x] Archivos estáticos servidos bajo `/uploads`
+- [x] Frontend: gestor multimedia con subida, listado, paginación y filtro
+- [x] Selector multimedia integrado en formulario de edición de contenido
+- [x] Visualización de multimedia en portal público
+- [x] Enlace "Multimedia" en sidebar administrativo
+
 ---
 
 ## Estructura del Repositorio
@@ -96,7 +122,10 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 |   |   |   |-- content/        # Modulo Content (CRUD editorial)
 |   |   |   |-- common/         # Filtros globales
 |   |   |   |-- health/         # Health check
+|   |   |   |-- media/          # Modulo Media (StorageProvider + CRUD multimedia)
 |   |   |   |-- prisma/         # PrismaModule global
+|   |   |   |-- public/         # Modulo Public (endpoints públicos)
+|   |   |   |-- publication/    # Modulo Publication
 |   |   |   |-- users/          # User repository
 |   |   |   |-- app.module.ts
 |   |   |   `-- main.ts
@@ -224,6 +253,20 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/admin/publications/:id` | Consultar publicación | Bearer JWT |
 | POST | `/api/v1/admin/publications/:id/withdrawal` | Retirar publicación | Bearer JWT |
 | POST | `/api/v1/admin/publications/:id/archive` | Archivar publicación | Bearer JWT |
+| GET | `/api/v1/public/publications` | Listar publicaciones públicas | No |
+| GET | `/api/v1/public/publications/:slug` | Detalle público por slug | No |
+| GET | `/api/v1/public/featured-publications` | Publicaciones destacadas | No |
+| GET | `/api/v1/public/search` | Búsqueda pública básica | No |
+| GET | `/api/v1/public/media/by-content/:contentId` | Multimedia de un contenido | No |
+| POST | `/api/v1/admin/media-resources/upload` | Subir archivo multimedia | Bearer JWT |
+| POST | `/api/v1/admin/media-resources/external` | Crear recurso externo | Bearer JWT |
+| GET | `/api/v1/admin/media-resources` | Listar recursos multimedia | Bearer JWT |
+| GET | `/api/v1/admin/media-resources/:id` | Consultar recurso | Bearer JWT |
+| PATCH | `/api/v1/admin/media-resources/:id` | Actualizar metadatos | Bearer JWT |
+| DELETE | `/api/v1/admin/media-resources/:id` | Eliminar recurso | Bearer JWT |
+| GET | `/api/v1/admin/media-resources/by-content/:contentId` | Recursos de un contenido | Bearer JWT |
+| PUT | `/api/v1/admin/media-resources/associate/:contentId` | Asociar recursos a contenido | Bearer JWT |
+| DELETE | `/api/v1/admin/media-resources/associate/:contentId/:resourceId` | Desasociar recurso | Bearer JWT |
 
 ### Credencial de desarrollo
 ```
@@ -235,10 +278,9 @@ Password: admin123
 
 ## Proximos Pasos
 
-- **Slice 6** — Frontend publico (portal de consulta)
-- **Slice 7** — Multimedia resources (imagenes, PDF, videos)
-- **Slice 7** — Multimedia resources (imagenes, PDF, videos)
-- **Slice 8** — Basic classification (categorias, tags)
+- **Slice 6** — ✅ Completado (portal público funcional)
+- **Slice 7** — ✅ Completado (gestor multimedia)
+- **Slice 8** — Clasificación básica (categorías, etiquetas)
 - Slices restantes segun `docs/10-implementation/project-slices-checklist.md`
 
 ---
