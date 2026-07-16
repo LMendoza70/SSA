@@ -1,10 +1,14 @@
+// NOTA: Este archivo es la referencia documental historica.
+// El schema operativo se encuentra en prisma/schema.prisma
+// y usa Prisma 7 (generador "prisma-client", url en prisma.config.ts).
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../apps/api/src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // =========================
@@ -96,10 +100,11 @@ enum TraceabilityAction {
 // =========================
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  displayName String
-  isActive    Boolean  @default(true)
+  id            String   @id @default(uuid())
+  email         String   @unique
+  displayName   String
+  passwordHash  String   // Anadido en migracion real (faltaba en revision documental inicial)
+  isActive      Boolean  @default(true)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

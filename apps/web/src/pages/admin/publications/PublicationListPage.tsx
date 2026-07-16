@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import { usePublications, useWithdrawPublication, useArchivePublication } from '../../../hooks/usePublications';
 import { usePublicationChannels, useAssociatePublicationChannels, useChannels, usePublishToChannel } from '../../../hooks/useCommunicationChannels';
+import { usePublicationTraceability } from '../../../hooks/useTraceability';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
@@ -70,6 +71,8 @@ export function PublicationListPage() {
   const associateChannels = useAssociatePublicationChannels();
   const [selectedChIds, setSelectedChIds] = useState<string[]>([]);
   const publishToChannel = usePublishToChannel();
+  const [traceDialog, setTraceDialog] = useState<{ publicationId: string; open: boolean }>({ publicationId: '', open: false });
+  const { data: traceRecords } = usePublicationTraceability(traceDialog.publicationId);
 
   const handleOpenChannels = async (publicationId: string) => {
     setChannelDialog({ publicationId, open: true });
@@ -160,6 +163,7 @@ export function PublicationListPage() {
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Button size="small" onClick={() => handleOpenChannels(item.id)}>Canales</Button>
+                      <Button size="small" onClick={() => setTraceDialog({ publicationId: item.id, open: true })}>Trazabilidad</Button>
                       {item.status === 'PUBLISHED' && (
                         <Button
                           size="small"
@@ -256,6 +260,41 @@ export function PublicationListPage() {
         <DialogActions>
           <Button onClick={() => setChannelDialog({ publicationId: '', open: false })}>Cerrar</Button>
           <Button variant="contained" onClick={handleSaveChannels}>Guardar canales</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={traceDialog.open} onClose={() => setTraceDialog({ publicationId: '', open: false })} maxWidth="md" fullWidth>
+        <DialogTitle>Trazabilidad de publicación</DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Acción</TableCell>
+                  <TableCell>Usuario</TableCell>
+                  <TableCell>Detalle</TableCell>
+                  <TableCell>Fecha</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!traceRecords || traceRecords.length === 0 ? (
+                  <TableRow><TableCell colSpan={4}>Sin registros de trazabilidad</TableCell></TableRow>
+                ) : (
+                  traceRecords.map((r: any) => (
+                    <TableRow key={r.id}>
+                      <TableCell><Chip label={r.action} size="small" variant="outlined" /></TableCell>
+                      <TableCell>{r.user?.displayName || r.user?.email || r.userId}</TableCell>
+                      <TableCell>{r.summary || '—'}</TableCell>
+                      <TableCell>{new Date(r.occurredAt).toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTraceDialog({ publicationId: '', open: false })}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTimelineEventDto, UpdateTimelineEventDto } from './dto';
+import sanitizeHtml from 'sanitize-html';
 
 function slugify(text: string): string {
   return text
@@ -21,7 +22,7 @@ export class TimelineService {
       data: {
         title: dto.title,
         slug,
-        description: dto.description,
+        description: dto.description ? sanitizeHtml(dto.description) : undefined,
         occurredAt: dto.occurredAt ? new Date(dto.occurredAt) : undefined,
         periodLabel: dto.periodLabel,
         historicalRelevance: dto.historicalRelevance,
@@ -81,7 +82,7 @@ export class TimelineService {
       data.title = dto.title;
       data.slug = slugify(dto.title);
     }
-    if (dto.description !== undefined) data.description = dto.description;
+    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description);
     if (dto.occurredAt !== undefined) data.occurredAt = new Date(dto.occurredAt);
     if (dto.periodLabel !== undefined) data.periodLabel = dto.periodLabel;
     if (dto.historicalRelevance !== undefined) data.historicalRelevance = dto.historicalRelevance;

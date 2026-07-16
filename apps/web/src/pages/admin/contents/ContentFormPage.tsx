@@ -19,6 +19,7 @@ import {
   CardMedia,
   CardContent,
   Grid,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from '@mui/material';
 import { useContent, useCreateContent, useUpdateContent } from '../../../hooks/useContents';
 import { useContentTypes } from '../../../hooks/useContentTypes';
@@ -31,6 +32,7 @@ import { useCampaigns } from '../../../hooks/useCampaigns';
 import { useDiseases } from '../../../hooks/useDiseases';
 import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, useAssociateContentDiseases } from '../../../hooks/useContentCampaignDisease';
 import { useChannels, useAssociatePublicationChannels } from '../../../hooks/useCommunicationChannels';
+import { useContentTraceability } from '../../../hooks/useTraceability';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -448,6 +450,8 @@ export function ContentFormPage() {
         </Box>
       </Paper>
 
+      <ContentTraceabilityView contentId={id!} />
+
       <Dialog open={mediaSelectorOpen} onClose={() => setMediaSelectorOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Seleccionar recursos multimedia</DialogTitle>
         <DialogContent>
@@ -461,6 +465,61 @@ export function ContentFormPage() {
           <Button onClick={() => setMediaSelectorOpen(false)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
+    </Box>
+  );
+}
+
+function ContentTraceabilityView({ contentId }: { contentId: string }) {
+  const { data: records, isLoading } = useContentTraceability(contentId);
+
+  if (!records || records.length === 0) return null;
+
+  const ACTION_LABELS: Record<string, string> = {
+    CREATED: 'Creado',
+    UPDATED: 'Actualizado',
+    PREPARED: 'Preparado',
+    VALIDATED: 'Validado',
+    PUBLISHED: 'Publicado',
+    WITHDRAWN: 'Retirado',
+    ARCHIVED: 'Archivado',
+    DISTRIBUTED: 'Distribuido',
+    DISTRIBUTION_PREPARED: 'Preparado para distribución',
+    RESTORED: 'Restaurado',
+    CLASSIFIED: 'Clasificado',
+    RESOURCE_ATTACHED: 'Recurso adjunto',
+  };
+
+  return (
+    <Box sx={{ mt: 3 }}>
+      <Typography variant="subtitle1" fontWeight={600} mb={1}>Trazabilidad</Typography>
+      <TableContainer component={Paper} variant="outlined">
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Acción</TableCell>
+              <TableCell>Usuario</TableCell>
+              <TableCell>Detalle</TableCell>
+              <TableCell>Fecha</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isLoading ? (
+              <TableRow><TableCell colSpan={4}>Cargando...</TableCell></TableRow>
+            ) : (
+              records.map((r: any) => (
+                <TableRow key={r.id}>
+                  <TableCell>
+                    <Chip label={ACTION_LABELS[r.action] || r.action} size="small" color="default" variant="outlined" />
+                  </TableCell>
+                  <TableCell>{r.user?.displayName || r.user?.email || r.userId}</TableCell>
+                  <TableCell>{r.summary || '—'}</TableCell>
+                  <TableCell>{new Date(r.occurredAt).toLocaleString()}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

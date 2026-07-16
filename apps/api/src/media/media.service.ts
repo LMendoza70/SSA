@@ -7,7 +7,7 @@ import {
   MediaResourceListQueryDto,
   AssociateMediaDto,
 } from './dto';
-import { MediaResourceType } from '@prisma/client';
+import { MediaResourceType } from '../generated/prisma/client';
 
 const ALLOWED_MIME_TYPES: Record<string, MediaResourceType[]> = {
   'image/jpeg': [MediaResourceType.IMAGE, MediaResourceType.INFOGRAPHIC],

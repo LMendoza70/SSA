@@ -1,7 +1,7 @@
 import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PublicationStatus } from '@prisma/client';
+import { PublicationStatus } from '../../generated/prisma/client';
 
 export class PublicationListQueryDto {
   @ApiPropertyOptional({ enum: PublicationStatus })

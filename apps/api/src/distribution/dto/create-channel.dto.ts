@@ -1,6 +1,6 @@
 import { IsString, IsOptional, MinLength, MaxLength, IsEnum } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ChannelType } from '@prisma/client';
+import { ChannelType } from '../../generated/prisma/client';
 
 export class CreateChannelDto {
   @ApiProperty({ enum: ChannelType })

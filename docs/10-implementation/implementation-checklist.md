@@ -6,8 +6,10 @@
 | Cliente | Jurisdiccion Sanitaria de Huejutla de Reyes, Hidalgo |
 | Documento | Checklist del Proyecto |
 | Fase actual | Implementation / Phase 10 operativa |
-| Estado | Baseline operativa inicial |
-| Fecha | 2026-07-10 |
+| Estado | Actualizado por Bloque 0 de auditoria |
+| Fecha | 2026-07-16 |
+| Responsable | Pendiente de asignar |
+| Ultima revision | 2026-07-16 (Bloque 0 auditoria) |
 
 ---
 
@@ -34,16 +36,17 @@ Debe actualizarse cada vez que se complete un hito relevante, se autorice una ac
 | AI | Baseline futura | [x] |
 | DevOps | Baseline | [x] |
 | Implementation Start | Baseline de arranque | [x] |
-| Implementacion real | Pendiente | [ ] |
-| MVP funcional | Pendiente | [ ] |
+| Implementacion real | Parcial — Slices 0–13 con avance real | [~] |
+| MVP funcional | Parcial — ver project-slices-checklist.md | [~] |
 
 Lectura del estado actual:
 
 ```text
 El proyecto ya cerro la baseline documental principal.
 La etapa activa es Implementation.
-Solo esta autorizado Slice 0 - Preparacion controlada.
-No existe aun codigo de aplicacion.
+Slices 0 a 13 implementados con diverso grado de avance.
+Source, Validation, filtros publicos por categoria/etiqueta,
+responsabilidad institucional y configuracion basica siguen pendientes.
 ```
 
 ---
@@ -85,12 +88,13 @@ No existe aun codigo de aplicacion.
 - [x] Estrategia de base de datos documentada.
 - [x] ERD documentado.
 - [x] Prisma Schema documentado.
-- [x] Archivo `docs/04-database/schema.prisma` disponible como referencia.
-- [ ] Crear carpeta `prisma/` en la raiz cuando se autorice la preparacion tecnica.
-- [ ] Ubicar `schema.prisma` operativo en `prisma/schema.prisma`.
-- [ ] Revisar schema de forma estatica antes de cualquier comando Prisma.
-- [ ] Ejecutar `prisma validate` solo cuando se autorice.
-- [ ] Crear migraciones solo cuando se autorice.
+- [x] Archivo `docs/04-database/schema.prisma` disponible como referencia (actualizado en Bloque 0 auditoria).
+- [x] Carpeta `prisma/` creada en la raiz.
+- [x] `schema.prisma` operativo ubicado en `prisma/schema.prisma`.
+- [x] Schema revisado estaticamente (ver schema-review-findings.md).
+- [x] `prisma validate` ejecutado.
+- [x] Migracion inicial creada y aplicada.
+- [x] `docs/04-database/schema.prisma` alineado con operativo (passwordHash, Prisma 7).
 
 ### 3.6 API
 
@@ -98,26 +102,26 @@ No existe aun codigo de aplicacion.
 - [x] Autenticacion documentada.
 - [x] Separacion `/api/v1/public`, `/api/v1/admin` y `/api/v1/auth` definida.
 - [x] Endpoints de MVP definidos a nivel arquitectonico.
-- [ ] Generar OpenAPI/Swagger cuando exista backend real.
+- [x] Swagger/OpenAPI generado y operativo en `/api/docs`.
 
 ### 3.7 Frontend
 
 - [x] Arquitectura frontend documentada.
 - [x] Stack frontend definido.
 - [x] Portal publico y panel administrativo definidos conceptualmente.
-- [ ] Crear aplicacion React/Vite.
-- [ ] Implementar layout publico.
-- [ ] Implementar layout administrativo protegido.
+- [x] Aplicacion React/Vite creada en `apps/web/`.
+- [x] Layout publico implementado (header, footer, navegacion, responsive).
+- [x] Layout administrativo protegido implementado (sidebar, autenticacion JWT).
 
 ### 3.8 Backend
 
 - [x] Arquitectura backend documentada.
 - [x] Plan de implementacion backend documentado.
 - [x] Incrementos backend definidos.
-- [ ] Crear aplicacion NestJS.
-- [ ] Configurar TypeScript strict.
-- [ ] Implementar health check.
-- [ ] Implementar autenticacion administrativa inicial.
+- [x] Aplicacion NestJS creada en `apps/api/`.
+- [x] TypeScript strict configurado.
+- [x] Health check implementado (`GET /api/v1/health`).
+- [x] Autenticacion administrativa inicial implementada (JWT + Argon2 + HttpOnly cookies).
 
 ### 3.9 AI
 
@@ -133,9 +137,9 @@ No existe aun codigo de aplicacion.
 - [x] Estrategia de ambientes documentada.
 - [x] Kubernetes fuera del MVP.
 - [x] Docker recomendado, no obligatorio.
-- [ ] Crear `.env.example` sin secretos.
-- [ ] Definir estrategia local real de PostgreSQL.
-- [ ] Definir proveedor de despliegue cuando corresponda.
+- [x] `.env.example` creado sin secretos.
+- [x] Estrategia local PostgreSQL definida y operativa (via PrismaService + seed).
+- [ ] Definir proveedor de despliegue cuando corresponda (pendiente Bloque 7).
 
 ---
 
@@ -143,25 +147,25 @@ No existe aun codigo de aplicacion.
 
 ### Slice 0 - Preparacion Controlada
 
-Estado: **En espera de ejecucion tecnica**
+Estado: **Completado**
 
 - [x] Baseline documental revisada.
 - [x] Carpeta `docs/10-implementation/` creada.
 - [x] `implementation-start.md` creado.
 - [x] Autorizacion limitada a Slice 0 registrada.
 - [x] Checklist operativo creado.
-- [ ] Confirmar rama de trabajo.
-- [ ] Crear `package.json` raiz.
-- [ ] Configurar workspace `pnpm`.
-- [ ] Crear `apps/web/`.
-- [ ] Crear `apps/api/`.
-- [ ] Crear `packages/shared/`.
-- [ ] Crear `prisma/`.
-- [ ] Colocar `schema.prisma` operativo en `prisma/schema.prisma`.
-- [ ] Crear `.env.example` sin secretos.
-- [ ] Documentar scripts base.
-- [ ] Revisar `schema.prisma` de forma estatica.
-- [ ] Registrar cualquier contradiccion documental antes de implementar.
+- [x] Confirmar rama de trabajo (`main`).
+- [x] Crear `package.json` raiz.
+- [x] Configurar workspace `pnpm` (`pnpm-workspace.yaml`).
+- [x] Crear `apps/web/`.
+- [x] Crear `apps/api/`.
+- [x] Crear `packages/shared/`.
+- [x] Crear `prisma/`.
+- [x] Colocar `schema.prisma` operativo en `prisma/schema.prisma`.
+- [x] Crear `.env.example` sin secretos.
+- [x] Documentar scripts base.
+- [x] Revisar `schema.prisma` de forma estatica.
+- [x] Registrar contradiccion documental (`passwordHash` faltante en `docs/04-database/schema.prisma`).
 
 Criterio de salida:
 
@@ -169,17 +173,19 @@ Criterio de salida:
 Repositorio preparado y documentado, sin migraciones ejecutadas.
 ```
 
+> Verificado: `project-slices-checklist.md` confirma todas las tareas completadas.
+
 ### Slice 1 - Backend Base y Health Check
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Crear proyecto NestJS base.
-- [ ] Configurar TypeScript strict.
-- [ ] Configurar variables de entorno.
-- [ ] Configurar validacion global.
-- [ ] Configurar manejo basico de errores.
-- [ ] Implementar health check sin datos sensibles.
-- [ ] Verificar arranque local del backend.
+- [x] Crear proyecto NestJS base.
+- [x] Configurar TypeScript strict.
+- [x] Configurar variables de entorno.
+- [x] Configurar validacion global.
+- [x] Configurar manejo basico de errores.
+- [x] Implementar health check sin datos sensibles.
+- [x] Verificar arranque local del backend.
 
 Criterio de salida:
 
@@ -189,15 +195,16 @@ Backend arranca localmente y expone health check tecnico basico.
 
 ### Slice 2 - Prisma Local Controlado
 
-Estado: **Pendiente y requiere autorizacion**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Autorizar comandos Prisma.
-- [ ] Ejecutar `prisma validate`.
-- [ ] Ejecutar `prisma format` si se autoriza.
-- [ ] Ejecutar `prisma generate` si se autoriza.
-- [ ] Crear migracion local si se autoriza.
-- [ ] Conectar backend a PostgreSQL local.
-- [ ] Probar conectividad minima.
+- [x] Autorizar comandos Prisma.
+- [x] Validar schema con `prisma validate`.
+- [x] Actualizar a Prisma 7 (generador `prisma-client`, `url` fuera del datasource).
+- [x] Ejecutar `prisma generate`.
+- [x] Crear migracion local inicial.
+- [x] Conectar backend a PostgreSQL local via PrismaService.
+- [x] Seed de usuario admin.
+- [x] Probar conectividad minima.
 
 Criterio de salida:
 
@@ -207,176 +214,171 @@ Prisma validado y backend conectado localmente sin afectar produccion.
 
 ### Slice 3 - Autenticacion Administrativa Inicial
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Implementar login administrativo.
-- [ ] Implementar refresh token en cookie HttpOnly.
-- [ ] Implementar logout.
-- [ ] Implementar `/auth/me`.
-- [ ] Proteger rutas administrativas.
-- [ ] Usar Argon2 para hash de contrasena.
-- [ ] Definir mecanismo controlado para primer usuario admin.
-- [ ] Confirmar que no existe registro publico.
+- [x] Implementar login administrativo.
+- [x] Implementar refresh token en cookie HttpOnly.
+- [x] Implementar logout.
+- [x] Implementar `/auth/me`.
+- [x] Proteger rutas administrativas con JwtAuthGuard.
+- [x] Usar Argon2 para hash de contrasena.
+- [x] Seed de primer usuario admin controlado.
+- [x] Confirmar que no existe registro publico.
 
 ### Slice 4 - Content Base
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Crear Content.
-- [ ] Editar Content.
-- [ ] Listar Content administrativo.
-- [ ] Consultar Content administrativo.
-- [ ] Manejar estados editoriales minimos.
-- [ ] Clasificar por `ContentType`.
-- [ ] Confirmar que crear Content no publica automaticamente.
+- [x] Crear Content (POST /api/v1/admin/contents).
+- [x] Editar Content (PATCH /api/v1/admin/contents/:id).
+- [x] Listar Content administrativo con paginacion.
+- [x] Consultar Content administrativo por ID.
+- [x] Manejar estados editoriales minimos.
+- [x] Clasificar por `ContentType`.
+- [x] Confirmar que crear Content no publica automaticamente.
 
 ### Slice 5 - Publication Base
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Crear Publication desde Content elegible.
-- [ ] Separar Publication de Content.
-- [ ] Manejar estado de Publication.
-- [ ] Manejar `publicSlug`.
-- [ ] Manejar fechas de publicacion, retiro y archivo.
-- [ ] Confirmar que Publication no es booleano.
+- [x] Crear Publication desde Content elegible.
+- [x] Separar Publication de Content (entidad independiente).
+- [x] Manejar estado de Publication (PUBLISHED, WITHDRAWN, ARCHIVED).
+- [x] Manejar `publicSlug` unico.
+- [x] Manejar fechas de publicacion, retiro y archivo.
+- [x] Confirmar que Publication no es booleano.
 
 ### Slice 6 - Consulta Publica Minima
 
-Estado: **Pendiente**
+Estado: **Parcial** — ver auditoria
 
-- [ ] Listar publicaciones publicas.
-- [ ] Consultar detalle publico por slug.
-- [ ] Implementar busqueda basica.
-- [ ] Evitar exposicion de borradores o datos administrativos.
-- [ ] Preparar SEO basico.
+- [x] Listar publicaciones publicas.
+- [x] Consultar detalle publico por slug.
+- [x] Implementar busqueda basica.
+- [x] Evitar exposicion de borradores o datos administrativos.
+- [x] Preparar SEO basico.
+- [ ] **Filtros publicos por categoria y etiqueta: PENDIENTE.**
+- [ ] **Responsabilidad institucional en respuesta publica: PENDIENTE.**
 
 ### Slice 7 - Recursos Multimedia
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Crear MediaResource.
-- [ ] Asociar MediaResource a Content.
-- [ ] Asociar MediaResource a TimelineEvent cuando aplique.
-- [ ] Implementar `StorageProvider`.
-- [ ] Evitar acceso directo al filesystem desde modulos de negocio.
+- [x] Crear MediaResource (subida y externo).
+- [x] Asociar MediaResource a Content mediante ContentMediaResource.
+- [x] Asociar MediaResource a TimelineEvent.
+- [x] Implementar `StorageProvider` con `LocalStorageProvider`.
+- [x] Acceso a archivos solo mediante StorageProvider, no directo.
 
 ### Slice 8 - Clasificacion Basica
 
-Estado: **Pendiente**
+Estado: **Parcial** — ver auditoria
 
-- [ ] Administrar ContentType.
-- [ ] Administrar Category.
-- [ ] Administrar Tag.
-- [ ] Relacionar Content con categorias y etiquetas.
-- [ ] Exponer clasificacion publica.
+- [x] Administrar ContentType (CRUD admin).
+- [x] Administrar Category (CRUD admin).
+- [x] Administrar Tag (CRUD admin).
+- [x] Relacionar Content con categorias y etiquetas.
+- [x] Endpoints publicos de listado: /categories, /tags, /content-types.
+- [~] **Filtros en listado publico: solo contentTypeCode; categoria/etiqueta PENDIENTE.**
 
 ### Slice 9 - Campaign / Disease
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Administrar Campaign como entidad organizadora.
-- [ ] Administrar Disease como entidad tematica.
-- [ ] Relacionar Content con Campaign.
-- [ ] Relacionar Content con Disease.
-- [ ] Confirmar que Campaign y Disease no son Content ni categorias.
+- [x] Administrar Campaign como entidad organizadora.
+- [x] Administrar Disease como entidad tematica.
+- [x] Relacionar Content con Campaign.
+- [x] Relacionar Content con Disease.
+- [x] Confirmar que Campaign y Disease no son Content ni categorias.
 
 ### Slice 10 - Timeline
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Administrar TimelineEvent.
-- [ ] Asociar multimedia propia a TimelineEvent.
-- [ ] Relacionar TimelineEvent con Content de forma opcional.
-- [ ] Exponer linea del tiempo publica.
-- [ ] Confirmar que Timeline no es agenda general.
+- [x] Administrar TimelineEvent (CRUD admin).
+- [x] Asociar multimedia propia a TimelineEvent.
+- [x] Relacionar TimelineEvent con Content de forma opcional.
+- [x] Exponer linea del tiempo publica con detalle por slug.
+- [x] Confirmar que Timeline no es agenda general.
 
 ### Slice 11 - Canales Asistidos
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Administrar CommunicationChannel.
-- [ ] Asociar Publication con canales.
-- [ ] Preparar texto o estado de distribucion.
-- [ ] Registrar distribucion manual/asistida.
-- [ ] Confirmar que los canales no son Source.
+- [x] Administrar CommunicationChannel (CRUD admin).
+- [x] Asociar Publication con canales (PublicationChannel).
+- [x] Preparar texto o estado de distribucion.
+- [x] Registrar distribucion manual/asistida.
+- [x] Confirmar que los canales no son Source.
 
 ### Slice 12 - Trazabilidad Minima
 
-Estado: **Pendiente**
+Estado: **Completado** (verificado en project-slices-checklist.md)
 
-- [ ] Registrar eventos relevantes de creacion.
-- [ ] Registrar validacion.
-- [ ] Registrar preparacion.
-- [ ] Registrar publicacion.
-- [ ] Registrar retiro y archivo.
-- [ ] Permitir consulta administrativa.
-- [ ] Evitar CRUD libre de trazabilidad.
+- [x] Registrar eventos relevantes de creacion (CREATED, UPDATED).
+- [x] Registrar preparacion (PREPARED).
+- [x] Registrar publicacion (PUBLISHED).
+- [x] Registrar retiro y archivo (WITHDRAWN, ARCHIVED).
+- [x] Permitir consulta administrativa filtrada (GET /admin/traceability-records).
+- [x] Evitar CRUD libre de trazabilidad (solo consulta filtrada).
 
 ### Slice 13 - End-to-End MVP
 
-Estado: **Pendiente**
+Estado: **Parcial** — ver auditoria
 
-- [ ] Login administrativo.
-- [ ] Crear Content.
-- [ ] Asociar fuente, validacion y clasificacion minima.
-- [ ] Publicar como Publication.
-- [ ] Consultar desde portal publico.
-- [ ] Asociar multimedia.
-- [ ] Consultar trazabilidad minima.
-- [ ] Validar seguridad basica.
-- [ ] Sin IA funcional.
-- [ ] Sin roles avanzados.
-- [ ] Sin workflow multinivel.
+- [x] Login administrativo.
+- [x] Crear Content.
+- [~] Asociar clasificacion minima (categorias y etiquetas funcionales en admin; filtros publicos pendientes).
+- [x] Publicar como Publication.
+- [x] Consultar desde portal publico.
+- [x] Asociar multimedia.
+- [x] Consultar trazabilidad minima.
+- [x] Validar seguridad basica.
+- [x] Sin IA funcional.
+- [x] Sin roles avanzados.
+- [x] Sin workflow multinivel.
+- [ ] **Asociar fuente y validacion a Content: PENDIENTE (no existe modulo Source ni Validation).**
+- [ ] **Responsabilidad institucional en publicacion: PENDIENTE (campo en schema pero nunca poblado).**
+- [ ] **Configuracion basica del sitio: PENDIENTE (sin endpoint ni entidad).**
 
 ---
 
 ## 5. Checklist de Seguridad
 
-- [ ] TypeScript strict configurado.
-- [ ] DTOs validados desde el inicio.
-- [ ] Sanitizacion considerada para contenido enriquecido.
-- [ ] Refresh token en cookie HttpOnly.
-- [ ] Cookies `Secure` en produccion.
-- [ ] Argon2 para contrasenas.
-- [ ] Sin registro publico.
-- [ ] Sin credenciales por defecto.
-- [ ] CORS restringido por ambiente.
-- [ ] Secretos fuera de Git.
-- [ ] `.env.example` sin valores sensibles.
-- [ ] Logs sin tokens, cookies ni contrasenas.
+- [x] TypeScript strict configurado.
+- [x] DTOs validados desde el inicio (ValidationPipe global con whitelist + transform).
+- [x] Sanitizacion considerada para contenido enriquecido (sanitize-html en body/summary).
+- [x] Refresh token en cookie HttpOnly.
+- [x] Cookies `Secure` en produccion (condicional por NODE_ENV).
+- [x] Argon2 para contrasenas.
+- [x] Sin registro publico.
+- [x] Sin credenciales por defecto (solo seed dev).
+- [x] CORS restringido por ambiente.
+- [x] Secretos fuera de Git.
+- [x] `.env.example` sin valores sensibles.
+- [x] Logs sin tokens, cookies ni contrasenas.
 
 ---
 
-## 6. Checklist de Decisiones Pendientes
+## 6. Decisiones Pendientes (actualizadas)
 
-- [ ] Confirmar si se creara rama especifica para Implementation.
-- [ ] Confirmar cuando se autoriza crear estructura tecnica real.
-- [ ] Confirmar cuando se autoriza ejecutar Prisma.
-- [ ] Confirmar estrategia local de PostgreSQL.
-- [ ] Confirmar mecanismo de primer usuario administrador.
-- [ ] Confirmar proveedor o estrategia inicial de despliegue.
-- [ ] Confirmar almacenamiento multimedia inicial.
-- [ ] Confirmar si `START_HERE.md` debe actualizarse o conservarse como historico.
-- [ ] Confirmar si documentos con estado `Draft` deben cambiar a `Baseline`.
+- [x] Rama de trabajo: `main` (confirmada).
+- [x] Estructura tecnica real: creada (monorepo pnpm, apps/web, apps/api, packages/shared).
+- [x] Prisma: ejecutado (validate, generate, migrate dev, seed).
+- [x] Estrategia local PostgreSQL: operativa via PrismaService.
+- [x] Mecanismo de primer usuario admin: seed controlado.
+- [ ] Proveedor o estrategia inicial de despliegue: pendiente (Bloque 7).
+- [ ] Almacenamiento multimedia: LocalStorageProvider operativo; remoto pendiente.
+- [ ] Revisar documentos con estado `Draft`.
 
 ---
 
-## 7. Acciones Bloqueadas Hasta Autorizacion
+## 7. Acciones Bloqueadas
 
-- [ ] Ejecutar `prisma validate`.
-- [ ] Ejecutar `prisma format`.
-- [ ] Ejecutar `prisma generate`.
-- [ ] Ejecutar `prisma migrate dev`.
-- [ ] Ejecutar `prisma db push`.
-- [ ] Crear migraciones.
-- [ ] Crear seeds.
-- [ ] Crear usuario administrador inicial.
-- [ ] Conectar backend a base de datos real.
 - [ ] Desplegar staging.
 - [ ] Desplegar produccion.
 - [ ] Configurar proveedor remoto definitivo.
-- [ ] Introducir IA, chatbot, embeddings o pgvector en el MVP funcional.
+- [ ] Introducir IA, chatbot, embeddings o pgvector en el MVP funcional (diferido).
 
 ---
 
@@ -386,20 +388,16 @@ Estado: **Pendiente**
 Estas aqui:
 
 Baseline documental completa
--> Implementation Start aprobado
--> Slice 0 autorizado
--> Preparacion tecnica del repositorio pendiente
--> Codigo de aplicacion pendiente
+-> Implementation ejecutada (Slices 0-13)
+-> Backend operativo con NestJS + Prisma + PostgreSQL
+-> Frontend operativo con React + Vite + MUI
+-> Source, Validation, filtros publicos categoria/etiqueta,
+   responsabilidad institucional y configuracion basica pendientes
+-> Auditoria en curso (Bloque 0 - Normalizacion documental)
 ```
 
 Siguiente movimiento recomendado:
 
 ```text
-Ejecutar Slice 0 - Preparacion controlada.
-```
-
-Resultado esperado del siguiente movimiento:
-
-```text
-Repositorio monorepo preparado con estructura base, .env.example, workspace pnpm y schema Prisma ubicado para revision tecnica, sin migraciones ni conexion real.
+Completar Bloque 0 de auditoria, luego avanzar a Bloque 1 (Source/Validation).
 ```

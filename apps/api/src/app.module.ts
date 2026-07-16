@@ -13,6 +13,7 @@ import { ClassificationModule } from './classification/classification.module';
 import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.module';
 import { TimelineModule } from './timeline/timeline.module';
 import { DistributionModule } from './distribution/distribution.module';
+import { TraceabilityModule } from './traceability/traceability.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DistributionModule } from './distribution/distribution.module';
     CampaignDiseaseModule,
     TimelineModule,
     DistributionModule,
+    TraceabilityModule,
   ],
 })
 export class AppModule {}

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PublicPublicationListQueryDto, PublicSearchQueryDto } from './dto';
-import { PublicationStatus } from '@prisma/client';
+import { PublicationStatus } from '../generated/prisma/client';
 
 @Injectable()
 export class PublicService {

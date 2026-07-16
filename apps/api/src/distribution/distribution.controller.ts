@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DistributionService } from './distribution.service';
 import { CreateChannelDto, UpdateChannelDto, AssociateChannelsDto, UpdateDistributionDto } from './dto';
@@ -68,7 +68,8 @@ export class DistributionController {
 
   @Post('publication-channels/:id/publish')
   @ApiOperation({ summary: 'Publicar contenido en un canal mediante su adaptador' })
-  async publishToChannel(@Param('id') id: string) {
-    return this.service.publishToChannel(id);
+  async publishToChannel(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.id;
+    return this.service.publishToChannel(id, userId);
   }
 }

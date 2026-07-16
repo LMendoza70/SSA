@@ -24,7 +24,7 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 | Backend | Implementado | NestJS con auth JWT+Argon2, rate limiting en login, módulos Content, Publication, Public, Classification, CampaignDisease, Media. |
 | AI | Baseline futura | RAG y chatbot fuera del MVP. |
 | DevOps | Baseline | Sin infraestructura real creada. |
-| Implementation | Activa | Slices 0–9 completados. |
+| Implementation | Activa | Slices 0–12 completados. Slice 13 (MVP End-to-End) en progreso. |
 
 ---
 
@@ -131,6 +131,32 @@ El proyecto completo la baseline documental y se encuentra en **Implementation /
 - [x] Vistas públicas de campañas y enfermedades
 - [x] Vistas públicas de campañas y enfermedades con listado y detalle
 - [x] Navegación pública en header y footer hacia Campañas y Enfermedades
+
+### Slice 10 — Timeline (Línea del Tiempo)
+- [x] Módulo `Timeline` con CRUD de eventos históricos
+- [x] Asociación de multimedia propia a eventos (`TimelineEventMediaResource`)
+- [x] Relación opcional con Content (`TimelineEventContent`)
+- [x] Endpoints públicos de línea del tiempo (`GET /api/v1/public/timeline-events`)
+- [x] Detalle público de evento por slug
+- [x] Frontend: administración de eventos (listado + formulario)
+- [x] Vista pública de línea del tiempo interactiva
+- [x] Detalle público de evento histórico
+
+### Slice 11 — Canales Asistidos (Distribución)
+- [x] Módulo `Distribution` con CRUD de canales de comunicación
+- [x] Asociación de canales a Publication (`PublicationChannel`)
+- [x] Actualización de estado de distribución (PREPARED, SHARED, FAILED)
+- [x] Registro de distribución manual/asistida
+- [x] Trazabilidad de distribución (`DISTRIBUTED`)
+- [x] Frontend: administración de canales y selector al publicar
+
+### Slice 12 — Trazabilidad Mínima
+- [x] Módulo `Traceability` (TraceabilityModule + TraceabilityService)
+- [x] Registro de eventos: CREATED, UPDATED, PREPARED, PUBLISHED, WITHDRAWN, ARCHIVED, DISTRIBUTED
+- [x] Consulta administrativa de trazabilidad por contentId o publicationId
+- [x] Relación de cada registro con el operador autenticado (JWT)
+- [x] Sin CRUD libre de trazabilidad (solo consulta filtrada)
+- [x] Frontend: vista de historial/trazabilidad en detalle de Content y Publication
 
 ---
 
@@ -338,6 +364,26 @@ http://localhost:3001/api/docs
 | GET | `/api/v1/admin/contents/:contentId/diseases` | Enfermedades de un contenido | Bearer JWT |
 | POST | `/api/v1/admin/campaigns/:campaignId/diseases` | Asociar enfermedades a campaña | Bearer JWT |
 | GET | `/api/v1/admin/campaigns/:campaignId/diseases` | Enfermedades de una campaña | Bearer JWT |
+| POST | `/api/v1/admin/timeline-events` | Crear evento de línea del tiempo | Bearer JWT |
+| GET | `/api/v1/admin/timeline-events` | Listar eventos | Bearer JWT |
+| GET | `/api/v1/admin/timeline-events/:id` | Obtener evento | Bearer JWT |
+| PATCH | `/api/v1/admin/timeline-events/:id` | Actualizar evento | Bearer JWT |
+| DELETE | `/api/v1/admin/timeline-events/:id` | Eliminar evento | Bearer JWT |
+| PUT | `/api/v1/admin/timeline-events/:id/media-resources` | Reemplazar multimedia de evento | Bearer JWT |
+| PUT | `/api/v1/admin/timeline-events/:id/contents` | Relacionar contenidos contextuales | Bearer JWT |
+| GET | `/api/v1/public/timeline-events` | Listar línea del tiempo pública | No |
+| GET | `/api/v1/public/timeline-events/:slug` | Detalle de evento público | No |
+| POST | `/api/v1/admin/communication-channels` | Crear canal de comunicación | Bearer JWT |
+| GET | `/api/v1/admin/communication-channels` | Listar canales | Bearer JWT |
+| GET | `/api/v1/admin/communication-channels/:id` | Obtener canal | Bearer JWT |
+| PATCH | `/api/v1/admin/communication-channels/:id` | Actualizar canal | Bearer JWT |
+| DELETE | `/api/v1/admin/communication-channels/:id` | Eliminar canal | Bearer JWT |
+| GET | `/api/v1/admin/publications/:id/distribution-channels` | Canales de una publicación | Bearer JWT |
+| PUT | `/api/v1/admin/publications/:id/distribution-channels` | Asociar canales a publicación | Bearer JWT |
+| PATCH | `/api/v1/admin/publications/:id/distribution-channels/:channelId` | Actualizar estado de distribución | Bearer JWT |
+| POST | `/api/v1/admin/publications/:id/distribution-records` | Registrar distribución manual | Bearer JWT |
+| GET | `/api/v1/admin/traceability-records?contentId= :id` | Consultar trazabilidad por contenido | Bearer JWT |
+| GET | `/api/v1/admin/traceability-records?publicationId= :id` | Consultar trazabilidad por publicación | Bearer JWT |
 
 ### Credencial de desarrollo
 ```
@@ -347,14 +393,26 @@ Password: admin123
 
 ---
 
-## Proximos Pasos
+## Estado de Slices
 
-- **Slice 6** — ✅ Completado (portal público funcional)
-- **Slice 7** — ✅ Completado (gestor multimedia)
-- **Slice 8** — ✅ Completado (clasificación básica)
-- **Slice 9** — ✅ Completado (campañas y enfermedades)
-- **Slice 10** — Timeline (línea del tiempo)
-- Slices restantes segun `docs/10-implementation/project-slices-checklist.md`
+| Slice | Estado |
+|---|---|
+| 0 — Preparación controlada | ✅ Completado |
+| 1 — Backend base + health check | ✅ Completado |
+| 2 — Prisma local controlado | ✅ Completado |
+| 3 — Autenticación administrativa | ✅ Completado |
+| 4 — Content base | ✅ Completado |
+| 5 — Publication base | ✅ Completado |
+| 6 — Consulta pública mínima | ✅ Completado |
+| 7 — Recursos multimedia | ✅ Completado |
+| 8 — Clasificación básica | ✅ Completado |
+| 9 — Campaign / Disease | ✅ Completado |
+| 10 — Timeline | ✅ Completado |
+| 11 — Canales asistidos | ✅ Completado |
+| 12 — Trazabilidad mínima | ✅ Completado |
+| **13 — End-to-End MVP** | ⏳ En progreso (tests, seguridad, documentación) |
+
+Detalle completo en `docs/10-implementation/project-slices-checklist.md`
 
 ---
 

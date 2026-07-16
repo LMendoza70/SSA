@@ -1,6 +1,6 @@
 import { IsArray, IsOptional, IsString, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { DistributionStatus } from '@prisma/client';
+import { DistributionStatus } from '../../generated/prisma/client';
 
 export class AssociateChannelsDto {
   @ApiPropertyOptional({ type: [String] })

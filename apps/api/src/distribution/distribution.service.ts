@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, UpdateChannelDto, UpdateDistributionDto } from './dto';
+import { TraceabilityService } from '../traceability/traceability.service';
 import { SocialPublisherFactory } from './adapters/publisher-factory';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class DistributionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly publisherFactory: SocialPublisherFactory,
+    private readonly traceability: TraceabilityService,
   ) {}
 
   async createChannel(dto: CreateChannelDto) {
@@ -111,7 +113,7 @@ export class DistributionService {
     });
   }
 
-  async publishToChannel(publicationChannelId: string) {
+  async publishToChannel(publicationChannelId: string, userId?: string) {
     const record = await this.prisma.publicationChannel.findUnique({
       where: { id: publicationChannelId },
       include: {
@@ -160,6 +162,16 @@ export class DistributionService {
         sharedAt: new Date(),
       },
     });
+
+    if (userId) {
+      await this.traceability.record({
+        action: 'DISTRIBUTED',
+        userId,
+        contentId: record.publication.contentId,
+        publicationId: record.publicationId,
+        summary: `Contenido distribuido a canal ${record.communicationChannel.name} (${record.communicationChannel.type})`,
+      });
+    }
 
     return {
       channelType: record.communicationChannel.type,

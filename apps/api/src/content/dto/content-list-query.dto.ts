@@ -1,7 +1,7 @@
 import { IsOptional, IsString, IsInt, Min, IsEnum, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus } from '../../generated/prisma/client';
 
 export class ContentListQueryDto {
   @ApiPropertyOptional({ enum: ContentStatus })

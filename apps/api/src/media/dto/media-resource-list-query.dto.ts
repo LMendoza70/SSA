@@ -1,7 +1,7 @@
 import { IsOptional, IsInt, Min, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaResourceType } from '@prisma/client';
+import { MediaResourceType } from '../../generated/prisma/client';
 
 export class MediaResourceListQueryDto {
   @ApiPropertyOptional({ enum: MediaResourceType })

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePublicationDto, PublicationListQueryDto } from './dto';
-import { PublicationStatus } from '@prisma/client';
+import { TraceabilityService } from '../traceability/traceability.service';
+import { PublicationStatus } from '../generated/prisma/client';
 
 function slugify(text: string): string {
   return text
@@ -15,7 +16,10 @@ function slugify(text: string): string {
 
 @Injectable()
 export class PublicationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly traceability: TraceabilityService,
+  ) {}
 
   async create(contentId: string, dto: CreatePublicationDto, userId: string) {
     const content = await this.prisma.content.findUnique({
@@ -54,6 +58,14 @@ export class PublicationService {
           select: { id: true, title: true, slug: true, status: true },
         },
       },
+    });
+
+    await this.traceability.record({
+      action: 'PUBLISHED',
+      userId,
+      contentId: content.id,
+      publicationId: publication.id,
+      summary: `Publicación "${publication.publicTitle}" publicada`,
     });
 
     return this.toResponse(publication);
@@ -140,6 +152,14 @@ export class PublicationService {
       },
     });
 
+    await this.traceability.record({
+      action: 'WITHDRAWN',
+      userId,
+      contentId: updated.contentId,
+      publicationId: updated.id,
+      summary: `Publicación "${updated.publicTitle}" retirada`,
+    });
+
     return this.toResponse(updated);
   }
 
@@ -168,6 +188,14 @@ export class PublicationService {
           select: { id: true, title: true, slug: true, status: true },
         },
       },
+    });
+
+    await this.traceability.record({
+      action: 'ARCHIVED',
+      userId,
+      contentId: updated.contentId,
+      publicationId: updated.id,
+      summary: `Publicación "${updated.publicTitle}" archivada`,
     });
 
     return this.toResponse(updated);

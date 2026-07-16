@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContentDto, UpdateContentDto, ContentListQueryDto } from './dto';
+import { TraceabilityService } from '../traceability/traceability.service';
 import sanitizeHtml from 'sanitize-html';
 
 function slugify(text: string): string {
@@ -15,7 +16,10 @@ function slugify(text: string): string {
 
 @Injectable()
 export class ContentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly traceability: TraceabilityService,
+  ) {}
 
   async create(dto: CreateContentDto, userId: string) {
     const contentType = await this.prisma.contentType.findUnique({
@@ -45,6 +49,13 @@ export class ContentService {
         createdBy: { select: { id: true, displayName: true } },
         updatedBy: { select: { id: true, displayName: true } },
       },
+    });
+
+    await this.traceability.record({
+      action: 'CREATED',
+      userId,
+      contentId: content.id,
+      summary: `Contenido "${content.title}" creado`,
     });
 
     return this.toResponse(content);
@@ -152,6 +163,22 @@ export class ContentService {
         updatedBy: { select: { id: true, displayName: true } },
       },
     });
+
+    await this.traceability.record({
+      action: 'UPDATED',
+      userId,
+      contentId: id,
+      summary: `Contenido "${content.title}" actualizado`,
+    });
+
+    if (dto.status && dto.status !== existing.status) {
+      await this.traceability.record({
+        action: dto.status === 'PREPARED' ? 'PREPARED' : 'UPDATED',
+        userId,
+        contentId: id,
+        summary: `Estado cambiado de ${existing.status} a ${dto.status}`,
+      });
+    }
 
     return this.toResponse(content);
   }
