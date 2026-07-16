@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout, Source, FactCheck } from '@mui/icons-material';
+import { Dashboard, Person, Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout, Source, FactCheck } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -24,6 +24,11 @@ export function Sidebar() {
   const handleLogout = async () => {
     await logout();
     navigate('/admin/login');
+  };
+
+  const isActive = (path: string) => {
+    if (path === '/admin') return location.pathname === '/admin';
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -41,6 +46,18 @@ export function Sidebar() {
       </Toolbar>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />
       <List sx={{ flex: 1, px: 1 }}>
+        <ListItemButton
+          selected={isActive('/admin') && !isActive('/admin/perfil')}
+          onClick={() => navigate('/admin')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+          aria-label="Panel de administración"
+        >
+          <ListItemIcon><Dashboard /></ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItemButton>
+
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 0.5 }} />
+
         <ListItemButton
           selected={location.pathname.startsWith('/admin/contents')}
           onClick={() => navigate('/admin/contents')}
@@ -161,17 +178,27 @@ export function Sidebar() {
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)' }} />
       {user && (
         <Box sx={{ p: 2 }}>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }} noWrap>
-            {user.displayName}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }} noWrap>
-            {user.email}
-          </Typography>
+          <ListItemButton
+            selected={location.pathname === '/admin/perfil'}
+            onClick={() => navigate('/admin/perfil')}
+            sx={{ borderRadius: 1, mb: 1, px: 1 }}
+            aria-label="Perfil operativo"
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}><Person /></ListItemIcon>
+            <ListItemText
+              primary={user.displayName}
+              secondary={user.email}
+              primaryTypographyProps={{ variant: 'body2', noWrap: true, sx: { color: 'rgba(255,255,255,0.9)' } }}
+              secondaryTypographyProps={{ variant: 'caption', noWrap: true, sx: { color: 'rgba(255,255,255,0.5)' } }}
+            />
+          </ListItemButton>
           <Button
             startIcon={<Logout />}
             size="small"
             onClick={handleLogout}
-            sx={{ color: 'rgba(255,255,255,0.8)', mt: 1, '&:hover': { color: '#FFFFFF' } }}
+            fullWidth
+            sx={{ color: 'rgba(255,255,255,0.8)', '&:hover': { color: '#FFFFFF' } }}
+            aria-label="Cerrar sesión"
           >
             Cerrar sesión
           </Button>

@@ -5,6 +5,11 @@ import { SourceService } from './source.service';
 import { CreateSourceDto, UpdateSourceDto, SourceListQueryDto, SourceResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+interface PaginatedSourceResponse {
+  data: SourceResponseDto[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
 @ApiTags('Admin / Sources')
 @Controller('admin/sources')
 @UseGuards(JwtAuthGuard)
@@ -21,8 +26,8 @@ export class SourceController {
 
   @Get()
   @ApiOperation({ summary: 'Listar fuentes (paginado, filtrado por tipo o busqueda)' })
-  async findAll(@Query() query: SourceListQueryDto) {
-    return this.sourceService.findAll(query);
+  async findAll(@Query() query: SourceListQueryDto): Promise<PaginatedSourceResponse> {
+    return this.sourceService.findAll(query) as Promise<PaginatedSourceResponse>;
   }
 
   @Get(':id')

@@ -1,23 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SourceService } from './source.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { TraceabilityService } from '../traceability/traceability.service';
 import { NotFoundException } from '@nestjs/common';
 import { SourceType } from '../generated/prisma/client';
+import { ISourceRepository } from './source.repository.interface';
 
 describe('SourceService', () => {
   let service: SourceService;
-  let prisma: any;
+  let repository: ISourceRepository;
   let traceability: any;
 
-  const mockPrisma = {
-    source: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      count: vi.fn(),
-    },
+  const mockRepository = {
+    create: vi.fn(),
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
+    softDelete: vi.fn(),
   };
 
   const mockTraceability = {
@@ -28,13 +26,13 @@ describe('SourceService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SourceService,
-        { provide: PrismaService, useValue: mockPrisma },
+        { provide: 'ISourceRepository', useValue: mockRepository },
         { provide: TraceabilityService, useValue: mockTraceability },
       ],
     }).compile();
 
     service = module.get<SourceService>(SourceService);
-    prisma = module.get(PrismaService);
+    repository = module.get('ISourceRepository');
     traceability = module.get(TraceabilityService);
     vi.clearAllMocks();
   });
@@ -54,7 +52,7 @@ describe('SourceService', () => {
 
   describe('create', () => {
     it('should create a source and record traceability', async () => {
-      mockPrisma.source.create.mockResolvedValue(mockSource);
+      mockRepository.create.mockResolvedValue(mockSource);
       const dto = {
         type: SourceType.OFFICIAL_EXTERNAL,
         name: 'Organizacion Mundial de la Salud',
@@ -64,9 +62,9 @@ describe('SourceService', () => {
       };
       const result = await service.create(dto, 'user-1');
       expect(result.name).toBe('Organizacion Mundial de la Salud');
-      expect(prisma.source.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({ name: 'Organizacion Mundial de la Salud' }),
-      });
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Organizacion Mundial de la Salud' }),
+      );
       expect(traceability.record).toHaveBeenCalledWith({
         action: 'CREATED',
         userId: 'user-1',
@@ -78,18 +76,16 @@ describe('SourceService', () => {
 
   describe('findAll', () => {
     it('should return paginated sources', async () => {
-      mockPrisma.source.findMany.mockResolvedValue([mockSource]);
-      mockPrisma.source.count.mockResolvedValue(1);
+      mockRepository.findMany.mockResolvedValue({ items: [mockSource], total: 1 });
       const result = await service.findAll({ page: 1, limit: 20 });
       expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
     });
 
     it('should filter by type', async () => {
-      mockPrisma.source.findMany.mockResolvedValue([mockSource]);
-      mockPrisma.source.count.mockResolvedValue(1);
+      mockRepository.findMany.mockResolvedValue({ items: [mockSource], total: 1 });
       await service.findAll({ type: SourceType.OFFICIAL_EXTERNAL, page: 1, limit: 20 });
-      expect(prisma.source.findMany).toHaveBeenCalledWith(
+      expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ type: SourceType.OFFICIAL_EXTERNAL }),
         }),
@@ -99,21 +95,21 @@ describe('SourceService', () => {
 
   describe('findById', () => {
     it('should return a source by id', async () => {
-      mockPrisma.source.findUnique.mockResolvedValue(mockSource);
+      mockRepository.findUnique.mockResolvedValue(mockSource);
       const result = await service.findById('src-1');
       expect(result.id).toBe('src-1');
     });
 
     it('should throw NotFoundException when source not found', async () => {
-      mockPrisma.source.findUnique.mockResolvedValue(null);
+      mockRepository.findUnique.mockResolvedValue(null);
       await expect(service.findById('invalid')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
     it('should update and record traceability', async () => {
-      mockPrisma.source.findUnique.mockResolvedValue(mockSource);
-      mockPrisma.source.update.mockResolvedValue({ ...mockSource, name: 'Updated Name' });
+      mockRepository.findUnique.mockResolvedValue(mockSource);
+      mockRepository.update.mockResolvedValue({ ...mockSource, name: 'Updated Name' });
       const result = await service.update('src-1', { name: 'Updated Name' }, 'user-1');
       expect(result.name).toBe('Updated Name');
       expect(traceability.record).toHaveBeenCalledWith({
@@ -125,22 +121,16 @@ describe('SourceService', () => {
     });
 
     it('should throw on non-existent source', async () => {
-      mockPrisma.source.findUnique.mockResolvedValue(null);
+      mockRepository.findUnique.mockResolvedValue(null);
       await expect(service.update('invalid', {}, 'user-1')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should soft delete and record traceability', async () => {
-      mockPrisma.source.findUnique.mockResolvedValue(mockSource);
-      mockPrisma.source.update.mockResolvedValue({ ...mockSource, deletedAt: new Date() });
+      mockRepository.findUnique.mockResolvedValue(mockSource);
       await service.remove('src-1', 'user-1');
-      expect(prisma.source.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'src-1' },
-          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
-        }),
-      );
+      expect(repository.softDelete).toHaveBeenCalledWith('src-1');
       expect(traceability.record).toHaveBeenCalledWith({
         action: 'ARCHIVED',
         userId: 'user-1',

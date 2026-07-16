@@ -1,8 +1,6 @@
-import { Controller, Get, Param, Query, Inject, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Query, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { PublicService } from './public.service';
-import { StorageProvider } from '../media/storage-provider.interface';
-import { PrismaService } from '../prisma/prisma.service';
 import {
   PublicPublicationListQueryDto,
   PublicPublicationResponseDto,
@@ -14,8 +12,6 @@ import {
 export class PublicController {
   constructor(
     private readonly publicService: PublicService,
-    @Inject('STORAGE_PROVIDER') private readonly storage: StorageProvider,
-    private readonly prisma: PrismaService,
   ) {}
 
   @Get('publications')
@@ -45,10 +41,7 @@ export class PublicController {
   @Get('categories')
   @ApiOperation({ summary: 'Listar categorías públicas' })
   async publicCategories() {
-    return this.prisma.category.findMany({
-      where: { isActive: true, deletedAt: null },
-      orderBy: { name: 'asc' },
-    });
+    return this.publicService.findPublicCategories();
   }
 
   @Get('categories/:slug/publications')
@@ -71,10 +64,7 @@ export class PublicController {
   @Get('tags')
   @ApiOperation({ summary: 'Listar etiquetas públicas' })
   async publicTags() {
-    return this.prisma.tag.findMany({
-      where: { isActive: true, deletedAt: null },
-      orderBy: { name: 'asc' },
-    });
+    return this.publicService.findPublicTags();
   }
 
   @Get('tags/:slug/publications')
@@ -97,106 +87,43 @@ export class PublicController {
   @Get('content-types')
   @ApiOperation({ summary: 'Listar tipos de contenido públicos' })
   async publicContentTypes() {
-    return this.prisma.contentType.findMany({
-      where: { isActive: true, deletedAt: null },
-      orderBy: { name: 'asc' },
-    });
+    return this.publicService.findPublicContentTypes();
   }
 
   @Get('campaigns')
   @ApiOperation({ summary: 'Listar campañas públicas vigentes' })
   async publicCampaigns() {
-    const now = new Date();
-    return this.prisma.campaign.findMany({
-      where: {
-        isActive: true,
-        deletedAt: null,
-        OR: [
-          { startsAt: null },
-          { startsAt: { lte: now } },
-        ],
-        AND: [
-          { OR: [ { endsAt: null }, { endsAt: { gte: now } } ] },
-        ],
-      },
-      orderBy: { startsAt: { sort: 'desc', nulls: 'last' } },
-    });
+    return this.publicService.findPublicCampaigns();
   }
 
   @Get('campaigns/:slug')
   @ApiOperation({ summary: 'Ver detalle de campaña pública por slug' })
   async publicCampaignBySlug(@Param('slug') slug: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { slug },
-    });
-    if (!campaign || campaign.deletedAt) {
-      throw new NotFoundException('Campaña no encontrada');
-    }
-    return campaign;
+    return this.publicService.findPublicCampaignBySlug(slug);
   }
 
   @Get('diseases')
   @ApiOperation({ summary: 'Listar enfermedades públicas' })
   async publicDiseases() {
-    return this.prisma.disease.findMany({
-      where: { isActive: true, deletedAt: null },
-      orderBy: { name: 'asc' },
-    });
+    return this.publicService.findPublicDiseases();
   }
 
   @Get('diseases/:slug')
   @ApiOperation({ summary: 'Ver detalle de enfermedad pública por slug' })
   async publicDiseaseBySlug(@Param('slug') slug: string) {
-    const disease = await this.prisma.disease.findUnique({
-      where: { slug },
-    });
-    if (!disease || disease.deletedAt) {
-      throw new NotFoundException('Enfermedad no encontrada');
-    }
-    return disease;
+    return this.publicService.findPublicDiseaseBySlug(slug);
   }
 
   @Get('timeline-events')
   @ApiOperation({ summary: 'Listar eventos públicos de línea del tiempo' })
   async publicTimelineEvents() {
-    const events = await this.prisma.timelineEvent.findMany({
-      where: {
-        isVisible: true,
-        deletedAt: null,
-      },
-      orderBy: { occurredAt: 'desc' },
-      include: {
-        timelineEventMediaResources: {
-          include: { mediaResource: true },
-          orderBy: { sortOrder: 'asc' },
-        },
-        timelineEventContents: {
-          include: { content: { select: { id: true, title: true, slug: true } } },
-        },
-      },
-    });
+    return this.publicService.findPublicTimelineEvents();
+  }
 
-    return events.map((e) => ({
-      id: e.id,
-      title: e.title,
-      slug: e.slug,
-      description: e.description,
-      occurredAt: e.occurredAt?.toISOString(),
-      periodLabel: e.periodLabel,
-      historicalRelevance: e.historicalRelevance,
-      mediaResources: e.timelineEventMediaResources.map((em) => ({
-        id: em.mediaResource.id,
-        type: em.mediaResource.type,
-        title: em.mediaResource.title,
-        url: em.mediaResource.resourceUri
-          ? this.storage.getUrl(em.mediaResource.resourceUri)
-          : em.mediaResource.externalUrl,
-        altText: em.mediaResource.altText,
-        caption: em.caption,
-        sortOrder: em.sortOrder,
-      })),
-      relatedContents: e.timelineEventContents.map((ec) => ec.content),
-    }));
+  @Get('timeline-events/:slug')
+  @ApiOperation({ summary: 'Ver detalle de evento de línea del tiempo por slug' })
+  async publicTimelineEventBySlug(@Param('slug') slug: string) {
+    return this.publicService.findPublicTimelineEventBySlug(slug);
   }
 
   @Get('sources')
@@ -208,134 +135,24 @@ export class PublicController {
   @Get('media-resources/:id')
   @ApiOperation({ summary: 'Consultar metadatos públicos de un recurso multimedia' })
   async publicMediaResource(@Param('id') id: string) {
-    const resource = await this.publicService.findMediaResource(id);
-    return {
-      ...resource,
-      url: resource.resourceUri
-        ? this.storage.getUrl(resource.resourceUri)
-        : resource.externalUrl,
-    };
+    return this.publicService.findMediaResource(id);
   }
 
   @Get('timeline-events/:slug/media-resources')
   @ApiOperation({ summary: 'Recursos multimedia de un evento histórico' })
   async publicTimelineEventMediaResources(@Param('slug') slug: string) {
-    const event = await this.prisma.timelineEvent.findUnique({
-      where: { slug },
-      select: { id: true, deletedAt: true, isVisible: true },
-    });
-    if (!event || event.deletedAt || !event.isVisible) {
-      throw new NotFoundException('Evento no encontrado');
-    }
-    const associations = await this.prisma.timelineEventMediaResource.findMany({
-      where: { timelineEventId: event.id },
-      include: { mediaResource: true },
-      orderBy: { sortOrder: 'asc' },
-    });
-    return associations.map((em) => ({
-      id: em.mediaResource.id,
-      type: em.mediaResource.type,
-      title: em.mediaResource.title,
-      description: em.mediaResource.description,
-      url: em.mediaResource.resourceUri
-        ? this.storage.getUrl(em.mediaResource.resourceUri)
-        : em.mediaResource.externalUrl,
-      mimeType: em.mediaResource.mimeType,
-      altText: em.mediaResource.altText,
-      caption: em.caption,
-      sortOrder: em.sortOrder,
-    }));
+    return this.publicService.findTimelineEventMediaResources(slug);
   }
 
   @Get('timeline-events/:slug/related-publications')
   @ApiOperation({ summary: 'Publicaciones relacionadas a un evento histórico' })
   async publicTimelineEventRelatedPublications(@Param('slug') slug: string) {
-    const event = await this.prisma.timelineEvent.findUnique({
-      where: { slug },
-      select: { id: true, deletedAt: true, isVisible: true },
-    });
-    if (!event || event.deletedAt || !event.isVisible) {
-      throw new NotFoundException('Evento no encontrado');
-    }
-    const associations = await this.prisma.timelineEventContent.findMany({
-      where: { timelineEventId: event.id },
-      include: {
-        content: {
-          select: { id: true, title: true, slug: true, summary: true },
-        },
-      },
-    });
-    return associations.map((ec) => ec.content);
-  }
-
-  @Get('timeline-events/:slug')
-  @ApiOperation({ summary: 'Ver detalle de evento de línea del tiempo por slug' })
-  async publicTimelineEventBySlug(@Param('slug') slug: string) {
-    const event = await this.prisma.timelineEvent.findUnique({
-      where: { slug },
-      include: {
-        timelineEventMediaResources: {
-          include: { mediaResource: true },
-          orderBy: { sortOrder: 'asc' },
-        },
-        timelineEventContents: {
-          include: {
-            content: {
-              select: { id: true, title: true, slug: true, summary: true, contentType: { select: { id: true, code: true, name: true } } },
-            },
-          },
-        },
-      },
-    });
-
-    if (!event || event.deletedAt || !event.isVisible) {
-      throw new NotFoundException('Evento no encontrado');
-    }
-
-    return {
-      id: event.id,
-      title: event.title,
-      slug: event.slug,
-      description: event.description,
-      occurredAt: event.occurredAt?.toISOString(),
-      periodLabel: event.periodLabel,
-      historicalRelevance: event.historicalRelevance,
-      mediaResources: event.timelineEventMediaResources.map((em) => ({
-        id: em.mediaResource.id,
-        type: em.mediaResource.type,
-        title: em.mediaResource.title,
-        url: em.mediaResource.resourceUri
-          ? this.storage.getUrl(em.mediaResource.resourceUri)
-          : em.mediaResource.externalUrl,
-        altText: em.mediaResource.altText,
-        caption: em.caption,
-        sortOrder: em.sortOrder,
-      })),
-      relatedContents: event.timelineEventContents.map((ec) => ec.content),
-    };
+    return this.publicService.findTimelineEventRelatedPublications(slug);
   }
 
   @Get('media/by-content/:contentId')
   @ApiOperation({ summary: 'Obtener recursos multimedia de un contenido' })
   async getContentMedia(@Param('contentId') contentId: string) {
-    const associations = await this.prisma.contentMediaResource.findMany({
-      where: { contentId },
-      include: { mediaResource: true },
-      orderBy: { sortOrder: 'asc' },
-    });
-
-    return associations.map((a) => ({
-      id: a.mediaResource.id,
-      type: a.mediaResource.type,
-      title: a.mediaResource.title,
-      description: a.mediaResource.description,
-      url: a.mediaResource.resourceUri
-        ? this.storage.getUrl(a.mediaResource.resourceUri)
-        : a.mediaResource.externalUrl,
-      mimeType: a.mediaResource.mimeType,
-      altText: a.mediaResource.altText,
-      caption: a.caption,
-      sortOrder: a.sortOrder,
-    }));
+    return this.publicService.findContentMedia(contentId);
   }
 }

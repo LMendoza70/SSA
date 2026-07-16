@@ -5,6 +5,11 @@ import { ValidationService } from './validation.service';
 import { CreateValidationDto, UpdateValidationDto, ValidationListQueryDto, ValidationResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+interface PaginatedValidationResponse {
+  data: ValidationResponseDto[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
 @ApiTags('Admin / Validations')
 @Controller('admin/validations')
 @UseGuards(JwtAuthGuard)
@@ -21,8 +26,8 @@ export class ValidationController {
 
   @Get()
   @ApiOperation({ summary: 'Listar validaciones (paginado, filtrado por tipo/resultado)' })
-  async findAll(@Query() query: ValidationListQueryDto) {
-    return this.validationService.findAll(query);
+  async findAll(@Query() query: ValidationListQueryDto): Promise<PaginatedValidationResponse> {
+    return this.validationService.findAll(query) as Promise<PaginatedValidationResponse>;
   }
 
   @Get(':id')

@@ -1,0 +1,84 @@
+# CI básico — lint, typecheck, build, tests y validación Prisma
+# Se ejecuta en cada push y pull request sobre main/develop
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ssa_user
+          POSTGRES_PASSWORD: ssa_pass_2026
+          POSTGRES_DB: ssa_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready -U ssa_user -d ssa_db
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @ssa/api exec prisma generate
+        env:
+          DATABASE_URL: postgresql://ssa_user:ssa_pass_2026@localhost:5432/ssa_db?schema=public
+
+      - name: Prisma validate
+        run: pnpm exec prisma validate
+        env:
+          DATABASE_URL: postgresql://ssa_user:ssa_pass_2026@localhost:5432/ssa_db?schema=public
+
+      - name: TypeScript check (api)
+        run: pnpm --filter @ssa/api lint
+
+      - name: TypeScript check (web)
+        run: pnpm --filter @ssa/web lint
+
+      - name: Build (web)
+        run: pnpm --filter @ssa/web build
+
+      - name: Build (api)
+        run: pnpm --filter @ssa/api build
+
+      - name: Unit tests (api)
+        run: pnpm --filter @ssa/api test
+
+      - name: Unit tests (web)
+        run: pnpm --filter @ssa/web test
+
+      - name: Integration tests (api)
+        run: pnpm --filter @ssa/api test:integration
+        env:
+          DATABASE_URL: postgresql://ssa_user:ssa_pass_2026@localhost:5432/ssa_db?schema=public
+          JWT_SECRET: ci-test-jwt-secret
+          JWT_REFRESH_SECRET: ci-test-jwt-refresh-secret
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_EXPIRES_IN: 7d
+          STORAGE_PROVIDER: local
+          STORAGE_LOCAL_PATH: ./uploads
+          CORS_ORIGIN: http://localhost:5173
+          API_PORT: 3001

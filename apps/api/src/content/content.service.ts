@@ -196,6 +196,20 @@ export class ContentService {
     return this.toResponse(content);
   }
 
+  async findAllContentTypes(all?: string) {
+    const where: { deletedAt: null; isActive?: boolean } = { deletedAt: null };
+    if (all !== 'true') where.isActive = true;
+    return this.prisma.contentType.findMany({ where, orderBy: { name: 'asc' as const } });
+  }
+
+  async findContentTypeById(id: string) {
+    const ct = await this.prisma.contentType.findUnique({ where: { id } });
+    if (!ct || ct.deletedAt) {
+      throw new NotFoundException('Tipo de contenido no encontrado');
+    }
+    return ct;
+  }
+
   async remove(id: string) {
     const existing = await this.prisma.content.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {

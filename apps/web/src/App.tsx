@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { theme } from './theme';
 import { AuthProvider } from './lib/auth';
@@ -17,6 +17,8 @@ import CommunicationChannelListPage from './pages/admin/communication-channels/C
 import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
 import { SourceListPage } from './pages/admin/sources/SourceListPage';
 import { ValidationListPage } from './pages/admin/validations/ValidationListPage';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminProfilePage } from './pages/admin/AdminProfilePage';
 import PublicCampaignListPage from './pages/public/campaigns/PublicCampaignListPage';
 import PublicCampaignDetailPage from './pages/public/campaigns/PublicCampaignDetailPage';
 import PublicDiseaseListPage from './pages/public/diseases/PublicDiseaseListPage';
@@ -50,7 +52,8 @@ export function App() {
             </Route>
             <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="contents" replace />} />
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="perfil" element={<AdminProfilePage />} />
               <Route path="contents" element={<ContentListPage />} />
               <Route path="contents/new" element={<ContentFormPage />} />
               <Route path="contents/:id/edit" element={<ContentFormPage />} />

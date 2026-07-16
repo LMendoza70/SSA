@@ -1,36 +1,43 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { TraceabilityService } from '../traceability/traceability.service';
+import { Validation } from '../generated/prisma/client';
 import { CreateValidationDto, UpdateValidationDto, ValidationListQueryDto } from './dto';
+import { IValidationRepository, ValidationWithRelations } from './validation.repository.interface';
+
+interface ValidationResponse {
+  id: string;
+  type: string;
+  result: string;
+  summary?: string;
+  validatedAt?: string;
+  source?: { id: string; name: string; type: string };
+  validatedBy?: { id: string; displayName: string };
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Injectable()
 export class ValidationService {
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject('IValidationRepository') private readonly validationRepository: IValidationRepository,
     private readonly traceability: TraceabilityService,
   ) {}
 
-  async create(dto: CreateValidationDto, userId: string) {
+  async create(dto: CreateValidationDto, userId: string): Promise<ValidationResponse> {
     if (dto.sourceId) {
-      const source = await this.prisma.source.findUnique({ where: { id: dto.sourceId } });
-      if (!source || source.deletedAt) {
+      const sourceExists = await this.validationRepository.existsSource(dto.sourceId);
+      if (!sourceExists) {
         throw new NotFoundException('Fuente asociada no encontrada');
       }
     }
 
-    const validation = await this.prisma.validation.create({
-      data: {
-        type: dto.type,
-        result: dto.result,
-        sourceId: dto.sourceId,
-        summary: dto.summary,
-        validatedById: userId,
-        validatedAt: new Date(),
-      },
-      include: {
-        source: { select: { id: true, name: true, type: true } },
-        validatedBy: { select: { id: true, displayName: true } },
-      },
+    const validation = await this.validationRepository.create({
+      type: dto.type,
+      result: dto.result,
+      sourceId: dto.sourceId,
+      summary: dto.summary,
+      validatedById: userId,
+      validatedAt: new Date(),
     });
 
     await this.traceability.record({
@@ -49,7 +56,7 @@ export class ValidationService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Parameters<IValidationRepository['findMany']>[0]['where'] = {};
 
     if (query.type) where.type = query.type;
     if (query.result) where.result = query.result;
@@ -59,19 +66,7 @@ export class ValidationService {
       ];
     }
 
-    const [items, total] = await Promise.all([
-      this.prisma.validation.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          source: { select: { id: true, name: true, type: true } },
-          validatedBy: { select: { id: true, displayName: true } },
-        },
-      }),
-      this.prisma.validation.count({ where }),
-    ]);
+    const { items, total } = await this.validationRepository.findMany({ where: { ...where }, skip, take: limit, orderBy: { createdAt: 'desc' } });
 
     return {
       data: items.map((item) => this.toResponse(item)),
@@ -79,45 +74,32 @@ export class ValidationService {
     };
   }
 
-  async findById(id: string) {
-    const validation = await this.prisma.validation.findUnique({
-      where: { id },
-      include: {
-        source: { select: { id: true, name: true, type: true } },
-        validatedBy: { select: { id: true, displayName: true } },
-      },
-    });
+  async findById(id: string): Promise<ValidationResponse> {
+    const validation = await this.validationRepository.findUnique({ id });
     if (!validation || validation.deletedAt) {
       throw new NotFoundException('Validacion no encontrada');
     }
     return this.toResponse(validation);
   }
 
-  async update(id: string, dto: UpdateValidationDto, userId: string) {
-    const existing = await this.prisma.validation.findUnique({ where: { id } });
+  async update(id: string, dto: UpdateValidationDto, userId: string): Promise<ValidationResponse> {
+    const existing = await this.validationRepository.findUnique({ id });
     if (!existing || existing.deletedAt) {
       throw new NotFoundException('Validacion no encontrada');
     }
 
     if (dto.sourceId) {
-      const source = await this.prisma.source.findUnique({ where: { id: dto.sourceId } });
-      if (!source || source.deletedAt) {
+      const sourceExists = await this.validationRepository.existsSource(dto.sourceId);
+      if (!sourceExists) {
         throw new NotFoundException('Fuente asociada no encontrada');
       }
     }
 
-    const validation = await this.prisma.validation.update({
-      where: { id },
-      data: {
-        type: dto.type,
-        result: dto.result,
-        sourceId: dto.sourceId,
-        summary: dto.summary,
-      },
-      include: {
-        source: { select: { id: true, name: true, type: true } },
-        validatedBy: { select: { id: true, displayName: true } },
-      },
+    const validation = await this.validationRepository.update(id, {
+      type: dto.type,
+      result: dto.result,
+      sourceId: dto.sourceId,
+      summary: dto.summary,
     });
 
     await this.traceability.record({
@@ -130,15 +112,15 @@ export class ValidationService {
     return this.toResponse(validation);
   }
 
-  private toResponse(validation: any) {
+  private toResponse(validation: ValidationWithRelations): ValidationResponse {
     return {
       id: validation.id,
       type: validation.type,
       result: validation.result,
-      summary: validation.summary,
+      summary: validation.summary ?? undefined,
       validatedAt: validation.validatedAt?.toISOString(),
-      source: validation.source ?? undefined,
-      validatedBy: validation.validatedBy ?? undefined,
+      source: validation.source || undefined,
+      validatedBy: validation.validatedBy || undefined,
       createdAt: validation.createdAt.toISOString(),
       updatedAt: validation.updatedAt.toISOString(),
     };

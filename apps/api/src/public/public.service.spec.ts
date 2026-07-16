@@ -68,6 +68,12 @@ describe('PublicService - No exposición pública accidental', () => {
     updatedAtPublic: new Date('2026-04-01'),
   };
 
+  const mockStorage = {
+    save: vi.fn(),
+    delete: vi.fn(),
+    getUrl: vi.fn((uri: string) => `/uploads/${uri}`),
+  };
+
   beforeEach(() => {
     mockPrisma = {
       publication: {
@@ -79,7 +85,7 @@ describe('PublicService - No exposición pública accidental', () => {
       mediaResource: { findUnique: vi.fn() },
     };
 
-    service = new PublicService(mockPrisma as any);
+    service = new PublicService(mockPrisma as any, mockStorage);
   });
 
   describe('findAllPublications - filtra solo publicaciones visibles', () => {
@@ -278,6 +284,7 @@ describe('PublicService - No exposición pública accidental', () => {
 
       expect(result.id).toBe('m-1');
       expect(result.title).toBe('Infografía Dengue');
+      expect(result.url).toBe('/uploads/uploads/dengue.png');
       expect(result).not.toHaveProperty('isActive');
       expect(result).not.toHaveProperty('deletedAt');
     });

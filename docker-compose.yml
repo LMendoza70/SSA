@@ -1,0 +1,26 @@
+# Docker Compose para PostgreSQL local
+# Uso: docker compose up -d
+# Esto levanta PostgreSQL en puerto 5432 con las credenciales de .env.example
+# No Dockeriza la aplicación (API y web corren directamente con pnpm)
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ssa-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ssa_user
+      POSTGRES_PASSWORD: ssa_pass_2026
+      POSTGRES_DB: ssa_db
+    volumes:
+      - ssa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ssa_user -d ssa_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ssa_pgdata:

@@ -16,7 +16,7 @@ describe('AuthService', () => {
   const mockUser = {
     id: 'user-1',
     email: 'admin@jurisdiccion.gob.mx',
-    displayName: 'Admin',
+    displayName: 'Administrador',
     passwordHash: '',
     isActive: true,
     createdAt: new Date('2026-01-01'),

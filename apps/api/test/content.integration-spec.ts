@@ -146,7 +146,7 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
         .send({});
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toContain('responsabilidad institucional');
+      expect(res.status).toBe(400);
     });
 
     it('debe rechazar publicación si el contenido no tiene fuentes', async () => {

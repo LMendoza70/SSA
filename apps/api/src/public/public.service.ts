@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageProvider } from '../media/storage-provider.interface';
 import { PublicPublicationListQueryDto, PublicSearchQueryDto } from './dto';
 import { PublicationStatus } from '../generated/prisma/client';
 
@@ -11,7 +12,14 @@ const PUBLIC_STATUSES: PublicationStatus[] = [
 
 @Injectable()
 export class PublicService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('STORAGE_PROVIDER') private readonly storage: StorageProvider,
+  ) {}
+
+  private resolveMediaUrl(resource: { resourceUri: string | null; externalUrl: string | null }): string | null {
+    return resource.resourceUri ? this.storage.getUrl(resource.resourceUri) : resource.externalUrl;
+  }
 
   async findAllPublications(query: PublicPublicationListQueryDto) {
     const page = query.page ?? 1;
@@ -271,11 +279,216 @@ export class PublicService {
       type: resource.type,
       title: resource.title,
       description: resource.description,
-      resourceUri: resource.resourceUri,
-      externalUrl: resource.externalUrl,
       mimeType: resource.mimeType,
       altText: resource.altText,
+      url: this.resolveMediaUrl(resource),
     };
+  }
+
+  async findPublicCategories() {
+    return this.prisma.category.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findPublicTags() {
+    return this.prisma.tag.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findPublicContentTypes() {
+    return this.prisma.contentType.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findPublicCampaigns() {
+    const now = new Date();
+    return this.prisma.campaign.findMany({
+      where: {
+        isActive: true,
+        deletedAt: null,
+        OR: [
+          { startsAt: null },
+          { startsAt: { lte: now } },
+        ],
+        AND: [
+          { OR: [ { endsAt: null }, { endsAt: { gte: now } } ] },
+        ],
+      },
+      orderBy: { startsAt: { sort: 'desc', nulls: 'last' } },
+    });
+  }
+
+  async findPublicCampaignBySlug(slug: string) {
+    const campaign = await this.prisma.campaign.findUnique({ where: { slug } });
+    if (!campaign || campaign.deletedAt) {
+      throw new NotFoundException('Campaña no encontrada');
+    }
+    return campaign;
+  }
+
+  async findPublicDiseases() {
+    return this.prisma.disease.findMany({
+      where: { isActive: true, deletedAt: null },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findPublicDiseaseBySlug(slug: string) {
+    const disease = await this.prisma.disease.findUnique({ where: { slug } });
+    if (!disease || disease.deletedAt) {
+      throw new NotFoundException('Enfermedad no encontrada');
+    }
+    return disease;
+  }
+
+  async findPublicTimelineEvents() {
+    const events = await this.prisma.timelineEvent.findMany({
+      where: { isVisible: true, deletedAt: null },
+      orderBy: { occurredAt: 'desc' },
+      include: {
+        timelineEventMediaResources: {
+          include: { mediaResource: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        timelineEventContents: {
+          include: { content: { select: { id: true, title: true, slug: true } } },
+        },
+      },
+    });
+
+    return events.map((e) => ({
+      id: e.id,
+      title: e.title,
+      slug: e.slug,
+      description: e.description,
+      occurredAt: e.occurredAt?.toISOString(),
+      periodLabel: e.periodLabel,
+      historicalRelevance: e.historicalRelevance,
+      mediaResources: e.timelineEventMediaResources.map((em) => ({
+        id: em.mediaResource.id,
+        type: em.mediaResource.type,
+        title: em.mediaResource.title,
+        url: this.resolveMediaUrl(em.mediaResource),
+        altText: em.mediaResource.altText,
+        caption: em.caption,
+        sortOrder: em.sortOrder,
+      })),
+      relatedContents: e.timelineEventContents.map((ec) => ec.content),
+    }));
+  }
+
+  async findPublicTimelineEventBySlug(slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      include: {
+        timelineEventMediaResources: {
+          include: { mediaResource: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        timelineEventContents: {
+          include: {
+            content: {
+              select: { id: true, title: true, slug: true, summary: true, contentType: { select: { id: true, code: true, name: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+
+    return {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      description: event.description,
+      occurredAt: event.occurredAt?.toISOString(),
+      periodLabel: event.periodLabel,
+      historicalRelevance: event.historicalRelevance,
+      mediaResources: event.timelineEventMediaResources.map((em) => ({
+        id: em.mediaResource.id,
+        type: em.mediaResource.type,
+        title: em.mediaResource.title,
+        url: this.resolveMediaUrl(em.mediaResource),
+        altText: em.mediaResource.altText,
+        caption: em.caption,
+        sortOrder: em.sortOrder,
+      })),
+      relatedContents: event.timelineEventContents.map((ec) => ec.content),
+    };
+  }
+
+  async findTimelineEventMediaResources(slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      select: { id: true, deletedAt: true, isVisible: true },
+    });
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    const associations = await this.prisma.timelineEventMediaResource.findMany({
+      where: { timelineEventId: event.id },
+      include: { mediaResource: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+    return associations.map((em) => ({
+      id: em.mediaResource.id,
+      type: em.mediaResource.type,
+      title: em.mediaResource.title,
+      description: em.mediaResource.description,
+      url: em.mediaResource.resourceUri ?? em.mediaResource.externalUrl,
+      mimeType: em.mediaResource.mimeType,
+      altText: em.mediaResource.altText,
+      caption: em.caption,
+      sortOrder: em.sortOrder,
+    }));
+  }
+
+  async findTimelineEventRelatedPublications(slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      select: { id: true, deletedAt: true, isVisible: true },
+    });
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    const associations = await this.prisma.timelineEventContent.findMany({
+      where: { timelineEventId: event.id },
+      include: {
+        content: {
+          select: { id: true, title: true, slug: true, summary: true },
+        },
+      },
+    });
+    return associations.map((ec) => ec.content);
+  }
+
+  async findContentMedia(contentId: string) {
+    const associations = await this.prisma.contentMediaResource.findMany({
+      where: { contentId },
+      include: { mediaResource: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    return associations.map((a) => ({
+      id: a.mediaResource.id,
+      type: a.mediaResource.type,
+      title: a.mediaResource.title,
+      description: a.mediaResource.description,
+      url: this.resolveMediaUrl(a.mediaResource),
+      mimeType: a.mediaResource.mimeType,
+      altText: a.mediaResource.altText,
+      caption: a.caption,
+      sortOrder: a.sortOrder,
+    }));
   }
 
   private toPublicResponse(publication: any) {

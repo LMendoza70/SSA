@@ -1,6 +1,6 @@
 # ADR-009: JWT + HttpOnly Cookies Authentication
 
-**Estado:** Aceptada.
+**Estado:** Aceptada (actualizada 2026-07-16).
 
 ## Contexto
 
@@ -19,10 +19,12 @@ Implementar autenticación mediante **doble token**:
 
 Flujo:
 - `POST /auth/login` → valida credenciales → devuelve access token en body +
-  refresh token en cookie.
-- `POST /auth/refresh` → lee refresh token de cookie → verifica → devuelve nuevo
-  access token.
-- `POST /auth/logout` → limpia cookie de refresh.
+  refresh token con `jti` (JWT ID) en cookie.
+- `POST /auth/refresh` → lee refresh token de cookie → verifica `jti` contra
+  blacklist → invalida `jti` anterior (rotación) → devuelve nuevo access token
+  + nuevo refresh token con nuevo `jti` en cookie.
+- `POST /auth/logout` → extrae `jti` del refresh token → agrega a blacklist →
+  limpia cookie de refresh.
 
 Contraseñas hasheadas con **Argon2** (configuración por defecto).
 
@@ -41,18 +43,34 @@ Contraseñas hasheadas con **Argon2** (configuración por defecto).
 - El cliente (React) debe gestionar el access token en memoria, no en localStorage.
 - El endpoint `/auth/refresh` debe aplicar rate limiting más estricto que otros endpoints.
 - Los tests de integración requieren cookie-parser para leer/establecer cookies.
+- Se introdujo `TokenBlacklistService` (invocable) que mantiene un mapa en memoria
+  de `jti` revocados con su expiración. La limpieza de entradas expiradas ocurre
+  bajo demanda en cada consulta (`has()`).
+- El refresh token incluye `jti` (UUID v4) en su payload para identificación única.
+- La rotación invalida el `jti` anterior antes de emitir uno nuevo.
+- En MVP no se implementa detección de reuso de refresh token (sesión comprometida).
+  Queda como mejora documentada para fase posterior.
 
 ## Riesgos
 
 - Si el refresh token es interceptado (p. ej. tráfico HTTP no seguro), permite
   acceso prolongado.
 - Access token en memoria se pierde al recargar la página (requiere refresh).
+- El blacklist en memoria se pierde al reiniciar el servidor, permitiendo reuso
+  de refresh tokens revocados hasta su expiración natural.
+- No se implementa detección de reuso de refresh token (sesión comprometida) en MVP.
 
 ## Mitigación
 
 - HTTPS obligatorio en producción (certificado SSL).
 - TTL corto del access token (15 min) limita ventana de exposición.
-- Refresh token renovable: al usarse, se puede rotar el token (futuro).
+- Refresh token rotativo implementado: cada uso invalida el token anterior.
+- Logout invalida el refresh token activo mediante blacklist.
+- El blacklist en memoria es aceptable para MVP monoproceso; en el futuro
+  puede migrarse a Redis o base de datos compartida.
+- Detección de reuso de refresh token pospuesta: requiere almacenar el `jti`
+  del último refresh token válido por usuario y comparar en cada rotación.
+  Fecha de revisión sugerida: 2026-10-16 (90 días).
 
 ## Alternativas descartadas
 

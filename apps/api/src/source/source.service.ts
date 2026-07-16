@@ -1,25 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { TraceabilityService } from '../traceability/traceability.service';
+import { Source } from '../generated/prisma/client';
 import { CreateSourceDto, UpdateSourceDto, SourceListQueryDto } from './dto';
+import { ISourceRepository } from './source.repository.interface';
+
+interface SourceResponse {
+  id: string;
+  type: string;
+  name: string;
+  description?: string;
+  organization?: string;
+  url?: string;
+  isOfficial: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Injectable()
 export class SourceService {
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject('ISourceRepository') private readonly sourceRepository: ISourceRepository,
     private readonly traceability: TraceabilityService,
   ) {}
 
-  async create(dto: CreateSourceDto, userId: string) {
-    const source = await this.prisma.source.create({
-      data: {
-        type: dto.type,
-        name: dto.name,
-        description: dto.description,
-        organization: dto.organization,
-        url: dto.url,
-        isOfficial: dto.isOfficial ?? false,
-      },
+  async create(dto: CreateSourceDto, userId: string): Promise<SourceResponse> {
+    const source = await this.sourceRepository.create({
+      type: dto.type,
+      name: dto.name,
+      description: dto.description,
+      organization: dto.organization,
+      url: dto.url,
+      isOfficial: dto.isOfficial ?? false,
     });
 
     await this.traceability.record({
@@ -37,7 +48,7 @@ export class SourceService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Parameters<ISourceRepository['findMany']>[0]['where'] = {};
 
     if (query.type) {
       where.type = query.type;
@@ -50,15 +61,7 @@ export class SourceService {
       ];
     }
 
-    const [items, total] = await Promise.all([
-      this.prisma.source.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.source.count({ where }),
-    ]);
+    const { items, total } = await this.sourceRepository.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } });
 
     return {
       data: items.map((item) => this.toResponse(item)),
@@ -66,30 +69,27 @@ export class SourceService {
     };
   }
 
-  async findById(id: string) {
-    const source = await this.prisma.source.findUnique({ where: { id } });
+  async findById(id: string): Promise<SourceResponse> {
+    const source = await this.sourceRepository.findUnique({ id });
     if (!source || source.deletedAt) {
       throw new NotFoundException('Fuente no encontrada');
     }
     return this.toResponse(source);
   }
 
-  async update(id: string, dto: UpdateSourceDto, userId: string) {
-    const existing = await this.prisma.source.findUnique({ where: { id } });
+  async update(id: string, dto: UpdateSourceDto, userId: string): Promise<SourceResponse> {
+    const existing = await this.sourceRepository.findUnique({ id });
     if (!existing || existing.deletedAt) {
       throw new NotFoundException('Fuente no encontrada');
     }
 
-    const source = await this.prisma.source.update({
-      where: { id },
-      data: {
-        type: dto.type,
-        name: dto.name,
-        description: dto.description,
-        organization: dto.organization,
-        url: dto.url,
-        isOfficial: dto.isOfficial,
-      },
+    const source = await this.sourceRepository.update(id, {
+      type: dto.type,
+      name: dto.name,
+      description: dto.description,
+      organization: dto.organization,
+      url: dto.url,
+      isOfficial: dto.isOfficial,
     });
 
     await this.traceability.record({
@@ -102,16 +102,13 @@ export class SourceService {
     return this.toResponse(source);
   }
 
-  async remove(id: string, userId: string) {
-    const existing = await this.prisma.source.findUnique({ where: { id } });
+  async remove(id: string, userId: string): Promise<void> {
+    const existing = await this.sourceRepository.findUnique({ id });
     if (!existing || existing.deletedAt) {
       throw new NotFoundException('Fuente no encontrada');
     }
 
-    await this.prisma.source.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    await this.sourceRepository.softDelete(id);
 
     await this.traceability.record({
       action: 'ARCHIVED',
@@ -121,14 +118,14 @@ export class SourceService {
     });
   }
 
-  private toResponse(source: any) {
+  private toResponse(source: Source): SourceResponse {
     return {
       id: source.id,
       type: source.type,
       name: source.name,
-      description: source.description,
-      organization: source.organization,
-      url: source.url,
+      description: source.description ?? undefined,
+      organization: source.organization ?? undefined,
+      url: source.url ?? undefined,
       isOfficial: source.isOfficial,
       createdAt: source.createdAt.toISOString(),
       updatedAt: source.updatedAt.toISOString(),

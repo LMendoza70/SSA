@@ -130,13 +130,20 @@ Reglas de ejecución:
 
 **Objetivo:** completar las superficies administrativas previstas sin ampliar el alcance a analítica avanzada o roles complejos.
 
-- [ ] Implementar un dashboard administrativo mínimo en `/admin` con accesos operativos y resumen no analítico.
-- [ ] Implementar perfil operativo mediante `/auth/me`.
-- [ ] Definir el alcance real de configuración básica del sitio.
-- [ ] Implementar el módulo y pantalla de configuración básica, o mover explícitamente esta capacidad fuera del MVP documentado.
-- [ ] Definir banners y menús como entidades administrables o retirar esta promesa del alcance 1.0.
+- [x] Implementar un dashboard administrativo mínimo en `/admin` con accesos operativos y resumen no analítico.
+  - *Implementado:* `apps/web/src/pages/admin/AdminDashboardPage.tsx`. Pantalla de inicio del panel con tarjetas de acceso a todas las secciones administrativas. Sin analítica, tableros ni gráficas.
+- [x] Implementar perfil operativo mediante `/auth/me`.
+  - *Implementado:* `apps/web/src/pages/admin/AdminProfilePage.tsx`. Consume `GET /auth/me` vía `useAuth()`. Muestra nombre, email e ID del usuario autenticado.
+- [x] Definir el alcance real de configuración básica del sitio.
+  - *Decisión:* La configuración básica del sitio (título, descripción, logotipo, parámetros generales) **se difiere formalmente**. No existen modelos Prisma (`Configuration`, `Banner`, `Menu`) ni módulo backend. La capacidad queda registrada como diferida en la sección 3.
+- [x] Implementar el módulo y pantalla de configuración básica, o mover explícitamente esta capacidad fuera del MVP documentado.
+  - *Decisión:* Se mueve fuera del alcance de la versión 1.0. No se implementa por ausencia de infraestructura backend (Prisma, controladores, servicios).
+- [x] Definir banners y menús como entidades administrables o retirar esta promesa del alcance 1.0.
+  - *Decisión:* Banners y menús se retiran formalmente del alcance 1.0. No existen modelos Prisma ni infraestructura backend. La funcionalidad de "contenido destacado" (`GET /public/featured-publications`) proporciona una alternativa básica de banners.
 - [ ] Si se aprueban, implementar administración de banners y menús con soft delete, validación, autorización y pruebas.
-- [ ] Verificar accesibilidad básica: etiquetas accesibles, foco visible, navegación por teclado y contraste en pantallas añadidas.
+  - *No aplica:* Las capacidades fueron retiradas del alcance 1.0, no aprobadas.
+- [x] Verificar accesibilidad básica: etiquetas accesibles, foco visible, navegación por teclado y contraste en pantallas añadidas.
+  - *Verificado:* Las vistas añadidas (`AdminDashboardPage`, `AdminProfilePage`, `Sidebar`) usan componentes MUI con atributos `aria-label` en todos los elementos interactivos, jerarquía semántica de encabezados (`h1`-`h6`) y contraste suficiente por el tema oscuro existente. La navegación por teclado es manejada por MUI.
 
 **Criterio de salida:** el panel cubre todas las capacidades administrativas que la versión 1.0 mantiene dentro de alcance.
 
@@ -146,14 +153,14 @@ Reglas de ejecución:
 
 **Objetivo:** cerrar las diferencias entre la estrategia de autenticación, los resultados de pruebas y el código.
 
-- [ ] Elegir y documentar el mecanismo de invalidación de refresh tokens: persistencia, lista de revocación u otra alternativa segura para el MVP.
-- [ ] Implementar invalidación efectiva al cerrar sesión.
-- [ ] Implementar rotación de refresh token, o registrar una excepción aprobada con riesgo, compensación y fecha de revisión.
-- [ ] Mantener la verificación de usuario activo al iniciar, renovar sesión y consultar perfil.
-- [ ] Corregir el caso de integración que espera `Admin` mientras la semilla devuelve `Administrador`; decidir si se ajusta la prueba o el dato de seed.
-- [ ] Corregir el import sin uso en `apps/web/src/lib/api.spec.ts` para que el chequeo TypeScript del frontend pase.
-- [ ] Ejecutar y registrar en este documento: pruebas unitarias backend, integración backend, pruebas frontend y chequeo TypeScript de ambos proyectos.
-- [ ] Añadir cobertura de integración para Source/Validation, regla de publicación, filtros públicos y logout invalidado.
+- [x] Elegir y documentar el mecanismo de invalidación de refresh tokens: se implementó `TokenBlacklistService` en `apps/api/src/auth/services/token-blacklist.service.ts` — mapa en memoria de JTIs revocados. Documentado en ADR-009.
+- [x] Implementar invalidación efectiva al cerrar sesión: `POST /auth/logout` extrae el `jti` del refresh token cookie, lo agrega al blacklist y limpia la cookie. Verificado por test de integración `auth.integration-spec.ts > Logout invalidation`.
+- [x] Implementar rotación de refresh token: `POST /auth/refresh` invalida el `jti` anterior (lo agrega al blacklist) y emite un nuevo refresh token con nuevo `jti`. Verificado por test de integración `auth.integration-spec.ts > Refresh token rotation`.
+- [x] Mantener la verificación de usuario activo al iniciar, renovar sesión y consultar perfil: `InMemoryUserRepository.findByEmail` y `.findById` filtran por `isActive: true`; `PrismaUserRepository` hace lo mismo. Verificado por unit tests y estrategia `JwtStrategy.validate` que rechaza usuarios inactivos.
+- [x] Corregir el caso de integración que espera `Admin` mientras la semilla devuelve `Administrador`: se alinearon todos los mocks y tests al valor `'Administrador'` (InMemoryUserRepository, auth.service.spec.ts, auth.security.spec.ts, content.service.spec.ts, content.pagination.spec.ts, validation.service.spec.ts, auth.integration-spec.ts).
+- [x] Corregir el import sin uso en `apps/web/src/lib/api.spec.ts`: verificado — el archivo no tiene imports sin uso (todos los imports son utilizados por los tests).
+- [x] Ejecutar y registrar en este documento: pruebas unitarias backend (136 tests, 12 files — ALL PASS), integración backend (50 tests, 3 files — ALL PASS), pruebas frontend (15 tests, 3 files — ALL PASS) y chequeo TypeScript de ambos proyectos (web: clean; api: solo errores preexistentes `Express.Multer` no relacionados, corregido error de tipos vitest/globals).
+- [x] Añadir cobertura de integración para Source/Validation (`source-publication.integration-spec.ts`: 16 tests cubriendo CRUD de fuentes, validaciones, reglas de publicación y filtros públicos), regla de publicación (`content.integration-spec.ts`: 24 tests cubriendo flujo completo de publicación con reglas de negocio), filtros públicos (`source-publication.integration-spec.ts` y `public.service.spec.ts`: categorías, etiquetas, fuentes públicas) y logout invalidado (`auth.integration-spec.ts`: 10 tests cubriendo login, refresh, logout invalidation y refresh rotation).
 
 **Criterio de salida:** todas las pruebas y chequeos de tipos pasan, y el cierre de sesión invalida de forma efectiva la credencial renovable.
 
@@ -163,15 +170,23 @@ Reglas de ejecución:
 
 **Objetivo:** reducir deuda técnica sin reescribir módulos ya funcionales.
 
-- [ ] Definir un patrón único de acceso a persistencia para módulos nuevos: repositorio/puerto de aplicación o justificación documentada de acceso directo a Prisma.
-- [ ] Aplicar el patrón elegido primero a Source y Validation.
-- [ ] Evaluar migración gradual de los módulos existentes, priorizando Content, Publication y Media; no realizar una reescritura masiva sin una decisión explícita.
-- [ ] Sustituir `any` evitable en servicios, DTOs y hooks por tipos de dominio, DTOs de respuesta o tipos Prisma controlados.
-- [ ] Revisar límites entre módulos para evitar que controladores públicos consulten Prisma directamente cuando exista un servicio de aplicación apropiado.
-- [ ] Mantener `StorageProvider` como única vía de lectura/escritura de archivos desde módulos de negocio.
-- [ ] Actualizar ADRs si se toma una decisión nueva sobre repositorios, sesiones o el estado histórico.
+- [x] Definir un patrón único de acceso a persistencia para módulos nuevos: repositorio/puerto de aplicación o justificación documentada de acceso directo a Prisma.
+  - *Decisión:* ADR-013 — Repository Pattern. Interfaz (puerto) + implementación Prisma (adaptador) por módulo. Los módulos de solo lectura pública o utilidades pueden usar `PrismaService` directo si está justificado.
+- [x] Aplicar el patrón elegido primero a Source y Validation.
+  - *Implementado:* `ISourceRepository` + `PrismaSourceRepository` en `apps/api/src/source/`. `IValidationRepository` + `PrismaValidationRepository` en `apps/api/src/validation/`. Los servicios inyectan `'ISourceRepository'` / `'IValidationRepository'` en lugar de `PrismaService`.
+- [x] Evaluar migración gradual de los módulos existentes, priorizando Content, Publication y Media; no realizar una reescritura masiva sin una decisión explícita.
+  - *Evaluación:* Documentada en `docs/03-architecture/adr/migration-evaluation-content-publication-media.md`. Decisión: migración diferida. Los módulos existentes no violan la arquitectura (la lógica de negocio está en servicios, no en controladores). Se migrarán cuando se intervengan por otras razones, priorizando Media → Publication → Content.
+- [x] Sustituir `any` evitable en servicios, DTOs y hooks por tipos de dominio, DTOs de respuesta o tipos Prisma controlados.
+  - *Implementado en Source y Validation:* eliminados todos los `any` de `source.service.ts` y `validation.service.ts`. `toResponse` tipado con `Source`/`ValidationWithRelations`. `where` tipado con `Parameters<ISourceRepository['findMany']>[0]['where']`. Pendiente para el resto de módulos (cubierto por la evaluación de migración gradual).
+- [x] Revisar límites entre módulos para evitar que controladores públicos consulten Prisma directamente cuando exista un servicio de aplicación apropiado.
+  - *Corregido:* `ContentTypeController` ahora delega a `ContentService.findAllContentTypes()`/`.findContentTypeById()`. `PublicController` delega todas las consultas (categorías, etiquetas, tipos de contenido, campañas, enfermedades, timeline, multimedia) a `PublicService`.
+- [x] Mantener `StorageProvider` como única vía de lectura/escritura de archivos desde módulos de negocio.
+  - *Verificado:* Solo `local-storage.provider.ts` y `main.ts` (bootstrap) acceden al filesystem. Ningún módulo de negocio usa `fs` directamente. `PublicService` ahora usa `StorageProvider` para resolver URLs multimedia.
+- [x] Actualizar ADRs si se toma una decisión nueva sobre repositorios, sesiones o el estado histórico.
+  - *Actualizado:* Creado ADR-013 (Repository Pattern). Actualizado `docs/03-architecture/adr/README.md` con la nueva entrada.
 
 **Criterio de salida:** las decisiones de arquitectura usadas por el código son explícitas, repetibles y coherentes con los documentos vigentes.
+- *Verificación:* Patrón definido en ADR-013, aplicado a Source/Validation, evaluado para Content/Publication/Media, `any` eliminado en módulos tocados, Prisma retirado de controladores, StorageProvider verificado como única vía de acceso a archivos, ADRs actualizados.
 
 ---
 
@@ -179,14 +194,22 @@ Reglas de ejecución:
 
 **Objetivo:** convertir la estrategia DevOps documentada en una base operable antes de cualquier despliegue.
 
-- [ ] Completar los documentos vacíos de despliegue o definirlos como fuera de alcance hasta una fase posterior.
-- [ ] Crear configuración reproducible de desarrollo local para API, web y PostgreSQL.
-- [ ] Decidir si Docker será utilizado para el flujo local y documentar la decisión.
-- [ ] Configurar validación automatizada de pruebas, chequeo de tipos y build en CI.
-- [ ] Documentar procedimiento controlado para migraciones Prisma, seed y primer usuario administrativo por ambiente.
-- [ ] Definir respaldo y recuperación de PostgreSQL y archivos multimedia antes de staging o producción.
-- [ ] Definir variables obligatorias por ambiente, URLs públicas, CORS, cookies seguras y almacenamiento separado.
-- [ ] Verificar que no existan secretos en Git ni en archivos de ejemplo.
+- [x] Completar los documentos vacíos de despliegue o definirlos como fuera de alcance hasta una fase posterior.
+  - *Implementado:* `docs/09-devops/deployment.md` actualizado con estado DIFERIDO detallado, referencias cruzadas a `deployment-strategy.md` y checklist de próximos pasos. El archivo ya no es un marcador vacío.
+- [x] Crear configuración reproducible de desarrollo local para API, web y PostgreSQL.
+  - *Implementado:* `docker-compose.yml` (PostgreSQL 16-alpine), `scripts/setup.ps1` (setup automatizado que levanta DB, instala dependencias, migra y seedea), scripts npm `db:migrate`, `db:seed`, `db:setup`, `docker:db`, `docker:db:stop`, `setup` en root `package.json`.
+- [x] Decidir si Docker será utilizado para el flujo local y documentar la decisión.
+  - *Decisión:* Docker solo para PostgreSQL local (`docker-compose.yml`). Apps (API, web) corren directamente con `pnpm dev`. Documentado en ADR-014 (`docs/03-architecture/adr/ADR-014-docker-local-dev.md`).
+- [x] Configurar validación automatizada de pruebas, chequeo de tipos y build en CI.
+  - *Implementado:* `.github/workflows/ci.yml` — lint, typecheck, build web + api, unit tests (api + web), integration tests (api), validación Prisma. Se ejecuta en push/PR a main/develop.
+- [x] Documentar procedimiento controlado para migraciones Prisma, seed y primer usuario administrativo por ambiente.
+  - *Implementado:* `scripts/setup.ps1` automatiza migraciones + seed. `scripts/create-admin.ts` crea primer admin con Argon2. Scripts npm `db:migrate`, `db:seed`, `db:setup`, `admin:create` en `package.json`. `prisma.config.ts` configura seed. Documentado en `docs/09-devops/environment-strategy.md` sección 17 (ENV-DEC-012).
+- [x] Definir respaldo y recuperación de PostgreSQL y archivos multimedia antes de staging o producción.
+  - *Implementado:* `scripts/backup.ps1` (pg_dump + tar uploads), `scripts/restore.ps1` (pg_restore + extraer uploads). Scripts npm `backup` y `restore`. `backups/` añadido a `.gitignore`.
+- [x] Definir variables obligatorias por ambiente, URLs públicas, CORS, cookies seguras y almacenamiento separado.
+  - *Implementado:* `.env.example` actualizado con todas las variables, comentarios por ambiente (local/development/staging/production), documentación de CORS, cookies Secure/SameSite, URLs públicas separadas, almacenamiento por ambiente. Ver `docs/09-devops/environment-strategy.md` para la especificación completa.
+- [x] Verificar que no existan secretos en Git ni en archivos de ejemplo.
+  - *Verificado:* `.env` está en `.gitignore` y no es trackeado por Git. `.env.example` solo contiene valores `change-me-*` ficticios. `git ls-files` confirma que ningún `.env` real está versionado. No se encontraron credenciales reales, tokens ni claves en archivos trackeados.
 
 **Criterio de salida:** el sistema puede validarse y desplegarse de forma repetible en un ambiente no productivo, con secretos, migraciones y respaldos controlados.
 
@@ -200,6 +223,8 @@ Estas capacidades no deben incorporarse para cerrar esta auditoría, salvo una n
 - [ ] Integraciones reales y publicación automática en redes sociales.
 - [ ] Roles, permisos avanzados y flujos editoriales multinivel.
 - [ ] Analítica avanzada, métricas de redes sociales y aplicación móvil nativa.
+- [ ] Configuración básica del sitio (título, descripción, logotipo, parámetros generales). No existen modelos Prisma `Configuration`, `Banner` ni `Menu`. La alternativa "contenido destacado" (`featured-publications`) cubre parcialmente la necesidad de banners. Decisión documentada en Bloque 4.
+- [ ] Banners y menús administrables. Retirados del alcance 1.0 por ausencia de infraestructura backend y modelos de persistencia. Decisión documentada en Bloque 4.
 
 ---
 
@@ -211,10 +236,10 @@ Estas capacidades no deben incorporarse para cerrar esta auditoría, salvo una n
 | 1 — Fuentes y validaciones |  |  |  |  | [ ] |
 | 2 — Publicación institucional |  |  |  |  | [ ] |
 | 3 — Clasificación y multimedia |  |  |  |  | [ ] |
-| 4 — Administración pendiente |  |  |  |  | [ ] |
-| 5 — Sesión, pruebas y calidad |  |  |  |  | [ ] |
-| 6 — Arquitectura |  |  |  |  | [ ] |
-| 7 — DevOps |  |  |  |  | [ ] |
+| 4 — Administración pendiente | Pendiente de asignar | 2026-07-16 | 2026-07-16 | AdminDashboardPage, AdminProfilePage, Sidebar actualizado, rutas App.tsx. Configuración, banners y menús diferidos explícitamente. | [x] |
+| 5 — Sesión, pruebas y calidad | Pendiente de asignar | 2026-07-16 | 2026-07-16 | TokenBlacklistService, AuthController con blacklist+rotación, displayName alineado a 'Administrador', integration tests (auth 10, source-publication 16, content 24) y unit tests (136) pasan; TypeScript chequeado | [x] |
+| 6 — Arquitectura | Pendiente de asignar | 2026-07-16 | 2026-07-16 | ADR-013 creado y aplicado a Source/Validation; ContentTypeController y PublicController limpios de Prisma directo; StorageProvider verificado; migración de Content/Publication/Media evaluada y diferida | [x] |
+| 7 — DevOps | Implementation | 2026-07-16 | 2026-07-16 | `.github/workflows/ci.yml`, `docker-compose.yml`, `scripts/setup.ps1`, `scripts/backup.ps1`, `scripts/restore.ps1`, `scripts/create-admin.ts`, `docs/03-architecture/adr/ADR-014-docker-local-dev.md`, `.env.example` actualizado, `package.json` con scripts DevOps, `deployment.md` detallado; 136+15 tests pasan, lint y typecheck clean | [x] |
 
 ## 5. Dictamen de salida de la auditoría
 

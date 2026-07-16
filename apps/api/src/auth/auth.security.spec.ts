@@ -11,7 +11,7 @@ describe('Security: JwtStrategy', () => {
   const mockUser = {
     id: 'user-1',
     email: 'admin@jurisdiccion.gob.mx',
-    displayName: 'Admin',
+    displayName: 'Administrador',
   };
 
   beforeEach(async () => {

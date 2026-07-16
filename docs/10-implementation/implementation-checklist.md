@@ -392,7 +392,8 @@ Baseline documental completa
 -> Backend operativo con NestJS + Prisma + PostgreSQL
 -> Frontend operativo con React + Vite + MUI
 -> Source, Validation, filtros publicos categoria/etiqueta,
-   responsabilidad institucional y configuracion basica pendientes
+   responsabilidad institucional pendientes
+-> Configuracion basica, banners y menus diferidos (ver auditoria Bloque 4)
 -> Auditoria en curso (Bloque 0 - Normalizacion documental)
 ```
 

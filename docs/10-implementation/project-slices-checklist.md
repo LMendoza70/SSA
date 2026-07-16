@@ -7,7 +7,7 @@
 | Documento | Checklist General de Slices |
 | Fase | Implementation / Phase 10 operativa |
 | Fecha | 2026-07-16 (actualizado por Bloque 0 auditoria) |
-| Estado | Slices 0–13 implementados; pendientes Source, Validation, filtros categoria/etiqueta, responsabilidad institucional y configuracion basica |
+| Estado | Slices 0–13 implementados; pendientes Source, Validation, filtros categoria/etiqueta, responsabilidad institucional. Configuracion basica, banners y menus diferidos (ver auditoria Bloque 4) |
 | Ultima revision | 2026-07-16 (Bloque 0 auditoria) |
 
 ---
@@ -497,7 +497,8 @@ El MVP End-to-End esta parcialmente completo. Tiene base operativa pero con lagu
 - **6 ADRs documentados** (ADR-007 al ADR-012)
 - **Checklist actualizado** con progreso real de todos los slices
 - **Flujo parcial verificado**: Login → Content → Publication → Public portal → Withdrawal
-- **Pendiente**: modulo Source, Validation, filtros publicos categoria/etiqueta, responsabilidad institucional, configuracion basica
+- **Pendiente**: modulo Source, Validation, filtros publicos categoria/etiqueta, responsabilidad institucional
+- **Diferido**: configuracion basica del sitio, banners y menus (ver auditoria Bloque 4)
 
 ---
 
