@@ -2,7 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Re
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ContentService } from './content.service';
-import { CreateContentDto, UpdateContentDto, ContentListQueryDto, ContentResponseDto } from './dto';
+import { CreateContentDto, UpdateContentDto, ContentListQueryDto, ContentResponseDto, AssociateSourcesDto, AssociateValidationsDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Admin / Contents')
@@ -47,5 +47,53 @@ export class ContentController {
   ): Promise<ContentResponseDto> {
     const userId = (req as any).user.id;
     return this.contentService.update(id, dto, userId);
+  }
+
+  @Post(':id/sources')
+  @ApiOperation({ summary: 'Asociar fuentes a contenido (reemplaza asociaciones existentes)' })
+  async associateSources(
+    @Param('id') id: string,
+    @Body() dto: AssociateSourcesDto,
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    await this.contentService.associateSources(id, dto.sourceIds, userId);
+    return this.contentService.findById(id);
+  }
+
+  @Delete(':id/sources/:sourceId')
+  @ApiOperation({ summary: 'Retirar asociacion de fuente de un contenido' })
+  async disassociateSource(
+    @Param('id') id: string,
+    @Param('sourceId') sourceId: string,
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    await this.contentService.disassociateSource(id, sourceId, userId);
+    return this.contentService.findById(id);
+  }
+
+  @Post(':id/validations')
+  @ApiOperation({ summary: 'Asociar validaciones a contenido (reemplaza asociaciones existentes)' })
+  async associateValidations(
+    @Param('id') id: string,
+    @Body() dto: AssociateValidationsDto,
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    await this.contentService.associateValidations(id, dto.validationIds, userId);
+    return this.contentService.findById(id);
+  }
+
+  @Delete(':id/validations/:validationId')
+  @ApiOperation({ summary: 'Retirar asociacion de validacion de un contenido' })
+  async disassociateValidation(
+    @Param('id') id: string,
+    @Param('validationId') validationId: string,
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    await this.contentService.disassociateValidation(id, validationId, userId);
+    return this.contentService.findById(id);
   }
 }

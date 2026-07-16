@@ -14,6 +14,8 @@ import { CampaignDiseaseModule } from './campaign-disease/campaign-disease.modul
 import { TimelineModule } from './timeline/timeline.module';
 import { DistributionModule } from './distribution/distribution.module';
 import { TraceabilityModule } from './traceability/traceability.module';
+import { SourceModule } from './source/source.module';
+import { ValidationModule } from './validation/validation.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { TraceabilityModule } from './traceability/traceability.module';
     TimelineModule,
     DistributionModule,
     TraceabilityModule,
+    SourceModule,
+    ValidationModule,
   ],
 })
 export class AppModule {}

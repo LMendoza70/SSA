@@ -114,6 +114,19 @@ export class ContentService {
         contentType: { select: { id: true, code: true, name: true } },
         createdBy: { select: { id: true, displayName: true } },
         updatedBy: { select: { id: true, displayName: true } },
+        contentSources: {
+          include: { source: { select: { id: true, name: true, type: true, organization: true } } },
+        },
+        contentValidations: {
+          include: {
+            validation: {
+              include: {
+                source: { select: { id: true, name: true } },
+                validatedBy: { select: { id: true, displayName: true } },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -194,6 +207,104 @@ export class ContentService {
     });
   }
 
+  async associateSources(contentId: string, sourceIds: string[], userId: string) {
+    const content = await this.prisma.content.findUnique({ where: { id: contentId } });
+    if (!content || content.deletedAt) throw new NotFoundException('Contenido no encontrado');
+
+    const validSources = await this.prisma.source.findMany({
+      where: { id: { in: sourceIds }, deletedAt: null },
+      select: { id: true, name: true },
+    });
+
+    if (validSources.length !== sourceIds.length) {
+      throw new NotFoundException('Una o mas fuentes no encontradas');
+    }
+
+    await this.prisma.contentSource.deleteMany({ where: { contentId } });
+
+    if (sourceIds.length > 0) {
+      await this.prisma.contentSource.createMany({
+        data: sourceIds.map((sourceId) => ({ contentId, sourceId })),
+      });
+    }
+
+    await this.traceability.record({
+      action: 'UPDATED',
+      userId,
+      contentId,
+      summary: `Fuentes actualizadas: ${validSources.map((s) => s.name).join(', ') || 'ninguna'}`,
+    });
+  }
+
+  async disassociateSource(contentId: string, sourceId: string, userId: string) {
+    const content = await this.prisma.content.findUnique({ where: { id: contentId } });
+    if (!content || content.deletedAt) throw new NotFoundException('Contenido no encontrado');
+
+    const link = await this.prisma.contentSource.findUnique({
+      where: { contentId_sourceId: { contentId, sourceId } },
+    });
+    if (!link) throw new NotFoundException('La fuente no esta asociada a este contenido');
+
+    await this.prisma.contentSource.delete({ where: { id: link.id } });
+
+    const source = await this.prisma.source.findUnique({ where: { id: sourceId } });
+
+    await this.traceability.record({
+      action: 'UPDATED',
+      userId,
+      contentId,
+      summary: `Fuente "${source?.name || sourceId}" retirada del contenido`,
+    });
+  }
+
+  async associateValidations(contentId: string, validationIds: string[], userId: string) {
+    const content = await this.prisma.content.findUnique({ where: { id: contentId } });
+    if (!content || content.deletedAt) throw new NotFoundException('Contenido no encontrado');
+
+    const validVals = await this.prisma.validation.findMany({
+      where: { id: { in: validationIds }, deletedAt: null },
+      select: { id: true, type: true },
+    });
+
+    if (validVals.length !== validationIds.length) {
+      throw new NotFoundException('Una o mas validaciones no encontradas');
+    }
+
+    await this.prisma.contentValidation.deleteMany({ where: { contentId } });
+
+    if (validationIds.length > 0) {
+      await this.prisma.contentValidation.createMany({
+        data: validationIds.map((validationId) => ({ contentId, validationId })),
+      });
+    }
+
+    await this.traceability.record({
+      action: 'VALIDATED',
+      userId,
+      contentId,
+      summary: `Validaciones actualizadas: ${validVals.map((v) => v.type).join(', ') || 'ninguna'}`,
+    });
+  }
+
+  async disassociateValidation(contentId: string, validationId: string, userId: string) {
+    const content = await this.prisma.content.findUnique({ where: { id: contentId } });
+    if (!content || content.deletedAt) throw new NotFoundException('Contenido no encontrado');
+
+    const link = await this.prisma.contentValidation.findUnique({
+      where: { contentId_validationId: { contentId, validationId } },
+    });
+    if (!link) throw new NotFoundException('La validacion no esta asociada a este contenido');
+
+    await this.prisma.contentValidation.delete({ where: { id: link.id } });
+
+    await this.traceability.record({
+      action: 'UPDATED',
+      userId,
+      contentId,
+      summary: `Validacion retirada del contenido`,
+    });
+  }
+
   private async resolveUniqueSlug(baseSlug: string, excludeId?: string): Promise<string> {
     let slug = baseSlug || 'sin-titulo';
     let counter = 0;
@@ -225,6 +336,21 @@ export class ContentService {
       seoDescription: content.seoDescription,
       createdBy: content.createdBy,
       updatedBy: content.updatedBy,
+      sources: content.contentSources?.map((cs: any) => ({
+        id: cs.source.id,
+        name: cs.source.name,
+        type: cs.source.type,
+        organization: cs.source.organization,
+      })) ?? [],
+      validations: content.contentValidations?.map((cv: any) => ({
+        id: cv.validation.id,
+        type: cv.validation.type,
+        result: cv.validation.result,
+        summary: cv.validation.summary,
+        validatedAt: cv.validation.validatedAt?.toISOString(),
+        source: cv.validation.source ? { id: cv.validation.source.id, name: cv.validation.source.name } : undefined,
+        validatedBy: cv.validation.validatedBy ? { id: cv.validation.validatedBy.id, displayName: cv.validation.validatedBy.displayName } : undefined,
+      })) ?? [],
       createdAt: content.createdAt.toISOString(),
       updatedAt: content.updatedAt.toISOString(),
     };

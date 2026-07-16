@@ -33,6 +33,10 @@ import { useDiseases } from '../../../hooks/useDiseases';
 import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, useAssociateContentDiseases } from '../../../hooks/useContentCampaignDisease';
 import { useChannels, useAssociatePublicationChannels } from '../../../hooks/useCommunicationChannels';
 import { useContentTraceability } from '../../../hooks/useTraceability';
+import { useAllSources } from '../../../hooks/useSources';
+import { useAllValidations } from '../../../hooks/useValidations';
+import { useAssociateContentSources } from '../../../hooks/useContentSources';
+import { useAssociateContentValidations } from '../../../hooks/useContentValidations';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -101,6 +105,21 @@ export function ContentFormPage() {
   useEffect(() => {
     if (selectedDiseases) setSelectedDiseaseIds(selectedDiseases.map((d: any) => d.id));
   }, [selectedDiseases]);
+
+  const { data: allSources } = useAllSources();
+  const { data: allValidations } = useAllValidations();
+  const associateSources = useAssociateContentSources();
+  const associateContentVals = useAssociateContentValidations();
+  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
+  const [selectedValidationIds, setSelectedValidationIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (content?.sources) setSelectedSourceIds(content.sources.map((s: any) => s.id));
+  }, [content?.sources]);
+
+  useEffect(() => {
+    if (content?.validations) setSelectedValidationIds(content.validations.map((v: any) => v.id));
+  }, [content?.validations]);
 
   useEffect(() => {
     if (content) {
@@ -249,6 +268,48 @@ export function ContentFormPage() {
                     }}
                   >
                     Guardar clasificación
+                  </Button>
+                </Stack>
+              </Box>
+            )}
+
+            {isEdit && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Fuentes y Validaciones</Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                  <TextField
+                    select
+                    label="Fuentes"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedSourceIds, onChange: (e: any) => setSelectedSourceIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allSources?.data || []).map((src: any) => (
+                      <MenuItem key={src.id} value={src.id}>{src.name}</MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    label="Validaciones"
+                    size="small"
+                    SelectProps={{ multiple: true, value: selectedValidationIds, onChange: (e: any) => setSelectedValidationIds(e.target.value as string[]) }}
+                    sx={{ minWidth: 250 }}
+                  >
+                    {(allValidations?.data || []).map((val: any) => (
+                      <MenuItem key={val.id} value={val.id}>{val.type} - {val.result}{val.source?.name ? ` (${val.source.name})` : ''}</MenuItem>
+                    ))}
+                  </TextField>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={async () => {
+                      if (id) {
+                        await associateSources.mutateAsync({ contentId: id, sourceIds: selectedSourceIds });
+                        await associateContentVals.mutateAsync({ contentId: id, validationIds: selectedValidationIds });
+                      }
+                    }}
+                  >
+                    Guardar
                   </Button>
                 </Stack>
               </Box>

@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout } from '@mui/icons-material';
+import { Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout, Source, FactCheck } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -100,6 +100,22 @@ export function Sidebar() {
             <ListAlt />
           </ListItemIcon>
           <ListItemText primary="Tipos de contenido" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/sources')}
+          onClick={() => navigate('/admin/sources')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon><Source /></ListItemIcon>
+          <ListItemText primary="Fuentes" />
+        </ListItemButton>
+        <ListItemButton
+          selected={location.pathname.startsWith('/admin/validations')}
+          onClick={() => navigate('/admin/validations')}
+          sx={{ borderRadius: 1, mb: 0.5 }}
+        >
+          <ListItemIcon><FactCheck /></ListItemIcon>
+          <ListItemText primary="Validaciones" />
         </ListItemButton>
         <ListItemButton
           selected={location.pathname.startsWith('/admin/campaigns')}

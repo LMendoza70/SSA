@@ -11,6 +11,8 @@ export class TraceabilityService {
     userId: string;
     contentId?: string;
     publicationId?: string;
+    sourceId?: string;
+    validationId?: string;
     summary?: string;
   }) {
     return this.prisma.traceabilityRecord.create({
@@ -19,6 +21,8 @@ export class TraceabilityService {
         userId: params.userId,
         contentId: params.contentId,
         publicationId: params.publicationId,
+        sourceId: params.sourceId,
+        validationId: params.validationId,
         summary: params.summary,
       },
       include: {
@@ -40,6 +44,26 @@ export class TraceabilityService {
   async findByPublication(publicationId: string) {
     return this.prisma.traceabilityRecord.findMany({
       where: { publicationId },
+      orderBy: { occurredAt: 'desc' },
+      include: {
+        user: { select: { id: true, displayName: true, email: true } },
+      },
+    });
+  }
+
+  async findBySource(sourceId: string) {
+    return this.prisma.traceabilityRecord.findMany({
+      where: { sourceId },
+      orderBy: { occurredAt: 'desc' },
+      include: {
+        user: { select: { id: true, displayName: true, email: true } },
+      },
+    });
+  }
+
+  async findByValidation(validationId: string) {
+    return this.prisma.traceabilityRecord.findMany({
+      where: { validationId },
       orderBy: { occurredAt: 'desc' },
       include: {
         user: { select: { id: true, displayName: true, email: true } },
