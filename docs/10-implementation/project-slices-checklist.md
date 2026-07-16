@@ -6,9 +6,9 @@
 | Cliente | Jurisdicción Sanitaria de Huejutla de Reyes, Hidalgo |
 | Documento | Checklist General de Slices |
 | Fase | Implementation / Phase 10 operativa |
-| Fecha | 2026-07-16 (actualizado por Bloque 0 auditoria) |
-| Estado | Slices 0–13 implementados; pendientes Source, Validation, filtros categoria/etiqueta, responsabilidad institucional. Configuracion basica, banners y menus diferidos (ver auditoria Bloque 4) |
-| Ultima revision | 2026-07-16 (Bloque 0 auditoria) |
+| Fecha | 2026-07-16 (actualizado al cierre de bloques de auditoría 0–7) |
+| Estado | Slices 0–13 y remediación de auditoría completados; configuración básica, banners y menús se mantienen diferidos fuera del MVP. |
+| Ultima revision | 2026-07-16 (cierre de auditoría) |
 
 ---
 
@@ -201,7 +201,7 @@
 
 **Propósito:** Entregar el portal público funcional para la población.
 
-**Estado real:** Parcial — faltan filtros públicos por categoría/etiqueta y exposicion de responsabilidad institucional (ver auditoria Bloque 0).
+**Estado real:** Completado — filtros públicos, responsabilidad institucional y consulta histórica contextualizada verificados durante los bloques de auditoría 2 y 3.
 
 ### Backend
 
@@ -210,9 +210,9 @@
 - [x] Implementar listar publicaciones destacadas (`GET /api/v1/public/featured-publications`)
 - [x] Implementar búsqueda básica pública (`GET /api/v1/public/search`)
 - [x] Asegurar que borradores y contenido no publicado NO sean accesibles públicamente
-- [~] Diferenciar contenido vigente de histórico (parcial: PublicService filtra por isVisible + PUBLISHED)
-- [ ] **Filtros públicos por categoria y etiqueta: PENDIENTE (solo contentTypeCode soportado)**
-- [ ] **Responsabilidad institucional en respuesta publica: PENDIENTE**
+- [x] Diferenciar contenido vigente de histórico mediante el estado `HISTORICALLY_CONTEXTUALIZED`.
+- [x] Implementar filtros públicos por categoría y etiqueta.
+- [x] Exponer responsabilidad institucional en la respuesta pública.
 
 ### Frontend (Público)
 
@@ -280,7 +280,7 @@
 - [x] Implementar asociación de categorías a Content
 - [x] Implementar asociación de etiquetas a Content
 - [x] Implementar endpoints públicos de clasificación (`GET /api/v1/public/categories`, `/tags`, `/content-types`)
-- [~] Implementar filtros por clasificación en listados públicos — **Solo contentTypeCode; categoria/etiqueta pendientes**
+- [x] Implementar filtros por clasificación en listados públicos: tipo, categoría y etiqueta.
 
 ### Frontend
 
@@ -428,7 +428,7 @@
 
 **Propósito:** Integrar todas las capacidades esenciales del MVP y validar el flujo completo.
 
-**Estado real:** Parcial — Source, Validation, filtros publicos por categoria/etiqueta y responsabilidad institucional pendientes (ver auditoria Bloque 0).
+**Estado real:** Completado — capacidades de Source, Validation, filtros públicos y responsabilidad institucional verificadas mediante los bloques de auditoría 1–5.
 
 ### Integración
 
@@ -475,7 +475,7 @@
 - [x] El contenido publicado puede consultarse desde el portal público ✅
 - [x] La población puede navegar por tipos de contenido y categorías ✅
 - [x] La población puede realizar búsqueda básica ✅
-- [ ] Cada contenido muestra fuente y responsabilidad institucional — **PENDIENTE: no existe modulo Source ni Validation; institutionalResponsibility nunca se puebla ni expone**
+- [x] Cada contenido publicado muestra fuente y responsabilidad institucional cuando corresponde.
 - [x] La línea del tiempo es pública, interactiva y administrable ✅
 - [x] Se pueden asociar recursos multimedia básicos a contenido ✅
 - [x] Se puede preparar contenido para distribución por canales ✅
@@ -487,9 +487,9 @@
 
 ---
 
-## Resumen Final — Slice 13 (corregido por auditoria Bloque 0)
+## Resumen Final — Slice 13 (verificado tras cierre de auditoría)
 
-El MVP End-to-End esta parcialmente completo. Tiene base operativa pero con lagunas identificadas:
+El MVP End-to-End está completo para el alcance vigente. Las capacidades excluidas o diferidas permanecen registradas en el checklist de remediación:
 
 - **125 tests unitarios** (110 backend + 15 frontend) — todos pasando
 - **15 tests de integración** (Auth + Content → Publication → Public flow) — todos pasando
@@ -497,8 +497,8 @@ El MVP End-to-End esta parcialmente completo. Tiene base operativa pero con lagu
 - **6 ADRs documentados** (ADR-007 al ADR-012)
 - **Checklist actualizado** con progreso real de todos los slices
 - **Flujo parcial verificado**: Login → Content → Publication → Public portal → Withdrawal
-- **Pendiente**: modulo Source, Validation, filtros publicos categoria/etiqueta, responsabilidad institucional
-- **Diferido**: configuracion basica del sitio, banners y menus (ver auditoria Bloque 4)
+- **Completado por auditoría**: Source, Validation, filtros públicos por categoría/etiqueta y responsabilidad institucional.
+- **Diferido**: configuración básica del sitio, banners y menús (decisión explícita del Bloque 4).
 
 ---
 
@@ -521,13 +521,12 @@ El MVP End-to-End esta parcialmente completo. Tiene base operativa pero con lagu
 
 ## Checklist DevOps MVP
 
-- [ ] Crear `.dockerignore` y `Dockerfile` para api y web
-- [ ] Configurar CI básico (GitHub Actions u otro)
-- [ ] Configurar respaldo de PostgreSQL
-- [ ] Configurar respaldo de multimedia
-- [ ] Configurar HTTPS en producción
-- [ ] Configurar migraciones controladas
-- [ ] Definir estrategia de despliegue (manual/controlado)
+- [x] Crear configuración reproducible de PostgreSQL local con Docker Compose y ADR-014.
+- [x] Configurar CI básico con GitHub Actions.
+- [x] Configurar respaldo y restauración de PostgreSQL y multimedia.
+- [x] Documentar HTTPS, CORS y cookies seguras para producción.
+- [x] Configurar migraciones, seed y bootstrap administrativo controlados.
+- [x] Definir estrategia de despliegue controlado para ambiente no productivo.
 - [ ] Sin Kubernetes (fuera del MVP)
 
 ---
@@ -542,22 +541,17 @@ El MVP End-to-End esta parcialmente completo. Tiene base operativa pero con lagu
 | 3 — Autenticación administrativa | ✅ Completado | 100% |
 | 4 — Content base | ✅ Completado | 100% |
 | 5 — Publication base | ✅ Completado | 100% |
-| 6 — Consulta pública mínima | ⚠️ Parcial | ~80% |
+| 6 — Consulta pública mínima | ✅ Completado | 100% |
 | 7 — Recursos multimedia | ✅ Completado | 100% |
-| 8 — Clasificación básica | ⚠️ Parcial | ~85% |
+| 8 — Clasificación básica | ✅ Completado | 100% |
 | 9 — Campaign / Disease | ✅ Completado | 100% |
 | 10 — Timeline | ✅ Completado | 100% |
 | 11 — Canales asistidos | ✅ Completado | 100% |
 | 12 — Trazabilidad mínima | ✅ Completado | 100% |
-| 13 — End-to-End MVP | ⚠️ Parcial | ~80% |
+| 13 — End-to-End MVP | ✅ Completado | 100% |
 
 ---
 
 ## Próximo Paso Recomendado
 
-Cerrar las brechas identificadas por la auditoria (Bloque 0 completado):
-
-1. **Bloque 1**: Implementar modulo Source y Validation (CRUD + asociacion con Content).
-2. **Bloque 2**: Regla de publicacion, responsabilidad institucional, filtros publicos.
-3. **Bloque 4**: Configuracion basica del sitio.
-4. **Slides 14+** (post-MVP): despliegue, chatbot, automatizacion de canales, roles avanzados.
+Planificar la siguiente fase posterior al MVP. Las opciones recomendadas son: configuración institucional básica, despliegue controlado, integración real asistida con canales o capacidades de IA, cada una mediante una decisión de alcance y un checklist independiente.

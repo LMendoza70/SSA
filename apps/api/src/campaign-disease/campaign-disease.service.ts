@@ -3,6 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCampaignDto, UpdateCampaignDto, CreateDiseaseDto, UpdateDiseaseDto } from './dto';
 import sanitizeHtml from 'sanitize-html';
 
+const SANITIZE_CONFIG: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'figure', 'figcaption', 'span']),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height', 'style'],
+    '*': ['style', 'class'],
+  },
+};
+
 function slugify(text: string): string {
   return text
     .toLowerCase().trim()
@@ -22,8 +31,8 @@ export class CampaignDiseaseService {
       data: {
         title: dto.title,
         slug,
-        description: dto.description ? sanitizeHtml(dto.description) : undefined,
-        objective: dto.objective ? sanitizeHtml(dto.objective) : undefined,
+        description: dto.description ? sanitizeHtml(dto.description, SANITIZE_CONFIG) : undefined,
+        objective: dto.objective ? sanitizeHtml(dto.objective, SANITIZE_CONFIG) : undefined,
         startsAt: dto.startsAt ? new Date(dto.startsAt) : undefined,
         endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
       },
@@ -57,8 +66,8 @@ export class CampaignDiseaseService {
       data.title = dto.title;
       data.slug = slugify(dto.title);
     }
-    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description);
-    if (dto.objective !== undefined) data.objective = sanitizeHtml(dto.objective);
+    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description, SANITIZE_CONFIG);
+    if (dto.objective !== undefined) data.objective = sanitizeHtml(dto.objective, SANITIZE_CONFIG);
     if (dto.startsAt !== undefined) data.startsAt = new Date(dto.startsAt);
     if (dto.endsAt !== undefined) data.endsAt = new Date(dto.endsAt);
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
@@ -83,7 +92,7 @@ export class CampaignDiseaseService {
       data: {
         name: dto.name,
         slug,
-        description: dto.description ? sanitizeHtml(dto.description) : undefined,
+        description: dto.description ? sanitizeHtml(dto.description, SANITIZE_CONFIG) : undefined,
       },
     });
     return disease;
@@ -115,7 +124,7 @@ export class CampaignDiseaseService {
       data.name = dto.name;
       data.slug = slugify(dto.name);
     }
-    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description);
+    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description, SANITIZE_CONFIG);
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
 
     return this.prisma.disease.update({ where: { id }, data });

@@ -35,7 +35,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch {
         setAccessToken(null);
-        if (!window.location.pathname.startsWith('/admin/login')) {
+        if (window.location.pathname.startsWith('/admin') && !window.location.pathname.startsWith('/admin/login')) {
           window.location.href = '/admin/login';
         }
         return Promise.reject(error);

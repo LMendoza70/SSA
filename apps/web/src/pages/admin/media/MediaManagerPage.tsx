@@ -148,29 +148,40 @@ export function MediaManagerPage() {
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Tipo</TableCell>
-              <TableCell>Título</TableCell>
-              <TableCell>MIME</TableCell>
-              <TableCell>Alt text</TableCell>
-              <TableCell>Subido</TableCell>
-              <TableCell align="right">Acciones</TableCell>
-            </TableRow>
+            <TableHead>
+              <TableRow>
+                <TableCell>Vista previa</TableCell>
+                <TableCell>Tipo</TableCell>
+                <TableCell>Título</TableCell>
+                <TableCell>MIME</TableCell>
+                <TableCell>Subido</TableCell>
+                <TableCell align="right">Acciones</TableCell>
+              </TableRow>
           </TableHead>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={6} align="center">Cargando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} align="center">Cargando...</TableCell></TableRow>
             ) : (data?.data || []).length === 0 ? (
-              <TableRow><TableCell colSpan={6} align="center">Sin recursos multimedia</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} align="center">Sin recursos multimedia</TableCell></TableRow>
             ) : (
               (data?.data || []).map((item: any) => (
                 <TableRow key={item.id} hover>
                   <TableCell>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {TYPE_ICONS[item.type] || <InsertDriveFile />}
-                      <Chip label={item.type} size="small" variant="outlined" />
-                    </Stack>
+                    {item.url && (item.type === 'IMAGE' || item.type === 'INFOGRAPHIC') ? (
+                      <Box
+                        component="img"
+                        src={item.url}
+                        alt={item.altText || item.title}
+                        sx={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 1 }}
+                      />
+                    ) : (
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ width: 64, justifyContent: 'center' }}>
+                        {TYPE_ICONS[item.type] || <InsertDriveFile />}
+                      </Stack>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Chip label={item.type} size="small" variant="outlined" />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight={500}>{item.title}</Typography>
@@ -181,7 +192,6 @@ export function MediaManagerPage() {
                     )}
                   </TableCell>
                   <TableCell>{item.mimeType || '-'}</TableCell>
-                  <TableCell>{item.altText || '-'}</TableCell>
                   <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell align="right">
                     <IconButton size="small" onClick={() => setEditItem(item)}>

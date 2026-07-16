@@ -3,6 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateTimelineEventDto, UpdateTimelineEventDto } from './dto';
 import sanitizeHtml from 'sanitize-html';
 
+const SANITIZE_CONFIG: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'figure', 'figcaption', 'span']),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height', 'style'],
+    '*': ['style', 'class'],
+  },
+};
+
 function slugify(text: string): string {
   return text
     .toLowerCase().trim()
@@ -22,7 +31,7 @@ export class TimelineService {
       data: {
         title: dto.title,
         slug,
-        description: dto.description ? sanitizeHtml(dto.description) : undefined,
+        description: dto.description ? sanitizeHtml(dto.description, SANITIZE_CONFIG) : undefined,
         occurredAt: dto.occurredAt ? new Date(dto.occurredAt) : undefined,
         periodLabel: dto.periodLabel,
         historicalRelevance: dto.historicalRelevance,
@@ -82,7 +91,7 @@ export class TimelineService {
       data.title = dto.title;
       data.slug = slugify(dto.title);
     }
-    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description);
+    if (dto.description !== undefined) data.description = sanitizeHtml(dto.description, SANITIZE_CONFIG);
     if (dto.occurredAt !== undefined) data.occurredAt = new Date(dto.occurredAt);
     if (dto.periodLabel !== undefined) data.periodLabel = dto.periodLabel;
     if (dto.historicalRelevance !== undefined) data.historicalRelevance = dto.historicalRelevance;

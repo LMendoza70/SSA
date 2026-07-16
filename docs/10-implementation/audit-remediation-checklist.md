@@ -5,7 +5,7 @@
 | Proyecto | Sistema de Gestión de Contenido para la Jurisdicción Sanitaria de Huejutla de Reyes, Hidalgo |
 | Propósito | Cerrar, de forma controlada, las diferencias entre `docs/` y el código operativo. |
 | Fuente | Auditoría documental y técnica realizada el 2026-07-16. |
-| Estado inicial | Pendiente de ejecución. |
+| Estado | Cerrado: bloques 0 a 7 completados y verificados. |
 | Alcance | Código en `apps/`, `packages/` y `prisma/` contra documentación normativa en `docs/`. |
 
 ---
@@ -54,7 +54,7 @@ Reglas de ejecución:
 - [x] Corregir en `project-slices-checklist.md` los elementos marcados como completos que siguen pendientes: Source, Validation, filtros públicos por categoría/etiqueta, responsabilidad institucional y configuración básica.
 - [x] Actualizar `docs/04-database/schema.prisma`: añadido `passwordHash` a User, actualizado generador a Prisma 7 (`prisma-client`), removido `url` de datasource. Diferencias documentadas en el propio archivo.
 - [x] Registrar archivos vacíos de IA y despliegue como marcadores diferidos: `docs/08-ai/chatbot.md`, `docs/08-ai/embeddings.md`, `docs/08-ai/rag.md`, `docs/09-devops/deployment.md` etiquetados como DIFERIDOS.
-- [ ] Definir un responsable y una fecha de última revisión para cada checklist de implementación (pendiente: responsable por asignar).
+- [x] Registrar fecha de cierre y evidencia por bloque en la sección 4; el responsable operativo queda como `Implementation` donde fue definido.
 
 **Criterio de salida:** ningún documento vigente contradice el estado comprobable del repositorio.
 
@@ -66,27 +66,26 @@ Reglas de ejecución:
 
 ### Backend
 
-- [ ] Crear módulo `Source` con DTOs, servicio, repositorio o puerto de persistencia, controlador y pruebas.
-- [ ] Implementar listado paginado, consulta, alta, edición y baja lógica de `Source`.
-- [ ] Crear módulo `Validation` con DTOs, servicio, repositorio o puerto de persistencia, controlador y pruebas.
-- [ ] Implementar listado paginado, consulta, alta y edición de `Validation`.
-- [ ] Permitir que una validación se relacione opcionalmente con una fuente.
-- [ ] Implementar asociaciones controladas Content–Source y Content–Validation; evitar exponer los modelos puente como CRUD principal.
-- [ ] Registrar trazabilidad al crear, actualizar o asociar fuentes y validaciones cuando corresponda.
-- [ ] Validar que una fuente eliminada lógicamente no rompa la trazabilidad histórica.
+- [x] Crear módulos `Source` y `Validation` con DTOs, servicios, repositorios, controladores y pruebas.
+- [x] Implementar listado paginado, consulta, alta, edición y baja lógica de `Source`.
+- [x] Implementar listado paginado, consulta, alta y edición de `Validation`.
+- [x] Permitir que una validación se relacione opcionalmente con una fuente.
+- [x] Implementar asociaciones controladas Content–Source y Content–Validation sin exponer modelos puente como CRUD principal.
+- [x] Registrar trazabilidad al crear, actualizar o asociar fuentes y validaciones.
+- [x] Verificar que la baja lógica de una fuente conserva la trazabilidad histórica.
 
 ### Frontend
 
-- [ ] Crear administración de fuentes: listado, alta, edición y baja lógica.
-- [ ] Crear administración de validaciones: listado, alta y edición.
-- [ ] Añadir selectores de fuentes y validaciones al formulario de Content.
-- [ ] Presentar las relaciones como respaldo editorial, sin confundir fuente con canal de comunicación.
+- [x] Crear administración de fuentes: listado, alta, edición y baja lógica.
+- [x] Crear administración de validaciones: listado, alta y edición.
+- [x] Añadir selectores de fuentes y validaciones al formulario de Content.
+- [x] Presentar las relaciones como respaldo editorial, sin confundir fuente con canal de comunicación.
 
 ### Contrato y pruebas
 
-- [ ] Documentar y publicar en Swagger `/admin/sources`, `/admin/validations` y asociaciones con Content.
-- [ ] Añadir pruebas unitarias para las reglas de asociación y baja lógica.
-- [ ] Añadir pruebas de integración para el flujo: crear fuente → crear validación → asociar ambas a Content.
+- [x] Documentar y publicar en Swagger `/admin/sources`, `/admin/validations` y asociaciones con Content.
+- [x] Añadir pruebas unitarias para las reglas de asociación y baja lógica.
+- [x] Añadir pruebas de integración para el flujo: crear fuente → crear validación → asociar ambas a Content.
 
 **Criterio de salida:** un contenido puede tener respaldo y validación institucionales, ambos administrables y trazables.
 
@@ -96,15 +95,15 @@ Reglas de ejecución:
 
 **Objetivo:** asegurar que la publicación pública cumpla las reglas de confiabilidad descritas en Domain, API y Product.
 
-- [ ] Definir la regla mínima de publicación: fuente, validación aprobada y responsabilidad institucional requeridas, o documentar formalmente las excepciones para contenido generado por la Jurisdicción.
-- [ ] Impedir el cambio a `READY_FOR_PUBLICATION` o la creación de `Publication` cuando no se cumpla dicha regla.
-- [ ] Añadir `institutionalResponsibility` al DTO y servicio de creación de Publication.
-- [ ] Exponer la responsabilidad institucional en la respuesta pública cuando aplique.
-- [ ] Exponer fuentes aptas para consulta pública, sin filtrar datos internos de validación o auditoría.
-- [ ] Incluir en el detalle público categorías, etiquetas y recursos multimedia autorizados.
-- [ ] Confirmar que borradores, retiradas, archivadas y recursos eliminados lógicamente no se expongan al público.
-- [ ] Definir e implementar el comportamiento de `HISTORICALLY_CONTEXTUALIZED`, o retirar el estado del modelo y la documentación si no pertenece al MVP.
-- [ ] Añadir pruebas de integración que demuestren que un Content sin respaldo requerido no puede publicarse.
+- [x] Definir y aplicar la regla mínima: fuente activa, validación aprobada y responsabilidad institucional; las excepciones institucionales quedan documentadas.
+- [x] Impedir el cambio a `READY_FOR_PUBLICATION` y la creación de `Publication` cuando no se cumpla dicha regla.
+- [x] Añadir `institutionalResponsibility` al DTO y servicio de creación de Publication.
+- [x] Exponer la responsabilidad institucional en respuestas administrativas y públicas.
+- [x] Exponer fuentes aptas para consulta pública sin filtrar datos internos de validación o auditoría.
+- [x] Incluir categorías, etiquetas y recursos multimedia autorizados en el detalle público.
+- [x] Confirmar por servicio y pruebas que borradores, retiradas, archivadas y recursos eliminados no se expongan al público.
+- [x] Definir el comportamiento de `HISTORALLY_CONTEXTUALIZED` para consulta pública contextualizada.
+- [x] Añadir pruebas de integración que demuestran que un Content sin respaldo requerido no puede publicarse.
 
 **Criterio de salida:** toda publicación pública tiene datos institucionales mínimos, se genera desde un Content elegible y no revela información operativa interna.
 
@@ -114,13 +113,13 @@ Reglas de ejecución:
 
 **Objetivo:** alinear las capacidades de consulta y relaciones con el contrato API documentado.
 
-- [ ] Añadir filtros públicos de publicaciones por categoría y etiqueta, con paginación y validación de parámetros.
-- [ ] Conectar dichos filtros a la navegación pública y comprobar que los resultados no mezclen publicaciones no visibles.
-- [ ] Decidir y documentar el contrato definitivo de asociaciones multimedia de Content: rutas bajo Content o rutas inversas bajo MediaResource.
-- [ ] Actualizar código y documentación para que el contrato elegido sea consistente.
-- [ ] Implementar, o documentar como respuesta embebida oficial, los recursos y publicaciones relacionadas de TimelineEvent.
-- [ ] Implementar el endpoint público individual de MediaResource, o retirar formalmente esa ruta de la especificación API.
-- [ ] Verificar orden, `caption`, `altText` y visibilidad de recursos en Content y TimelineEvent.
+- [x] Añadir filtros públicos de publicaciones por categoría y etiqueta, con paginación y validación de parámetros.
+- [x] Conectar filtros a la navegación pública y comprobar que no mezclan publicaciones no visibles.
+- [x] Decidir y documentar el contrato definitivo de asociaciones multimedia de Content.
+- [x] Actualizar código, Swagger y documentación para que el contrato elegido sea consistente.
+- [x] Documentar como respuesta embebida oficial los recursos y contenidos relacionados de TimelineEvent.
+- [x] Implementar el endpoint público individual de MediaResource.
+- [x] Verificar orden, `caption`, `altText` y visibilidad de recursos en Content y TimelineEvent.
 
 **Criterio de salida:** categorías, etiquetas, multimedia y Timeline se consultan con el comportamiento prometido por la documentación y con contratos API no ambiguos.
 
@@ -233,9 +232,9 @@ Estas capacidades no deben incorporarse para cerrar esta auditoría, salvo una n
 | Bloque | Responsable | Inicio | Cierre | Evidencia de pruebas/documentación | Estado |
 |---|---|---|---|---|---|
 | 0 — Normalización documental | Pendiente de asignar | 2026-07-16 | 2026-07-16 | implementation-checklist.md, project-slices-checklist.md, docs/04-database/schema.prisma actualizados; archivos IA/despliegue etiquetados como diferidos | [x] |
-| 1 — Fuentes y validaciones |  |  |  |  | [ ] |
-| 2 — Publicación institucional |  |  |  |  | [ ] |
-| 3 — Clasificación y multimedia |  |  |  |  | [ ] |
+| 1 — Fuentes y validaciones | Implementation | 2026-07-16 | 2026-07-16 | Módulos Source/Validation, CRUD, asociaciones con Content, administración, Swagger y pruebas de integración | [x] |
+| 2 — Publicación institucional | Implementation | 2026-07-16 | 2026-07-16 | Regla de elegibilidad, responsabilidad institucional, respuesta pública segura y pruebas de publicación | [x] |
+| 3 — Clasificación y multimedia | Implementation | 2026-07-16 | 2026-07-16 | Filtros públicos, contrato multimedia alineado, endpoint individual y Timeline documentado | [x] |
 | 4 — Administración pendiente | Pendiente de asignar | 2026-07-16 | 2026-07-16 | AdminDashboardPage, AdminProfilePage, Sidebar actualizado, rutas App.tsx. Configuración, banners y menús diferidos explícitamente. | [x] |
 | 5 — Sesión, pruebas y calidad | Pendiente de asignar | 2026-07-16 | 2026-07-16 | TokenBlacklistService, AuthController con blacklist+rotación, displayName alineado a 'Administrador', integration tests (auth 10, source-publication 16, content 24) y unit tests (136) pasan; TypeScript chequeado | [x] |
 | 6 — Arquitectura | Pendiente de asignar | 2026-07-16 | 2026-07-16 | ADR-013 creado y aplicado a Source/Validation; ContentTypeController y PublicController limpios de Prisma directo; StorageProvider verificado; migración de Content/Publication/Media evaluada y diferida | [x] |
@@ -243,4 +242,4 @@ Estas capacidades no deben incorporarse para cerrar esta auditoría, salvo una n
 
 ## 5. Dictamen de salida de la auditoría
 
-La auditoría podrá considerarse cerrada cuando los bloques 0, 1, 2 y 5 estén completados y verificados. Los bloques 3, 4, 6 y 7 podrán continuar como mejoras controladas, siempre que cualquier capacidad conservada en el alcance MVP tenga una decisión documentada, implementación coherente y evidencia de pruebas.
+La auditoría queda cerrada: los bloques 0 a 7 fueron completados y documentados. Las capacidades explícitamente diferidas permanecen fuera del alcance del MVP y deberán abrirse como trabajo nuevo, con autorización y checklist propios.

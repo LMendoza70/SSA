@@ -5,10 +5,15 @@ import {
   Skeleton,
   Button,
   Paper,
+  Box,
+  ImageList,
+  ImageListItem,
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { usePublicPublication } from '../../hooks/usePublicPublications';
 import { useEffect } from 'react';
+
+const ALLOWED_IMG_TYPES = ['IMAGE', 'INFOGRAPHIC'];
 
 export function PublicPublicationDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -52,6 +57,8 @@ export function PublicPublicationDetailPage() {
 
   const title = publication.publicTitle || publication.content?.title;
   const body = publication.content?.body;
+  const mediaResources = publication.mediaResources || [];
+  const displayMedia = mediaResources.filter((mr: any) => ALLOWED_IMG_TYPES.includes(mr.type));
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -80,14 +87,48 @@ export function PublicPublicationDetailPage() {
         </Typography>
       )}
 
+      {displayMedia.length > 0 && (
+        <ImageList cols={displayMedia.length > 1 ? 2 : 1} gap={16} sx={{ mb: 3 }}>
+          {displayMedia.map((mr: any) => (
+            <ImageListItem key={mr.id}>
+              <Box
+                component="img"
+                src={mr.url}
+                alt={mr.altText || mr.title}
+                title={mr.caption || mr.title}
+                sx={{
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: 500,
+                  objectFit: 'contain',
+                  borderRadius: 1,
+                }}
+              />
+              {mr.caption && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', textAlign: 'center' }}>
+                  {mr.caption}
+                </Typography>
+              )}
+            </ImageListItem>
+          ))}
+        </ImageList>
+      )}
+
       {body && (
         <Paper variant="outlined" sx={{ p: 3, mt: 2 }}>
-          <Typography
-            variant="body1"
-            sx={{ lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
-          >
-            {body}
-          </Typography>
+          <Box
+            sx={{
+              lineHeight: 1.8,
+              '& img': { maxWidth: '100%', height: 'auto', borderRadius: 1 },
+              '& p': { mb: 2 },
+              '& ul, & ol': { mb: 2, pl: 3 },
+              '& li': { mb: 0.5 },
+              '& a': { color: 'primary.main' },
+              '& h1, & h2, & h3, & h4': { mt: 3, mb: 1.5 },
+              '& blockquote': { borderLeft: 4, borderColor: 'primary.main', pl: 2, ml: 0, color: 'text.secondary' },
+            }}
+            dangerouslySetInnerHTML={{ __html: body }}
+          />
         </Paper>
       )}
     </Container>

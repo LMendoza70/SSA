@@ -4,6 +4,17 @@ import { CreateContentDto, UpdateContentDto, ContentListQueryDto } from './dto';
 import { TraceabilityService } from '../traceability/traceability.service';
 import sanitizeHtml from 'sanitize-html';
 
+const SANITIZE_CONFIG: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    'img', 'figure', 'figcaption', 'span', 'sub', 'sup',
+  ]),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height', 'style'],
+    '*': ['style', 'class'],
+  },
+};
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -37,8 +48,8 @@ export class ContentService {
         contentTypeId: dto.contentTypeId,
         title: dto.title,
         slug,
-        summary: dto.summary ? sanitizeHtml(dto.summary) : undefined,
-        body: dto.body ? sanitizeHtml(dto.body) : undefined,
+        summary: dto.summary ? sanitizeHtml(dto.summary, SANITIZE_CONFIG) : undefined,
+        body: dto.body ? sanitizeHtml(dto.body, SANITIZE_CONFIG) : undefined,
         seoTitle: dto.seoTitle,
         seoDescription: dto.seoDescription,
         createdById: userId,
@@ -161,8 +172,8 @@ export class ContentService {
       }
       data.contentTypeId = dto.contentTypeId;
     }
-    if (dto.summary !== undefined) data.summary = sanitizeHtml(dto.summary);
-    if (dto.body !== undefined) data.body = sanitizeHtml(dto.body);
+    if (dto.summary !== undefined) data.summary = sanitizeHtml(dto.summary, SANITIZE_CONFIG);
+    if (dto.body !== undefined) data.body = sanitizeHtml(dto.body, SANITIZE_CONFIG);
     if (dto.seoTitle !== undefined) data.seoTitle = dto.seoTitle;
     if (dto.seoDescription !== undefined) data.seoDescription = dto.seoDescription;
     if (dto.status !== undefined) data.status = dto.status;

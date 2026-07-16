@@ -6,10 +6,10 @@
 | Cliente | Jurisdiccion Sanitaria de Huejutla de Reyes, Hidalgo |
 | Documento | Checklist del Proyecto |
 | Fase actual | Implementation / Phase 10 operativa |
-| Estado | Actualizado por Bloque 0 de auditoria |
+| Estado | Actualizado al cierre de los bloques de auditoría 0–7 |
 | Fecha | 2026-07-16 |
 | Responsable | Pendiente de asignar |
-| Ultima revision | 2026-07-16 (Bloque 0 auditoria) |
+| Ultima revision | 2026-07-16 (cierre de auditoría) |
 
 ---
 
@@ -36,17 +36,18 @@ Debe actualizarse cada vez que se complete un hito relevante, se autorice una ac
 | AI | Baseline futura | [x] |
 | DevOps | Baseline | [x] |
 | Implementation Start | Baseline de arranque | [x] |
-| Implementacion real | Parcial — Slices 0–13 con avance real | [~] |
-| MVP funcional | Parcial — ver project-slices-checklist.md | [~] |
+| Implementacion real | Completada — Slices 0–13 y bloques de auditoría 0–7 | [x] |
+| MVP funcional | Completado para el alcance vigente | [x] |
 
 Lectura del estado actual:
 
 ```text
 El proyecto ya cerro la baseline documental principal.
 La etapa activa es Implementation.
-Slices 0 a 13 implementados con diverso grado de avance.
-Source, Validation, filtros publicos por categoria/etiqueta,
-responsabilidad institucional y configuracion basica siguen pendientes.
+Slices 0 a 13 y bloques de auditoría 0 a 7 completados.
+Source, Validation, filtros públicos por categoría/etiqueta y responsabilidad
+institucional se encuentran implementados. Configuración básica, banners y
+menús fueron diferidos explícitamente fuera del alcance actual del MVP.
 ```
 
 ---
@@ -139,7 +140,7 @@ responsabilidad institucional y configuracion basica siguen pendientes.
 - [x] Docker recomendado, no obligatorio.
 - [x] `.env.example` creado sin secretos.
 - [x] Estrategia local PostgreSQL definida y operativa (via PrismaService + seed).
-- [ ] Definir proveedor de despliegue cuando corresponda (pendiente Bloque 7).
+- [x] Preparación DevOps completada: CI, desarrollo reproducible, migraciones y respaldo documentados; proveedor final se mantiene como decisión de despliegue posterior.
 
 ---
 
@@ -250,15 +251,15 @@ Estado: **Completado** (verificado en project-slices-checklist.md)
 
 ### Slice 6 - Consulta Publica Minima
 
-Estado: **Parcial** — ver auditoria
+Estado: **Completado** — ver auditoría cerrada
 
 - [x] Listar publicaciones publicas.
 - [x] Consultar detalle publico por slug.
 - [x] Implementar busqueda basica.
 - [x] Evitar exposicion de borradores o datos administrativos.
 - [x] Preparar SEO basico.
-- [ ] **Filtros publicos por categoria y etiqueta: PENDIENTE.**
-- [ ] **Responsabilidad institucional en respuesta publica: PENDIENTE.**
+- [x] Filtros públicos por categoría y etiqueta.
+- [x] Responsabilidad institucional en respuesta pública.
 
 ### Slice 7 - Recursos Multimedia
 
@@ -272,14 +273,14 @@ Estado: **Completado** (verificado en project-slices-checklist.md)
 
 ### Slice 8 - Clasificacion Basica
 
-Estado: **Parcial** — ver auditoria
+Estado: **Completado** — ver auditoría cerrada
 
 - [x] Administrar ContentType (CRUD admin).
 - [x] Administrar Category (CRUD admin).
 - [x] Administrar Tag (CRUD admin).
 - [x] Relacionar Content con categorias y etiquetas.
 - [x] Endpoints publicos de listado: /categories, /tags, /content-types.
-- [~] **Filtros en listado publico: solo contentTypeCode; categoria/etiqueta PENDIENTE.**
+- [x] Filtros públicos por tipo, categoría y etiqueta.
 
 ### Slice 9 - Campaign / Disease
 
@@ -324,11 +325,11 @@ Estado: **Completado** (verificado en project-slices-checklist.md)
 
 ### Slice 13 - End-to-End MVP
 
-Estado: **Parcial** — ver auditoria
+Estado: **Completado** — ver auditoría cerrada
 
 - [x] Login administrativo.
 - [x] Crear Content.
-- [~] Asociar clasificacion minima (categorias y etiquetas funcionales en admin; filtros publicos pendientes).
+- [x] Asociar clasificación mínima y filtros públicos por tipo, categoría y etiqueta.
 - [x] Publicar como Publication.
 - [x] Consultar desde portal publico.
 - [x] Asociar multimedia.
@@ -337,9 +338,9 @@ Estado: **Parcial** — ver auditoria
 - [x] Sin IA funcional.
 - [x] Sin roles avanzados.
 - [x] Sin workflow multinivel.
-- [ ] **Asociar fuente y validacion a Content: PENDIENTE (no existe modulo Source ni Validation).**
-- [ ] **Responsabilidad institucional en publicacion: PENDIENTE (campo en schema pero nunca poblado).**
-- [ ] **Configuracion basica del sitio: PENDIENTE (sin endpoint ni entidad).**
+- [x] Asociar fuente y validación a Content mediante módulos dedicados.
+- [x] Registrar y exponer responsabilidad institucional en Publication.
+- [x] Configuración básica, banners y menús declarados explícitamente diferidos fuera del MVP actual.
 
 ---
 
@@ -367,7 +368,7 @@ Estado: **Parcial** — ver auditoria
 - [x] Prisma: ejecutado (validate, generate, migrate dev, seed).
 - [x] Estrategia local PostgreSQL: operativa via PrismaService.
 - [x] Mecanismo de primer usuario admin: seed controlado.
-- [ ] Proveedor o estrategia inicial de despliegue: pendiente (Bloque 7).
+- [x] Estrategia de preparación y despliegue no productivo definida; proveedor final diferido hasta su selección institucional.
 - [ ] Almacenamiento multimedia: LocalStorageProvider operativo; remoto pendiente.
 - [ ] Revisar documentos con estado `Draft`.
 
@@ -391,14 +392,13 @@ Baseline documental completa
 -> Implementation ejecutada (Slices 0-13)
 -> Backend operativo con NestJS + Prisma + PostgreSQL
 -> Frontend operativo con React + Vite + MUI
--> Source, Validation, filtros publicos categoria/etiqueta,
-   responsabilidad institucional pendientes
--> Configuracion basica, banners y menus diferidos (ver auditoria Bloque 4)
--> Auditoria en curso (Bloque 0 - Normalizacion documental)
+-> Auditoría cerrada: bloques 0–7 completados
+-> Source, Validation, filtros públicos y responsabilidad institucional implementados
+-> Configuración básica, banners y menús diferidos fuera del MVP vigente
 ```
 
 Siguiente movimiento recomendado:
 
 ```text
-Completar Bloque 0 de auditoria, luego avanzar a Bloque 1 (Source/Validation).
+Planificar una fase posterior al MVP mediante un nuevo ADR y checklist de alcance.
 ```
