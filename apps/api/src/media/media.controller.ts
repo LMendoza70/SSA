@@ -21,6 +21,7 @@ import {
   MediaResourceListQueryDto,
   MediaResourceResponseDto,
   AssociateMediaDto,
+  UpdateAssociationDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -100,5 +101,50 @@ export class MediaController {
   ) {
     await this.mediaService.removeAssociation(contentId, mediaResourceId);
     return { message: 'Asociación eliminada' };
+  }
+}
+
+@ApiTags('Admin / Contents Media')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('admin/contents')
+export class ContentMediaController {
+  constructor(private readonly mediaService: MediaService) {}
+
+  @Get(':contentId/media-resources')
+  @ApiOperation({ summary: 'Obtener recursos multimedia de un contenido' })
+  async getMedia(@Param('contentId') contentId: string) {
+    return this.mediaService.getContentMedia(contentId);
+  }
+
+  @Put(':contentId/media-resources')
+  @ApiOperation({ summary: 'Reemplazar recursos multimedia de un contenido' })
+  async replaceMedia(
+    @Param('contentId') contentId: string,
+    @Body() dto: AssociateMediaDto,
+  ) {
+    await this.mediaService.associateContent(contentId, dto);
+    return { message: 'Recursos multimedia actualizados' };
+  }
+
+  @Patch(':contentId/media-resources/:mediaResourceId')
+  @ApiOperation({ summary: 'Actualizar caption/orden de un recurso en el contenido' })
+  async updateMediaAssociation(
+    @Param('contentId') contentId: string,
+    @Param('mediaResourceId') mediaResourceId: string,
+    @Body() dto: UpdateAssociationDto,
+  ) {
+    await this.mediaService.updateAssociation(contentId, mediaResourceId, dto);
+    return { message: 'Asociación actualizada' };
+  }
+
+  @Delete(':contentId/media-resources/:mediaResourceId')
+  @ApiOperation({ summary: 'Desasociar recurso de contenido' })
+  async removeMedia(
+    @Param('contentId') contentId: string,
+    @Param('mediaResourceId') mediaResourceId: string,
+  ) {
+    await this.mediaService.removeAssociation(contentId, mediaResourceId);
+    return { message: 'Recurso desasociado' };
   }
 }

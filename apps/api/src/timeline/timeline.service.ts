@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTimelineEventDto, UpdateTimelineEventDto } from './dto';
 import sanitizeHtml from 'sanitize-html';
@@ -120,6 +120,71 @@ export class TimelineService {
     });
 
     return event;
+  }
+
+  async replaceMediaResources(eventId: string, mediaResourceIds: string[]) {
+    const event = await this.prisma.timelineEvent.findUnique({ where: { id: eventId } });
+    if (!event || event.deletedAt) {
+      throw new NotFoundException('Evento de línea del tiempo no encontrado');
+    }
+
+    for (const id of mediaResourceIds) {
+      const mr = await this.prisma.mediaResource.findUnique({ where: { id } });
+      if (!mr || mr.deletedAt) {
+        throw new BadRequestException(`Recurso multimedia ${id} no encontrado`);
+      }
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.timelineEventMediaResource.deleteMany({ where: { timelineEventId: eventId } }),
+      ...mediaResourceIds.map((mediaResourceId, i) =>
+        this.prisma.timelineEventMediaResource.create({
+          data: { timelineEventId: eventId, mediaResourceId, sortOrder: i },
+        }),
+      ),
+    ]);
+  }
+
+  async replaceRelatedContents(eventId: string, contentIds: string[]) {
+    const event = await this.prisma.timelineEvent.findUnique({ where: { id: eventId } });
+    if (!event || event.deletedAt) {
+      throw new NotFoundException('Evento de línea del tiempo no encontrado');
+    }
+
+    for (const id of contentIds) {
+      const c = await this.prisma.content.findUnique({ where: { id } });
+      if (!c || c.deletedAt) {
+        throw new BadRequestException(`Contenido ${id} no encontrado`);
+      }
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.timelineEventContent.deleteMany({ where: { timelineEventId: eventId } }),
+      ...contentIds.map((contentId) =>
+        this.prisma.timelineEventContent.create({
+          data: { timelineEventId: eventId, contentId },
+        }),
+      ),
+    ]);
+  }
+
+  async updateMediaAssociation(eventId: string, mediaResourceId: string, caption?: string, sortOrder?: number) {
+    const association = await this.prisma.timelineEventMediaResource.findUnique({
+      where: { timelineEventId_mediaResourceId: { timelineEventId: eventId, mediaResourceId } },
+    });
+    if (!association) {
+      throw new NotFoundException('Asociación no encontrada');
+    }
+
+    const data: any = {};
+    if (caption !== undefined) data.caption = caption;
+    if (sortOrder !== undefined) data.sortOrder = sortOrder;
+
+    return this.prisma.timelineEventMediaResource.update({
+      where: { timelineEventId_mediaResourceId: { timelineEventId: eventId, mediaResourceId } },
+      data,
+      include: { mediaResource: true },
+    });
   }
 
   async remove(id: string) {

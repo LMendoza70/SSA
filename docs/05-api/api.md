@@ -356,16 +356,19 @@ Las rutas públicas específicas deberán declararse antes que las rutas paramet
 
 | Método | Ruta | Propósito | Actor principal | Resultado conceptual |
 |--------|------|-----------|-----------------|----------------------|
-| GET | `/api/v1/public/publications` | Listar publicaciones disponibles para consulta pública. | Ciudadano | Lista paginada de publicaciones visibles. |
-| GET | `/api/v1/public/publications/{publicSlug}` | Consultar detalle de una publicación pública. | Ciudadano | Publicación con contenido, clasificación, recursos, vigencia y contexto público. |
+| GET | `/api/v1/public/publications` | Listar publicaciones disponibles para consulta pública. | Ciudadano | Lista paginada de publicaciones visibles. Soporta filtros por `contentTypeCode`, `categoryId` y `tagId`. |
+| GET | `/api/v1/public/publications/{publicSlug}` | Consultar detalle de una publicación pública. | Ciudadano | Publicación con contenido, clasificación, recursos con `caption`/`sortOrder`/`altText`, vigencia y contexto público. |
 | GET | `/api/v1/public/featured-publications` | Consultar publicaciones destacadas. | Ciudadano | Lista de publicaciones destacadas para inicio o secciones públicas. |
+| GET | `/api/v1/public/categories/{slug}/publications` | Listar publicaciones por categoría (slug). | Ciudadano | Publicaciones visibles filtradas por categoría, paginadas. Incluye metadatos de la categoría. |
+| GET | `/api/v1/public/tags/{slug}/publications` | Listar publicaciones por etiqueta (slug). | Ciudadano | Publicaciones visibles filtradas por etiqueta, paginadas. Incluye metadatos de la etiqueta. |
 
 Reglas conceptuales aplicables:
 
 - solo se muestran publicaciones disponibles para consulta pública;
 - información retirada no debe aparecer como vigente;
 - información histórica debe presentarse con contexto claro;
-- la respuesta pública no debe exponer detalles internos innecesarios.
+- la respuesta pública no debe exponer detalles internos innecesarios;
+- los filtros por categoría y etiqueta pueden combinarse.
 
 ---
 
@@ -459,6 +462,8 @@ La Línea del Tiempo puede tener recursos multimedia propios sin depender de Con
 
 La clasificación pública debe favorecer búsqueda y comprensión, no exponer taxonomía técnica innecesaria.
 
+Los endpoints `/api/v1/public/categories/{slug}/publications` y `/api/v1/public/tags/{slug}/publications` permiten navegar publicaciones por clasificación. El listado general también soporta filtros directos por `categoryId` y `tagId`.
+
 ---
 
 ### 10.7 Recursos públicos
@@ -468,6 +473,24 @@ La clasificación pública debe favorecer búsqueda y comprensión, no exponer t
 | GET | `/api/v1/public/media-resources/{id}` | Consultar metadatos públicos de un recurso. | Ciudadano | Recurso visible con título, descripción, tipo, URL pública o referencia de acceso. |
 
 La entrega física del archivo puede resolverse por Storage Provider, CDN o ruta de backend. Este documento no define infraestructura de archivos.
+
+### 10.8 Contrato multimedia unificado
+
+Los recursos multimedia expuestos en respuestas públicas de Content (Publication detail) y TimelineEvent comparten una estructura común que incluye metadatos de la asociación:
+
+```text
+id
+type             - Tipo de recurso (IMAGE, VIDEO, PDF, AUDIO)
+title
+description      - Opcional
+url              - URL resuelta por StorageProvider.externalUrl
+mimeType         - Opcional
+altText          - Texto alternativo accesible
+caption          - Leyenda de la asociación (opcional, join table)
+sortOrder        - Orden dentro del recurso padre (opcional, join table)
+```
+
+El endpoint específico `/api/v1/public/media-resources/{id}` expone metadatos del recurso como entidad independiente (sin datos de asociación), incluyendo `resourceUri` y `externalUrl` como referencias de acceso.
 
 ---
 
@@ -858,8 +881,16 @@ categories
 tags
 campaigns relacionadas
 diseases relacionadas
-mediaResources públicos
+mediaResources públicos (con caption, sortOrder, altText)
 institutionalResponsibility cuando aporte confianza pública
+```
+
+La respuesta de detalle (`GET /public/publications/{publicSlug}`) incluye adicionalmente:
+
+```text
+categories: [ { id, name, slug } ]
+tags: [ { id, name, slug } ]
+mediaResources: [ { id, type, title, description, url, mimeType, altText, caption, sortOrder } ]
 ```
 
 No deberá exponer por defecto:
@@ -931,8 +962,14 @@ description
 occurredAt
 periodLabel
 historicalRelevance
-mediaResources propios
+mediaResources propios (con caption, sortOrder, altText)
 relatedPublications opcionales
+```
+
+Cada `mediaResources` expone:
+
+```text
+{ id, type, title, url, altText, caption, sortOrder }
 ```
 
 La relación con Content no es obligatoria para que el evento tenga valor público.

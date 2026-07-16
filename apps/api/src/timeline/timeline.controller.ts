@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TimelineService } from './timeline.service';
 import { CreateTimelineEventDto, UpdateTimelineEventDto } from './dto';
@@ -33,6 +33,37 @@ export class TimelineController {
   @ApiOperation({ summary: 'Actualizar evento de línea del tiempo' })
   async update(@Param('id') id: string, @Body() dto: UpdateTimelineEventDto) {
     return this.service.update(id, dto);
+  }
+
+  @Put(':id/media-resources')
+  @ApiOperation({ summary: 'Reemplazar recursos multimedia del evento' })
+  async replaceMediaResources(
+    @Param('id') id: string,
+    @Body('mediaResourceIds') mediaResourceIds: string[],
+  ) {
+    await this.service.replaceMediaResources(id, mediaResourceIds || []);
+    return { message: 'Recursos multimedia actualizados' };
+  }
+
+  @Patch(':id/media-resources/:mediaResourceId')
+  @ApiOperation({ summary: 'Actualizar caption/orden de recurso en el evento' })
+  async updateMediaAssociation(
+    @Param('id') id: string,
+    @Param('mediaResourceId') mediaResourceId: string,
+    @Body('caption') caption?: string,
+    @Body('sortOrder') sortOrder?: number,
+  ) {
+    return this.service.updateMediaAssociation(id, mediaResourceId, caption, sortOrder);
+  }
+
+  @Put(':id/related-contents')
+  @ApiOperation({ summary: 'Reemplazar contenidos relacionados del evento' })
+  async replaceRelatedContents(
+    @Param('id') id: string,
+    @Body('contentIds') contentIds: string[],
+  ) {
+    await this.service.replaceRelatedContents(id, contentIds || []);
+    return { message: 'Contenidos relacionados actualizados' };
   }
 
   @Delete(':id')

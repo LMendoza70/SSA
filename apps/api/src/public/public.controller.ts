@@ -51,6 +51,23 @@ export class PublicController {
     });
   }
 
+  @Get('categories/:slug/publications')
+  @ApiOperation({ summary: 'Publicaciones por categoría' })
+  async publicCategoryPublications(
+    @Param('slug') slug: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.publicService.findByCategorySlug(slug, {
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 20,
+    });
+    if (!result) {
+      throw new NotFoundException('Categoría no encontrada');
+    }
+    return result;
+  }
+
   @Get('tags')
   @ApiOperation({ summary: 'Listar etiquetas públicas' })
   async publicTags() {
@@ -58,6 +75,23 @@ export class PublicController {
       where: { isActive: true, deletedAt: null },
       orderBy: { name: 'asc' },
     });
+  }
+
+  @Get('tags/:slug/publications')
+  @ApiOperation({ summary: 'Publicaciones por etiqueta' })
+  async publicTagPublications(
+    @Param('slug') slug: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.publicService.findByTagSlug(slug, {
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 20,
+    });
+    if (!result) {
+      throw new NotFoundException('Etiqueta no encontrada');
+    }
+    return result;
   }
 
   @Get('content-types')
@@ -159,9 +193,79 @@ export class PublicController {
           : em.mediaResource.externalUrl,
         altText: em.mediaResource.altText,
         caption: em.caption,
+        sortOrder: em.sortOrder,
       })),
       relatedContents: e.timelineEventContents.map((ec) => ec.content),
     }));
+  }
+
+  @Get('sources')
+  @ApiOperation({ summary: 'Listar fuentes públicas activas' })
+  async publicSources() {
+    return this.publicService.findAllSources();
+  }
+
+  @Get('media-resources/:id')
+  @ApiOperation({ summary: 'Consultar metadatos públicos de un recurso multimedia' })
+  async publicMediaResource(@Param('id') id: string) {
+    const resource = await this.publicService.findMediaResource(id);
+    return {
+      ...resource,
+      url: resource.resourceUri
+        ? this.storage.getUrl(resource.resourceUri)
+        : resource.externalUrl,
+    };
+  }
+
+  @Get('timeline-events/:slug/media-resources')
+  @ApiOperation({ summary: 'Recursos multimedia de un evento histórico' })
+  async publicTimelineEventMediaResources(@Param('slug') slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      select: { id: true, deletedAt: true, isVisible: true },
+    });
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    const associations = await this.prisma.timelineEventMediaResource.findMany({
+      where: { timelineEventId: event.id },
+      include: { mediaResource: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+    return associations.map((em) => ({
+      id: em.mediaResource.id,
+      type: em.mediaResource.type,
+      title: em.mediaResource.title,
+      description: em.mediaResource.description,
+      url: em.mediaResource.resourceUri
+        ? this.storage.getUrl(em.mediaResource.resourceUri)
+        : em.mediaResource.externalUrl,
+      mimeType: em.mediaResource.mimeType,
+      altText: em.mediaResource.altText,
+      caption: em.caption,
+      sortOrder: em.sortOrder,
+    }));
+  }
+
+  @Get('timeline-events/:slug/related-publications')
+  @ApiOperation({ summary: 'Publicaciones relacionadas a un evento histórico' })
+  async publicTimelineEventRelatedPublications(@Param('slug') slug: string) {
+    const event = await this.prisma.timelineEvent.findUnique({
+      where: { slug },
+      select: { id: true, deletedAt: true, isVisible: true },
+    });
+    if (!event || event.deletedAt || !event.isVisible) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    const associations = await this.prisma.timelineEventContent.findMany({
+      where: { timelineEventId: event.id },
+      include: {
+        content: {
+          select: { id: true, title: true, slug: true, summary: true },
+        },
+      },
+    });
+    return associations.map((ec) => ec.content);
   }
 
   @Get('timeline-events/:slug')
@@ -205,6 +309,7 @@ export class PublicController {
           : em.mediaResource.externalUrl,
         altText: em.mediaResource.altText,
         caption: em.caption,
+        sortOrder: em.sortOrder,
       })),
       relatedContents: event.timelineEventContents.map((ec) => ec.content),
     };

@@ -24,7 +24,13 @@ export class PublicationService {
   async create(contentId: string, dto: CreatePublicationDto, userId: string) {
     const content = await this.prisma.content.findUnique({
       where: { id: contentId },
-      include: { publication: true },
+      include: {
+        publication: true,
+        contentSources: { include: { source: { select: { id: true, name: true } } } },
+        contentValidations: {
+          include: { validation: { select: { id: true, type: true, result: true } } },
+        },
+      },
     });
 
     if (!content || content.deletedAt) {
@@ -41,6 +47,33 @@ export class PublicationService {
       );
     }
 
+    if (!content.contentSources || content.contentSources.length === 0) {
+      throw new BadRequestException(
+        'El contenido debe tener al menos una fuente asociada para publicarse',
+      );
+    }
+
+    if (!content.contentValidations || content.contentValidations.length === 0) {
+      throw new BadRequestException(
+        'El contenido debe tener al menos una validación asociada para publicarse',
+      );
+    }
+
+    const hasApprovedValidation = content.contentValidations.some(
+      (cv) => cv.validation.result === 'APPROVED',
+    );
+    if (!hasApprovedValidation) {
+      throw new BadRequestException(
+        'El contenido debe tener al menos una validación aprobada para publicarse',
+      );
+    }
+
+    if (!dto.institutionalResponsibility || dto.institutionalResponsibility.trim().length < 10) {
+      throw new BadRequestException(
+        'Debe especificar la responsabilidad institucional que respalda la publicación',
+      );
+    }
+
     const baseSlug = dto.publicSlug || slugify(dto.publicTitle || content.title);
     const publicSlug = await this.resolveUniqueSlug(baseSlug);
 
@@ -50,6 +83,7 @@ export class PublicationService {
         publicSlug,
         publicTitle: dto.publicTitle || content.title,
         status: PublicationStatus.PUBLISHED,
+        institutionalResponsibility: dto.institutionalResponsibility,
         publishedAt: new Date(),
         isVisible: true,
       },
@@ -65,7 +99,7 @@ export class PublicationService {
       userId,
       contentId: content.id,
       publicationId: publication.id,
-      summary: `Publicación "${publication.publicTitle}" publicada`,
+      summary: `Publicación "${publication.publicTitle}" publicada bajo responsabilidad: ${dto.institutionalResponsibility}`,
     });
 
     return this.toResponse(publication);
@@ -226,6 +260,7 @@ export class PublicationService {
       status: publication.status,
       publicSlug: publication.publicSlug,
       publicTitle: publication.publicTitle,
+      institutionalResponsibility: publication.institutionalResponsibility,
       publishedAt: publication.publishedAt?.toISOString(),
       withdrawnAt: publication.withdrawnAt?.toISOString(),
       archivedAt: publication.archivedAt?.toISOString(),

@@ -10,17 +10,40 @@ import {
   Grid,
   TablePagination,
   Skeleton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from '@mui/material';
-import { usePublicPublications } from '../../hooks/usePublicPublications';
+import { usePublicPublications, usePublicCategories, usePublicTags } from '../../hooks/usePublicPublications';
 
 export function PublicPublicationListPage() {
   const [page, setPage] = useState(0);
+  const [categoryId, setCategoryId] = useState('');
+  const [tagId, setTagId] = useState('');
   const rowsPerPage = 12;
+
+  const { data: categories } = usePublicCategories();
+  const { data: tags } = usePublicTags();
 
   const { data, isLoading } = usePublicPublications({
     page: page + 1,
     limit: rowsPerPage,
+    categoryId: categoryId || undefined,
+    tagId: tagId || undefined,
   });
+
+  const activeFilters = [
+    ...(categoryId ? [categories?.find((c: any) => c.id === categoryId)?.name] : []),
+    ...(tagId ? [tags?.find((t: any) => t.id === tagId)?.name] : []),
+  ].filter(Boolean);
+
+  const handleClearFilters = () => {
+    setCategoryId('');
+    setTagId('');
+    setPage(0);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -30,6 +53,47 @@ export function PublicPublicationListPage() {
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Información oficial publicada por la Jurisdicción Sanitaria
       </Typography>
+
+      <Box display="flex" gap={2} flexWrap="wrap" mb={3}>
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="category-label">Categoría</InputLabel>
+          <Select
+            labelId="category-label"
+            label="Categoría"
+            value={categoryId}
+            onChange={(e) => { setCategoryId(e.target.value); setPage(0); }}
+          >
+            <MenuItem value="">Todas</MenuItem>
+            {(categories || []).map((cat: any) => (
+              <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="tag-label">Etiqueta</InputLabel>
+          <Select
+            labelId="tag-label"
+            label="Etiqueta"
+            value={tagId}
+            onChange={(e) => { setTagId(e.target.value); setPage(0); }}
+          >
+            <MenuItem value="">Todas</MenuItem>
+            {(tags || []).map((t: any) => (
+              <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {activeFilters.length > 0 && (
+        <Box display="flex" gap={1} flexWrap="wrap" mb={2}>
+          {activeFilters.map((label) => (
+            <Chip key={label} label={label} size="small" color="primary" variant="outlined" />
+          ))}
+          <Chip label="Limpiar filtros" size="small" onDelete={handleClearFilters} />
+        </Box>
+      )}
 
       <Grid container spacing={3}>
         {isLoading

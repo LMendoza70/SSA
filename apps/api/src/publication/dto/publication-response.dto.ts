@@ -34,6 +34,9 @@ export class PublicationResponseDto {
   publicTitle?: string;
 
   @ApiPropertyOptional()
+  institutionalResponsibility?: string;
+
+  @ApiPropertyOptional()
   publishedAt?: string;
 
   @ApiPropertyOptional()

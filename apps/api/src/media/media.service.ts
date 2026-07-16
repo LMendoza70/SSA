@@ -6,6 +6,7 @@ import {
   UpdateMediaResourceDto,
   MediaResourceListQueryDto,
   AssociateMediaDto,
+  UpdateAssociationDto,
 } from './dto';
 import { MediaResourceType } from '../generated/prisma/client';
 
@@ -197,6 +198,25 @@ export class MediaService {
 
     await this.prisma.contentMediaResource.delete({
       where: { contentId_mediaResourceId: { contentId, mediaResourceId } },
+    });
+  }
+
+  async updateAssociation(contentId: string, mediaResourceId: string, dto: UpdateAssociationDto) {
+    const association = await this.prisma.contentMediaResource.findUnique({
+      where: { contentId_mediaResourceId: { contentId, mediaResourceId } },
+    });
+
+    if (!association) {
+      throw new NotFoundException('Asociación no encontrada');
+    }
+
+    const data: any = {};
+    if (dto.caption !== undefined) data.caption = dto.caption;
+    if (dto.sortOrder !== undefined) data.sortOrder = dto.sortOrder;
+
+    return this.prisma.contentMediaResource.update({
+      where: { contentId_mediaResourceId: { contentId, mediaResourceId } },
+      data,
     });
   }
 

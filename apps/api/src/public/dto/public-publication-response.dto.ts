@@ -49,7 +49,13 @@ export class PublicPublicationResponseDto {
   publicTitle?: string;
 
   @ApiPropertyOptional()
+  institutionalResponsibility?: string;
+
+  @ApiPropertyOptional()
   publishedAt?: string;
+
+  @ApiPropertyOptional()
+  updatedAtPublic?: string;
 
   @ApiProperty()
   isVisible!: boolean;

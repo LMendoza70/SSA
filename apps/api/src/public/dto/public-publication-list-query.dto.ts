@@ -21,4 +21,14 @@ export class PublicPublicationListQueryDto {
   @IsOptional()
   @IsString()
   contentTypeCode?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  categoryId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  tagId?: string;
 }

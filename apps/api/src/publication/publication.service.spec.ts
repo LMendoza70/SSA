@@ -21,6 +21,9 @@ describe('PublicationService', () => {
   const contentId = 'content-1';
   const publicationId = 'pub-1';
 
+  const mockSource = { id: 'src-1', name: 'OMS' };
+  const mockValidation = { id: 'val-1', type: 'AUTHENTICITY', result: 'APPROVED' };
+
   const mockContent = {
     id: contentId,
     title: 'Test Content',
@@ -28,6 +31,26 @@ describe('PublicationService', () => {
     status: 'READY_FOR_PUBLICATION',
     deletedAt: null,
     publication: null,
+    contentSources: [{ source: mockSource }],
+    contentValidations: [{ validation: mockValidation }],
+  };
+
+  const mockContentNoSources = {
+    ...mockContent,
+    contentSources: [],
+    contentValidations: [{ validation: mockValidation }],
+  };
+
+  const mockContentNoValidations = {
+    ...mockContent,
+    contentSources: [{ source: mockSource }],
+    contentValidations: [],
+  };
+
+  const mockContentRejectedValidation = {
+    ...mockContent,
+    contentSources: [{ source: mockSource }],
+    contentValidations: [{ validation: { id: 'val-2', type: 'AUTHENTICITY', result: 'REJECTED' } }],
   };
 
   const mockPublication = {
@@ -36,6 +59,7 @@ describe('PublicationService', () => {
     publicSlug: 'test-content',
     publicTitle: 'Test Content',
     status: 'PUBLISHED',
+    institutionalResponsibility: 'Jurisdicción Sanitaria de Huejutla de Reyes',
     isVisible: true,
     publishedAt: new Date('2026-01-01'),
     withdrawnAt: null,
@@ -49,6 +73,10 @@ describe('PublicationService', () => {
       slug: 'test-content',
       status: 'READY_FOR_PUBLICATION',
     },
+  };
+
+  const createDto: CreatePublicationDto = {
+    institutionalResponsibility: 'Jurisdicción Sanitaria de Huejutla de Reyes',
   };
 
   beforeEach(() => {
@@ -69,12 +97,9 @@ describe('PublicationService', () => {
   });
 
   describe('create', () => {
-    const dto: CreatePublicationDto = {};
-
     it('should throw NotFoundException when content does not exist', async () => {
       mockPrisma.content.findUnique.mockResolvedValue(null);
-
-      await expect(service.create('nonexistent', dto, userId)).rejects.toThrow(
+      await expect(service.create('nonexistent', createDto, userId)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -84,8 +109,7 @@ describe('PublicationService', () => {
         ...mockContent,
         deletedAt: new Date(),
       });
-
-      await expect(service.create(contentId, dto, userId)).rejects.toThrow(
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -95,8 +119,7 @@ describe('PublicationService', () => {
         ...mockContent,
         publication: mockPublication,
       });
-
-      await expect(service.create(contentId, dto, userId)).rejects.toThrow(
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
         ConflictException,
       );
     });
@@ -107,21 +130,57 @@ describe('PublicationService', () => {
         status: 'DRAFT',
         publication: null,
       });
-
-      await expect(service.create(contentId, dto, userId)).rejects.toThrow(
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
         BadRequestException,
       );
     });
 
-    it('should create publication successfully', async () => {
+    it('should throw BadRequestException when content has no sources', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContentNoSources);
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException when content has no validations', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContentNoValidations);
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException when no validation is APPROVED', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContentRejectedValidation);
+      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException when institutionalResponsibility is missing', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContent);
+      const incompleteDto: CreatePublicationDto = {} as any;
+      await expect(service.create(contentId, incompleteDto, userId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should create publication successfully when all eligibility checks pass', async () => {
       mockPrisma.content.findUnique.mockResolvedValue(mockContent);
       mockPrisma.publication.findUnique.mockResolvedValue(null);
       mockPrisma.publication.create.mockResolvedValue(mockPublication);
 
-      const result = await service.create(contentId, dto, userId);
+      const result = await service.create(contentId, createDto, userId);
 
       expect(result).toHaveProperty('id', publicationId);
       expect(result).toHaveProperty('status', 'PUBLISHED');
+      expect(result).toHaveProperty('institutionalResponsibility');
+      expect(mockPrisma.publication.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            institutionalResponsibility: 'Jurisdicción Sanitaria de Huejutla de Reyes',
+          }),
+        }),
+      );
       expect(mockTraceability.record).toHaveBeenCalledWith(
         expect.objectContaining({ action: 'PUBLISHED' }),
       );

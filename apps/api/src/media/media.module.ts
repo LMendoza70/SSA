@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MediaController } from './media.controller';
+import { MediaController, ContentMediaController } from './media.controller';
 import { MediaService } from './media.service';
 import { LocalStorageProvider } from './local-storage.provider';
 
 @Module({
-  controllers: [MediaController],
+  controllers: [MediaController, ContentMediaController],
   providers: [
     MediaService,
     { provide: 'STORAGE_PROVIDER', useClass: LocalStorageProvider },
