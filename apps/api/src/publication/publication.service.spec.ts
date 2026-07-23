@@ -21,8 +21,7 @@ describe('PublicationService', () => {
   const contentId = 'content-1';
   const publicationId = 'pub-1';
 
-  const mockSource = { id: 'src-1', name: 'OMS' };
-  const mockValidation = { id: 'val-1', type: 'AUTHENTICITY', result: 'APPROVED' };
+  const mockApprovedReview = { decision: 'APPROVED', isCurrent: true };
 
   const mockContent = {
     id: contentId,
@@ -31,27 +30,11 @@ describe('PublicationService', () => {
     status: 'READY_FOR_PUBLICATION',
     deletedAt: null,
     publication: null,
-    contentSources: [{ source: mockSource }],
-    contentValidations: [{ validation: mockValidation }],
+    publicationReview: mockApprovedReview,
   };
 
-  const mockContentNoSources = {
-    ...mockContent,
-    contentSources: [],
-    contentValidations: [{ validation: mockValidation }],
-  };
-
-  const mockContentNoValidations = {
-    ...mockContent,
-    contentSources: [{ source: mockSource }],
-    contentValidations: [],
-  };
-
-  const mockContentRejectedValidation = {
-    ...mockContent,
-    contentSources: [{ source: mockSource }],
-    contentValidations: [{ validation: { id: 'val-2', type: 'AUTHENTICITY', result: 'REJECTED' } }],
-  };
+  const mockContentWithoutReview = { ...mockContent, publicationReview: null };
+  const mockContentWithStaleReview = { ...mockContent, publicationReview: { decision: 'APPROVED', isCurrent: false } };
 
   const mockPublication = {
     id: publicationId,
@@ -135,22 +118,15 @@ describe('PublicationService', () => {
       );
     });
 
-    it('should throw BadRequestException when content has no sources', async () => {
-      mockPrisma.content.findUnique.mockResolvedValue(mockContentNoSources);
+    it('should throw BadRequestException when content has no publication review', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContentWithoutReview);
       await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
         BadRequestException,
       );
     });
 
-    it('should throw BadRequestException when content has no validations', async () => {
-      mockPrisma.content.findUnique.mockResolvedValue(mockContentNoValidations);
-      await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('should throw BadRequestException when no validation is APPROVED', async () => {
-      mockPrisma.content.findUnique.mockResolvedValue(mockContentRejectedValidation);
+    it('should throw BadRequestException when publication review is not current', async () => {
+      mockPrisma.content.findUnique.mockResolvedValue(mockContentWithStaleReview);
       await expect(service.create(contentId, createDto, userId)).rejects.toThrow(
         BadRequestException,
       );

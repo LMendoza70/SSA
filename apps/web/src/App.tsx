@@ -16,9 +16,9 @@ import TimelineEventListPage from './pages/admin/timeline/TimelineEventListPage'
 import CommunicationChannelListPage from './pages/admin/communication-channels/CommunicationChannelListPage';
 import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
 import { SourceListPage } from './pages/admin/sources/SourceListPage';
-import { ValidationListPage } from './pages/admin/validations/ValidationListPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminProfilePage } from './pages/admin/AdminProfilePage';
+import { UserListPage } from './pages/admin/UserListPage';
 import PublicCampaignListPage from './pages/public/campaigns/PublicCampaignListPage';
 import PublicCampaignDetailPage from './pages/public/campaigns/PublicCampaignDetailPage';
 import PublicDiseaseListPage from './pages/public/diseases/PublicDiseaseListPage';
@@ -67,7 +67,7 @@ export function App() {
               <Route path="timeline" element={<TimelineEventListPage />} />
               <Route path="communication-channels" element={<CommunicationChannelListPage />} />
               <Route path="sources" element={<SourceListPage />} />
-              <Route path="validations" element={<ValidationListPage />} />
+              <Route path="users" element={<UserListPage />} />
             </Route>
           </Routes>
         </AuthProvider>

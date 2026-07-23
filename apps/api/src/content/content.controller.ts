@@ -2,13 +2,16 @@ import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Re
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ContentService } from './content.service';
-import { CreateContentDto, UpdateContentDto, ContentListQueryDto, ContentResponseDto, AssociateSourcesDto, AssociateValidationsDto } from './dto';
+import { CreateContentDto, UpdateContentDto, ContentListQueryDto, ContentResponseDto, AssociateSourcesDto, AssociateValidationsDto, ReviewPublicationDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Admin / Contents')
 @Controller('admin/contents')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
+@Roles('ADMIN', 'EDITOR', 'WRITER')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
@@ -47,6 +50,17 @@ export class ContentController {
   ): Promise<ContentResponseDto> {
     const userId = (req as any).user.id;
     return this.contentService.update(id, dto, userId);
+  }
+
+  @Post(':id/publication-review')
+  @ApiOperation({ summary: 'Revisar contenido mediante checklist antes de su publicación' })
+  async reviewForPublication(
+    @Param('id') id: string,
+    @Body() dto: ReviewPublicationDto,
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    return this.contentService.reviewForPublication(id, dto, userId);
   }
 
   @Post(':id/sources')

@@ -49,6 +49,8 @@ describe('ContentService', () => {
         count: vi.fn(),
         update: vi.fn(),
       },
+      publicationReview: { findUnique: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+      $transaction: vi.fn(),
     };
 
     mockTraceability = { record: vi.fn() };

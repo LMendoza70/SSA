@@ -12,6 +12,7 @@ describe('Security: JwtStrategy', () => {
     id: 'user-1',
     email: 'admin@jurisdiccion.gob.mx',
     displayName: 'Administrador',
+    role: 'ADMIN',
   };
 
   beforeEach(async () => {
@@ -29,12 +30,13 @@ describe('Security: JwtStrategy', () => {
     it('should return user object when user exists', async () => {
       userRepository.findById.mockResolvedValue(mockUser);
 
-      const result = await strategy.validate({ sub: 'user-1', email: 'admin@jurisdiccion.gob.mx' });
+      const result = await strategy.validate({ sub: 'user-1', email: 'admin@jurisdiccion.gob.mx', role: 'ADMIN' });
 
       expect(result).toEqual({
         id: mockUser.id,
         email: mockUser.email,
         displayName: mockUser.displayName,
+        role: mockUser.role,
       });
     });
 
@@ -42,7 +44,7 @@ describe('Security: JwtStrategy', () => {
       userRepository.findById.mockResolvedValue(null);
 
       await expect(
-        strategy.validate({ sub: 'nonexistent', email: 'test@test.com' }),
+        strategy.validate({ sub: 'nonexistent', email: 'test@test.com', role: 'EDITOR' }),
       ).rejects.toThrow(UnauthorizedException);
     });
   });

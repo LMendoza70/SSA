@@ -4,6 +4,8 @@ import { Request } from 'express';
 import { SourceService } from './source.service';
 import { CreateSourceDto, UpdateSourceDto, SourceListQueryDto, SourceResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 interface PaginatedSourceResponse {
   data: SourceResponseDto[];
@@ -12,8 +14,9 @@ interface PaginatedSourceResponse {
 
 @ApiTags('Admin / Sources')
 @Controller('admin/sources')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
+@Roles('ADMIN', 'EDITOR', 'WRITER')
 export class SourceController {
   constructor(private readonly sourceService: SourceService) {}
 

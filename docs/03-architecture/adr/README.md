@@ -20,6 +20,7 @@ Esta carpeta contiene los registros de decisiones arquitectónicas relevantes de
 | ADR-012 | NestJS Modular Monolith Structure | Aceptada |
 | ADR-013 | Repository Pattern for Persistence Access | Aceptada |
 | ADR-014 | Docker para PostgreSQL Local (no apps) | Aceptada |
+| ADR-015 | Revisión editorial mediante checklist antes de publicar | Aceptada |
 
 ADR-001 al ADR-006 están definidos en `docs/03-architecture/architecture.md`.
 ADR-007 al ADR-013 son archivos individuales en este directorio.

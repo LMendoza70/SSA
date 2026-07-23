@@ -8,10 +8,13 @@ import {
   UpdateDiseaseDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Admin / Campaigns & Diseases')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'EDITOR')
 @Controller('admin')
 export class CampaignDiseaseController {
   constructor(private readonly service: CampaignDiseaseService) {}

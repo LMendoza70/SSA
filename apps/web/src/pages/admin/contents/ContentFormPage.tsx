@@ -10,6 +10,8 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
   Chip,
   Dialog,
   DialogTitle,
@@ -34,9 +36,8 @@ import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, 
 import { useChannels, useAssociatePublicationChannels } from '../../../hooks/useCommunicationChannels';
 import { useContentTraceability } from '../../../hooks/useTraceability';
 import { useAllSources } from '../../../hooks/useSources';
-import { useAllValidations } from '../../../hooks/useValidations';
 import { useAssociateContentSources } from '../../../hooks/useContentSources';
-import { useAssociateContentValidations } from '../../../hooks/useContentValidations';
+import { usePublicationReview } from '../../../hooks/usePublicationReview';
 import { TiptapEditor } from '../../../components/admin/TiptapEditor';
 import { StatusChip } from '../../../components/admin/StatusChip';
 import { ContentStatus } from '@ssa/shared';
@@ -63,9 +64,21 @@ export function ContentFormPage() {
   const [pubDialogOpen, setPubDialogOpen] = useState(false);
   const [publicSlug, setPublicSlug] = useState('');
   const [publicTitle, setPublicTitle] = useState('');
+  const [institutionalResponsibility, setInstitutionalResponsibility] = useState('');
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewNotes, setReviewNotes] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const [reviewChecklist, setReviewChecklist] = useState({
+    informationAccurate: false,
+    informationCurrent: false,
+    editorialQuality: false,
+    mediaAuthorized: false,
+    institutionalResponsibilityConfirmed: false,
+  });
 
   const createPublication = useCreatePublication();
+  const publicationReview = usePublicationReview();
 
   const { data: contentMedia } = useContentMedia(id || '');
   const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
@@ -107,19 +120,12 @@ export function ContentFormPage() {
   }, [selectedDiseases]);
 
   const { data: allSources } = useAllSources();
-  const { data: allValidations } = useAllValidations();
   const associateSources = useAssociateContentSources();
-  const associateContentVals = useAssociateContentValidations();
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
-  const [selectedValidationIds, setSelectedValidationIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (content?.sources) setSelectedSourceIds(content.sources.map((s: any) => s.id));
   }, [content?.sources]);
-
-  useEffect(() => {
-    if (content?.validations) setSelectedValidationIds(content.validations.map((v: any) => v.id));
-  }, [content?.validations]);
 
   useEffect(() => {
     if (content) {
@@ -275,7 +281,7 @@ export function ContentFormPage() {
 
             {isEdit && (
               <Box>
-                <Typography variant="subtitle1" fontWeight={600} mt={2}>Fuentes y Validaciones</Typography>
+                <Typography variant="subtitle1" fontWeight={600} mt={2}>Fuentes de respaldo</Typography>
                 <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
                   <TextField
                     select
@@ -288,28 +294,16 @@ export function ContentFormPage() {
                       <MenuItem key={src.id} value={src.id}>{src.name}</MenuItem>
                     ))}
                   </TextField>
-                  <TextField
-                    select
-                    label="Validaciones"
-                    size="small"
-                    SelectProps={{ multiple: true, value: selectedValidationIds, onChange: (e: any) => setSelectedValidationIds(e.target.value as string[]) }}
-                    sx={{ minWidth: 250 }}
-                  >
-                    {(allValidations?.data || []).map((val: any) => (
-                      <MenuItem key={val.id} value={val.id}>{val.type} - {val.result}{val.source?.name ? ` (${val.source.name})` : ''}</MenuItem>
-                    ))}
-                  </TextField>
                   <Button
                     size="small"
                     variant="outlined"
                     onClick={async () => {
                       if (id) {
                         await associateSources.mutateAsync({ contentId: id, sourceIds: selectedSourceIds });
-                        await associateContentVals.mutateAsync({ contentId: id, validationIds: selectedValidationIds });
                       }
                     }}
                   >
-                    Guardar
+                    Guardar fuentes
                   </Button>
                 </Stack>
               </Box>
@@ -416,7 +410,7 @@ export function ContentFormPage() {
                       Slug público: <strong>{content.publication.publicSlug}</strong>
                     </Typography>
                   </Stack>
-                ) : status === ContentStatus.READY_FOR_PUBLICATION ? (
+                ) : content?.publicationReview?.decision === 'APPROVED' && content.publicationReview.isCurrent ? (
                   <Button
                     variant="contained"
                     color="secondary"
@@ -425,6 +419,7 @@ export function ContentFormPage() {
                       setPubSuccess('');
                       setPublicSlug(content?.slug || '');
                       setPublicTitle(content?.title || '');
+                      setInstitutionalResponsibility('');
                       setPubDialogOpen(true);
                     }}
                     sx={{ mt: 1 }}
@@ -432,12 +427,101 @@ export function ContentFormPage() {
                     Publicar
                   </Button>
                 ) : (
-                  <Typography variant="body2" color="text.secondary" mt={1}>
-                    Cambia el estado a <strong>Listo para publicar</strong> para habilitar la publicación.
-                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                      setReviewError('');
+                      setReviewNotes(content?.publicationReview?.notes || '');
+                      setReviewChecklist({
+                        informationAccurate: false,
+                        informationCurrent: false,
+                        editorialQuality: false,
+                        mediaAuthorized: false,
+                        institutionalResponsibilityConfirmed: false,
+                      });
+                      setReviewDialogOpen(true);
+                    }}
+                    sx={{ mt: 1 }}
+                  >
+                    Revisar para publicación
+                  </Button>
                 )}
               </Box>
             )}
+
+            <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)} maxWidth="sm" fullWidth>
+              <DialogTitle>Revisión para publicación</DialogTitle>
+              <DialogContent>
+                <Stack spacing={1} sx={{ mt: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Confirma cada punto para aprobar el contenido. Si falta algo, solicita cambios e indica la observación.
+                  </Typography>
+                  {reviewError && <Alert severity="error">{reviewError}</Alert>}
+                  {([
+                    ['informationAccurate', 'La información es correcta'],
+                    ['informationCurrent', 'La información está vigente'],
+                    ['editorialQuality', 'La redacción es clara y adecuada'],
+                    ['mediaAuthorized', 'Los recursos multimedia están autorizados'],
+                    ['institutionalResponsibilityConfirmed', 'La responsabilidad institucional está confirmada'],
+                  ] as const).map(([key, label]) => (
+                    <FormControlLabel
+                      key={key}
+                      control={<Checkbox checked={reviewChecklist[key]} onChange={(event) => setReviewChecklist((current) => ({ ...current, [key]: event.target.checked }))} />}
+                      label={label}
+                    />
+                  ))}
+                  <TextField
+                    label="Observaciones"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={reviewNotes}
+                    onChange={(event) => setReviewNotes(event.target.value)}
+                    helperText="Obligatorio al solicitar cambios (mín. 10 caracteres)"
+                  />
+                </Stack>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setReviewDialogOpen(false)}>Cancelar</Button>
+                <Button
+                  color="warning"
+                  disabled={publicationReview.isPending}
+                  onClick={async () => {
+                    if (!id || reviewNotes.trim().length < 10) {
+                      setReviewError('Indica una observación de al menos 10 caracteres para solicitar cambios');
+                      return;
+                    }
+                    try {
+                      await publicationReview.mutateAsync({ contentId: id, decision: 'CHANGES_REQUESTED', ...reviewChecklist, notes: reviewNotes.trim() });
+                      setReviewDialogOpen(false);
+                    } catch (err: any) {
+                      setReviewError(err?.response?.data?.message || 'No fue posible registrar la revisión');
+                    }
+                  }}
+                >
+                  Solicitar cambios
+                </Button>
+                <Button
+                  variant="contained"
+                  disabled={publicationReview.isPending}
+                  onClick={async () => {
+                    if (!id || !Object.values(reviewChecklist).every(Boolean)) {
+                      setReviewError('Confirma todos los puntos del checklist para aprobar');
+                      return;
+                    }
+                    try {
+                      await publicationReview.mutateAsync({ contentId: id, decision: 'APPROVED', ...reviewChecklist, notes: reviewNotes.trim() || undefined });
+                      setReviewDialogOpen(false);
+                    } catch (err: any) {
+                      setReviewError(err?.response?.data?.message || 'No fue posible registrar la revisión');
+                    }
+                  }}
+                >
+                  Aprobar para publicación
+                </Button>
+              </DialogActions>
+            </Dialog>
 
             <Dialog open={pubDialogOpen} onClose={() => setPubDialogOpen(false)} maxWidth="sm" fullWidth>
               <DialogTitle>Publicar contenido</DialogTitle>
@@ -447,6 +531,16 @@ export function ContentFormPage() {
                   {pubSuccess && <Alert severity="success">{pubSuccess}</Alert>}
                   <TextField label="Slug público" fullWidth value={publicSlug} onChange={(e) => setPublicSlug(e.target.value)} helperText="Dejar vacío para auto-generar" />
                   <TextField label="Título público" fullWidth value={publicTitle} onChange={(e) => setPublicTitle(e.target.value)} helperText="Dejar vacío para usar el título del contenido" />
+                  <TextField
+                    label="Responsabilidad institucional"
+                    fullWidth
+                    required
+                    multiline
+                    rows={2}
+                    value={institutionalResponsibility}
+                    onChange={(e) => setInstitutionalResponsibility(e.target.value)}
+                    helperText="Ej: Dirección de Comunicación Social, Jurisdicción Sanitaria de Huejutla (mín. 10 caracteres)"
+                  />
                   <TextField
                     select
                     label="Canales de distribución"
@@ -474,10 +568,19 @@ export function ContentFormPage() {
                     setPubError('');
                     setPubSuccess('');
                     try {
+                      if (!institutionalResponsibility || institutionalResponsibility.trim().length < 10) {
+                        setPubError('Debes especificar la responsabilidad institucional (mín. 10 caracteres)');
+                        return;
+                      }
+                      if (!id) {
+                        setPubError('No se encontró el contenido que se desea publicar');
+                        return;
+                      }
                       const pub = await createPublication.mutateAsync({
                         contentId: id,
                         publicSlug: publicSlug || undefined,
                         publicTitle: publicTitle || undefined,
+                        institutionalResponsibility: institutionalResponsibility.trim(),
                       });
                       if (selectedChannelIds.length > 0 && pub?.id) {
                         await associateChannels.mutateAsync({ publicationId: pub.id, channelIds: selectedChannelIds });

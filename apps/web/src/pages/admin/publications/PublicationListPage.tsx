@@ -20,8 +20,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Alert,
+  Snackbar,
 } from '@mui/material';
-import { usePublications, useWithdrawPublication, useArchivePublication } from '../../../hooks/usePublications';
+import { usePublications, useWithdrawPublication, useArchivePublication, useRepublishPublication } from '../../../hooks/usePublications';
 import { usePublicationChannels, useAssociatePublicationChannels, useChannels, usePublishToChannel } from '../../../hooks/useCommunicationChannels';
 import { usePublicationTraceability } from '../../../hooks/useTraceability';
 
@@ -63,8 +65,9 @@ export function PublicationListPage() {
 
   const withdraw = useWithdrawPublication();
   const archive = useArchivePublication();
+  const republish = useRepublishPublication();
 
-  const [confirmDialog, setConfirmDialog] = useState<{ id: string; action: 'withdraw' | 'archive' } | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ id: string; action: 'withdraw' | 'archive' | 'republish' } | null>(null);
   const [channelDialog, setChannelDialog] = useState<{ publicationId: string; open: boolean }>({ publicationId: '', open: false });
   const { data: pubChannels } = usePublicationChannels(channelDialog.publicationId);
   const { data: allChannels } = useChannels();
@@ -73,6 +76,7 @@ export function PublicationListPage() {
   const publishToChannel = usePublishToChannel();
   const [traceDialog, setTraceDialog] = useState<{ publicationId: string; open: boolean }>({ publicationId: '', open: false });
   const { data: traceRecords } = usePublicationTraceability(traceDialog.publicationId);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleOpenChannels = async (publicationId: string) => {
     setChannelDialog({ publicationId, open: true });
@@ -94,9 +98,14 @@ export function PublicationListPage() {
     try {
       if (confirmDialog.action === 'withdraw') {
         await withdraw.mutateAsync(confirmDialog.id);
-      } else {
+      } else if (confirmDialog.action === 'archive') {
         await archive.mutateAsync(confirmDialog.id);
+      } else {
+        await republish.mutateAsync(confirmDialog.id);
       }
+      setErrorMsg(null);
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Error al ejecutar la acción');
     } finally {
       setConfirmDialog(null);
     }
@@ -173,7 +182,16 @@ export function PublicationListPage() {
                           Retirar
                         </Button>
                       )}
-                      {item.status !== 'ARCHIVED' && (
+                      {(item.status === 'WITHDRAWN' || item.status === 'ARCHIVED') && (
+                        <Button
+                          size="small"
+                          color="success"
+                          onClick={() => setConfirmDialog({ id: item.id, action: 'republish' })}
+                        >
+                          Republicar
+                        </Button>
+                      )}
+                      {item.status !== 'ARCHIVED' && item.status !== 'WITHDRAWN' && (
                         <Button
                           size="small"
                           color="error"
@@ -300,26 +318,34 @@ export function PublicationListPage() {
 
       <Dialog open={!!confirmDialog} onClose={() => setConfirmDialog(null)}>
         <DialogTitle>
-          {confirmDialog?.action === 'withdraw' ? 'Retirar publicación' : 'Archivar publicación'}
+            {confirmDialog?.action === 'withdraw' ? 'Retirar publicación' : confirmDialog?.action === 'archive' ? 'Archivar publicación' : 'Republicar publicación'}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {confirmDialog?.action === 'withdraw'
               ? '¿Estás seguro de retirar esta publicación? Dejará de ser visible públicamente.'
-              : '¿Estás seguro de archivar esta publicación? Esta acción es irreversible.'}
+              : confirmDialog?.action === 'archive'
+              ? '¿Estás seguro de archivar esta publicación? Esta acción es irreversible.'
+              : '¿Estás seguro de republicar esta publicación? Volverá a ser visible públicamente.'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDialog(null)}>Cancelar</Button>
           <Button
             onClick={handleConfirm}
-            color={confirmDialog?.action === 'withdraw' ? 'warning' : 'error'}
+            color={confirmDialog?.action === 'withdraw' ? 'warning' : confirmDialog?.action === 'archive' ? 'error' : 'success'}
             variant="contained"
           >
             Confirmar
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={!!errorMsg} autoHideDuration={6000} onClose={() => setErrorMsg(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={() => setErrorMsg(null)} severity="error" variant="filled">
+          {errorMsg}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

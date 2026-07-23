@@ -26,7 +26,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    return this.generateToken(user.id, user.email, user.displayName);
+    return this.generateToken(user.id, user.email, user.displayName, user.role);
   }
 
   async refresh(userId: string): Promise<AuthResponseDto> {
@@ -34,7 +34,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
-    return this.generateToken(user.id, user.email, user.displayName);
+    return this.generateToken(user.id, user.email, user.displayName, user.role);
   }
 
   async getProfile(userId: string) {
@@ -42,17 +42,17 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
-    return { id: user.id, email: user.email, displayName: user.displayName };
+    return { id: user.id, email: user.email, displayName: user.displayName, role: user.role };
   }
 
-  private generateToken(userId: string, email: string, displayName: string): AuthResponseDto {
-    const payload = { sub: userId, email };
+  private generateToken(userId: string, email: string, displayName: string, role: string): AuthResponseDto {
+    const payload = { sub: userId, email, role };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m') as any,
     });
     return {
       accessToken,
-      user: { id: userId, email, displayName },
+      user: { id: userId, email, displayName, role },
     };
   }
 }

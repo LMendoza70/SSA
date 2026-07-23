@@ -3,6 +3,17 @@ import { PrismaPg } from '@prisma/adapter-pg';
 
 const prisma = new PrismaClient({ adapter: new PrismaPg(process.env.DATABASE_URL!) });
 
+const ADMIN_HASH = '$argon2id$v=19$m=65536,t=3,p=4$RZ65S+cY2pdacgV1lRPp+g$tp4DOUkdQirMhUQSKb0YwzvvYQLSgWqAYaXV4TBB5N0';
+
+const USERS = [
+  { email: 'admin@jurisdiccion.gob.mx', displayName: 'Administrador', passwordHash: ADMIN_HASH, role: 'ADMIN' as const },
+  { email: 'editor@jurisdiccion.gob.mx', displayName: 'Editor Principal', passwordHash: ADMIN_HASH, role: 'EDITOR' as const },
+  { email: 'validador@jurisdiccion.gob.mx', displayName: 'Validadora', passwordHash: ADMIN_HASH, role: 'VALIDATOR' as const },
+  { email: 'redactor@jurisdiccion.gob.mx', displayName: 'Redactor', passwordHash: ADMIN_HASH, role: 'WRITER' as const },
+  { email: 'publicador@jurisdiccion.gob.mx', displayName: 'Publicador', passwordHash: ADMIN_HASH, role: 'PUBLISHER' as const },
+  { email: 'auditor@jurisdiccion.gob.mx', displayName: 'Auditor', passwordHash: ADMIN_HASH, role: 'AUDITOR' as const },
+];
+
 const CONTENT_TYPES = [
   { code: 'news', name: 'Noticia', description: 'Artículo informativo sobre eventos o novedades' },
   { code: 'notice', name: 'Aviso', description: 'Comunicado breve de interés general' },
@@ -16,6 +27,17 @@ const CONTENT_TYPES = [
 ];
 
 async function main() {
+  console.log('Seeding users...');
+
+  for (const u of USERS) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: { displayName: u.displayName, passwordHash: u.passwordHash, role: u.role },
+      create: u,
+    });
+    console.log(`  ✅ ${u.email} (${u.role})`);
+  }
+
   console.log('Seeding content types...');
 
   for (const ct of CONTENT_TYPES) {

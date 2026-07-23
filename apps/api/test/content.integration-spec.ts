@@ -103,13 +103,13 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
 
     it('debe asociar la validación al contenido', async () => {
       const res = await request(app.getHttpServer())
-        .post(`/api/v1/admin/contents/${contentId}/validations`)
+        .post(`/api/v1/admin/contents/${contentId}/publication-review`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ validationIds: [validationId] });
+        .send({ decision: 'APPROVED', informationAccurate: true, informationCurrent: true, editorialQuality: true, mediaAuthorized: true, institutionalResponsibilityConfirmed: true });
 
       expect(res.status).toBe(201);
-      expect(res.body.validations).toHaveLength(1);
-      expect(res.body.validations[0].id).toBe(validationId);
+      expect(res.body.publicationReview.decision).toBe('APPROVED');
+      expect(res.body.publicationReview.isCurrent).toBe(true);
     });
   });
 
@@ -125,11 +125,11 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
 
     it('debe cambiar status a READY_FOR_PUBLICATION', async () => {
       const res = await request(app.getHttpServer())
-        .patch(`/api/v1/admin/contents/${contentId}`)
+        .post(`/api/v1/admin/contents/${contentId}/publication-review`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: 'READY_FOR_PUBLICATION' });
+        .send({ decision: 'APPROVED', informationAccurate: true, informationCurrent: true, editorialQuality: true, mediaAuthorized: true, institutionalResponsibilityConfirmed: true });
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body.status).toBe('READY_FOR_PUBLICATION');
     });
   });
@@ -172,7 +172,7 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
         });
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toContain('fuente');
+      expect(res.body.message).toContain('READY_FOR_PUBLICATION');
     });
 
     it('debe rechazar publicación si el contenido no tiene validaciones', async () => {
@@ -203,7 +203,7 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
         });
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toContain('validación');
+      expect(res.body.message).toContain('READY_FOR_PUBLICATION');
     });
 
     it('debe rechazar publicación si ninguna validación está APPROVED', async () => {
@@ -249,7 +249,7 @@ describe('Bloque 2 — Publicación institucional y contrato público', () => {
         });
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toContain('aprobada');
+      expect(res.body.message).toContain('READY_FOR_PUBLICATION');
     });
   });
 

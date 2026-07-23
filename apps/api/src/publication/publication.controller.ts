@@ -5,11 +5,14 @@ import { Request } from 'express';
 import { PublicationService } from './publication.service';
 import { CreatePublicationDto, PublicationListQueryDto, PublicationResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('admin')
 @ApiTags('Admin / Publications')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
+@Roles('ADMIN', 'EDITOR', 'PUBLISHER')
 export class PublicationController {
   constructor(private readonly publicationService: PublicationService) {}
 
@@ -44,6 +47,16 @@ export class PublicationController {
   ): Promise<PublicationResponseDto> {
     const userId = (req as any).user.id;
     return this.publicationService.withdraw(id, userId);
+  }
+
+  @Post('publications/:id/republish')
+  @ApiOperation({ summary: 'Republicar una publicación retirada o archivada' })
+  async republish(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<PublicationResponseDto> {
+    const userId = (req as any).user.id;
+    return this.publicationService.republish(id, userId);
   }
 
   @Post('publications/:id/archive')

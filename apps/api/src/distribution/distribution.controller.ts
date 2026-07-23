@@ -3,10 +3,13 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DistributionService } from './distribution.service';
 import { CreateChannelDto, UpdateChannelDto, AssociateChannelsDto, UpdateDistributionDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Admin / Distribution')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'EDITOR', 'PUBLISHER')
 @Controller('admin')
 export class DistributionController {
   constructor(private readonly service: DistributionService) {}

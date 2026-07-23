@@ -76,6 +76,20 @@ enum DistributionStatus {
   CANCELLED
 }
 
+enum PublicationReviewDecision {
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  WRITER
+  VALIDATOR
+  PUBLISHER
+  AUDITOR
+}
+
 enum TraceabilityAction {
   CREATED
   UPDATED
@@ -89,6 +103,8 @@ enum TraceabilityAction {
   RESTORED
   CLASSIFIED
   RESOURCE_ATTACHED
+  APPROVED_FOR_PUBLICATION
+  CHANGES_REQUESTED
 }
 
 // =========================
@@ -100,6 +116,7 @@ model User {
   email         String   @unique
   displayName   String
   passwordHash  String
+  role          UserRole @default(EDITOR)
   isActive      Boolean  @default(true)
 
   createdAt DateTime  @default(now())
@@ -110,6 +127,7 @@ model User {
   updatedContents Content[] @relation("ContentUpdatedBy")
 
   validations         Validation[]
+  publicationReviews  PublicationReview[]
   traceabilityRecords TraceabilityRecord[]
 
   @@map("users")
@@ -159,6 +177,7 @@ model Content {
   updatedBy   User?       @relation("ContentUpdatedBy", fields: [updatedById], references: [id])
 
   publication       Publication?
+  publicationReview PublicationReview?
   contentSources    ContentSource[]
   contentValidations ContentValidation[]
   contentCampaigns  ContentCampaign[]
@@ -173,6 +192,34 @@ model Content {
   @@index([status])
   @@index([createdAt])
   @@map("contents")
+}
+
+model PublicationReview {
+  id          String                    @id @default(uuid())
+  contentId   String                    @unique
+  reviewedById String
+  decision    PublicationReviewDecision
+
+  informationAccurate                 Boolean
+  informationCurrent                  Boolean
+  editorialQuality                    Boolean
+  mediaAuthorized                     Boolean
+  institutionalResponsibilityConfirmed Boolean
+  notes                               String?
+  reviewedAt                          DateTime                  @default(now())
+  isCurrent                           Boolean                   @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  content    Content @relation(fields: [contentId], references: [id])
+  reviewedBy User    @relation(fields: [reviewedById], references: [id])
+
+  @@index([reviewedById])
+  @@index([decision])
+  @@index([isCurrent])
+  @@map("publication_reviews")
 }
 
 model Publication {

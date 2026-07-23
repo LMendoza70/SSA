@@ -7,6 +7,13 @@ interface PublicationListParams {
   status?: string;
 }
 
+interface CreatePublicationInput {
+  contentId: string;
+  publicSlug?: string;
+  publicTitle?: string;
+  institutionalResponsibility: string;
+}
+
 export function usePublications(params: PublicationListParams) {
   return useQuery({
     queryKey: ['publications', params],
@@ -26,7 +33,7 @@ export function usePublication(id: string) {
 export function useCreatePublication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ contentId, ...data }: any) =>
+    mutationFn: ({ contentId, ...data }: CreatePublicationInput) =>
       api.post(`/admin/contents/${contentId}/publication`, data).then((res) => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['publications'] });
@@ -51,6 +58,17 @@ export function useArchivePublication() {
   return useMutation({
     mutationFn: (id: string) =>
       api.post(`/admin/publications/${id}/archive`).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['publications'] });
+    },
+  });
+}
+
+export function useRepublishPublication() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.post(`/admin/publications/${id}/republish`).then((res) => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['publications'] });
     },

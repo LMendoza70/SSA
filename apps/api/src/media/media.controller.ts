@@ -24,10 +24,13 @@ import {
   UpdateAssociationDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Admin / Media Resources')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'EDITOR', 'WRITER')
 @Controller('admin/media-resources')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
@@ -106,7 +109,8 @@ export class MediaController {
 
 @ApiTags('Admin / Contents Media')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'EDITOR', 'WRITER')
 @Controller('admin/contents')
 export class ContentMediaController {
   constructor(private readonly mediaService: MediaService) {}

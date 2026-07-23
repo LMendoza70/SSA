@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateContentDto, UpdateContentDto, ContentListQueryDto } from './dto';
+import { CreateContentDto, UpdateContentDto, ContentListQueryDto, ReviewPublicationDto } from './dto';
 import { TraceabilityService } from '../traceability/traceability.service';
 import sanitizeHtml from 'sanitize-html';
 
@@ -128,15 +128,8 @@ export class ContentService {
         contentSources: {
           include: { source: { select: { id: true, name: true, type: true, organization: true } } },
         },
-        contentValidations: {
-          include: {
-            validation: {
-              include: {
-                source: { select: { id: true, name: true } },
-                validatedBy: { select: { id: true, displayName: true } },
-              },
-            },
-          },
+        publicationReview: {
+          include: { reviewedBy: { select: { id: true, displayName: true } } },
         },
       },
     });
@@ -176,6 +169,9 @@ export class ContentService {
     if (dto.body !== undefined) data.body = sanitizeHtml(dto.body, SANITIZE_CONFIG);
     if (dto.seoTitle !== undefined) data.seoTitle = dto.seoTitle;
     if (dto.seoDescription !== undefined) data.seoDescription = dto.seoDescription;
+    if (dto.status === 'READY_FOR_PUBLICATION') {
+      throw new BadRequestException('El estado READY_FOR_PUBLICATION solo se asigna mediante la revisión de publicación');
+    }
     if (dto.status !== undefined) data.status = dto.status;
 
     const content = await this.prisma.content.update({
@@ -195,6 +191,24 @@ export class ContentService {
       summary: `Contenido "${content.title}" actualizado`,
     });
 
+    const changesEditorialContent = dto.title !== undefined || dto.contentTypeId !== undefined ||
+      dto.summary !== undefined || dto.body !== undefined || dto.seoTitle !== undefined || dto.seoDescription !== undefined;
+    if (changesEditorialContent) {
+      const review = await this.prisma.publicationReview.findUnique({ where: { contentId: id } });
+      if (review?.isCurrent && review.decision === 'APPROVED') {
+        await this.prisma.$transaction([
+          this.prisma.content.update({ where: { id }, data: { status: 'NEEDS_REVIEW' } }),
+          this.prisma.publicationReview.update({ where: { contentId: id }, data: { isCurrent: false } }),
+        ]);
+        await this.traceability.record({
+          action: 'CHANGES_REQUESTED',
+          userId,
+          contentId: id,
+          summary: 'La aprobación anterior fue invalidada porque el contenido fue actualizado',
+        });
+      }
+    }
+
     if (dto.status && dto.status !== existing.status) {
       await this.traceability.record({
         action: dto.status === 'PREPARED' ? 'PREPARED' : 'UPDATED',
@@ -211,6 +225,36 @@ export class ContentService {
     const where: { deletedAt: null; isActive?: boolean } = { deletedAt: null };
     if (all !== 'true') where.isActive = true;
     return this.prisma.contentType.findMany({ where, orderBy: { name: 'asc' as const } });
+  }
+
+  async reviewForPublication(id: string, dto: ReviewPublicationDto, userId: string) {
+    const content = await this.prisma.content.findUnique({ where: { id } });
+    if (!content || content.deletedAt) throw new NotFoundException('Contenido no encontrado');
+    if (content.status === 'ARCHIVED') throw new BadRequestException('No se puede revisar un contenido archivado');
+
+    const checklistComplete = dto.informationAccurate && dto.informationCurrent && dto.editorialQuality &&
+      dto.mediaAuthorized && dto.institutionalResponsibilityConfirmed;
+    if (dto.decision === 'APPROVED' && !checklistComplete) {
+      throw new BadRequestException('Todos los elementos del checklist deben confirmarse para aprobar la publicación');
+    }
+    if (dto.decision === 'CHANGES_REQUESTED' && (!dto.notes || dto.notes.trim().length < 10)) {
+      throw new BadRequestException('Indica una observación de al menos 10 caracteres al solicitar cambios');
+    }
+
+    const approved = dto.decision === 'APPROVED';
+    await this.prisma.$transaction([
+      this.prisma.content.update({ where: { id }, data: { status: approved ? 'READY_FOR_PUBLICATION' : 'NEEDS_REVIEW', updatedById: userId } }),
+      this.prisma.publicationReview.upsert({
+        where: { contentId: id },
+        create: { contentId: id, reviewedById: userId, decision: dto.decision, informationAccurate: dto.informationAccurate, informationCurrent: dto.informationCurrent, editorialQuality: dto.editorialQuality, mediaAuthorized: dto.mediaAuthorized, institutionalResponsibilityConfirmed: dto.institutionalResponsibilityConfirmed, notes: dto.notes?.trim(), isCurrent: true },
+        update: { reviewedById: userId, decision: dto.decision, informationAccurate: dto.informationAccurate, informationCurrent: dto.informationCurrent, editorialQuality: dto.editorialQuality, mediaAuthorized: dto.mediaAuthorized, institutionalResponsibilityConfirmed: dto.institutionalResponsibilityConfirmed, notes: dto.notes?.trim(), reviewedAt: new Date(), isCurrent: true, deletedAt: null },
+      }),
+    ]);
+    await this.traceability.record({
+      action: approved ? 'APPROVED_FOR_PUBLICATION' : 'CHANGES_REQUESTED', userId, contentId: id,
+      summary: approved ? `Contenido "${content.title}" aprobado para publicación` : `Cambios solicitados para "${content.title}": ${dto.notes?.trim()}`,
+    });
+    return this.findById(id);
   }
 
   async findContentTypeById(id: string) {
@@ -367,15 +411,18 @@ export class ContentService {
         type: cs.source.type,
         organization: cs.source.organization,
       })) ?? [],
-      validations: content.contentValidations?.map((cv: any) => ({
-        id: cv.validation.id,
-        type: cv.validation.type,
-        result: cv.validation.result,
-        summary: cv.validation.summary,
-        validatedAt: cv.validation.validatedAt?.toISOString(),
-        source: cv.validation.source ? { id: cv.validation.source.id, name: cv.validation.source.name } : undefined,
-        validatedBy: cv.validation.validatedBy ? { id: cv.validation.validatedBy.id, displayName: cv.validation.validatedBy.displayName } : undefined,
-      })) ?? [],
+      publicationReview: content.publicationReview ? {
+        decision: content.publicationReview.decision,
+        informationAccurate: content.publicationReview.informationAccurate,
+        informationCurrent: content.publicationReview.informationCurrent,
+        editorialQuality: content.publicationReview.editorialQuality,
+        mediaAuthorized: content.publicationReview.mediaAuthorized,
+        institutionalResponsibilityConfirmed: content.publicationReview.institutionalResponsibilityConfirmed,
+        notes: content.publicationReview.notes,
+        reviewedAt: content.publicationReview.reviewedAt.toISOString(),
+        isCurrent: content.publicationReview.isCurrent,
+        reviewedBy: content.publicationReview.reviewedBy,
+      } : undefined,
       createdAt: content.createdAt.toISOString(),
       updatedAt: content.updatedAt.toISOString(),
     };

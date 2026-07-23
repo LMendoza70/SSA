@@ -4,6 +4,8 @@ import { Request } from 'express';
 import { ValidationService } from './validation.service';
 import { CreateValidationDto, UpdateValidationDto, ValidationListQueryDto, ValidationResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 interface PaginatedValidationResponse {
   data: ValidationResponseDto[];
@@ -12,8 +14,9 @@ interface PaginatedValidationResponse {
 
 @ApiTags('Admin / Validations')
 @Controller('admin/validations')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
+@Roles('ADMIN', 'VALIDATOR', 'EDITOR')
 export class ValidationController {
   constructor(private readonly validationService: ValidationService) {}
 

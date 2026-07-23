@@ -26,10 +26,7 @@ export class PublicationService {
       where: { id: contentId },
       include: {
         publication: true,
-        contentSources: { include: { source: { select: { id: true, name: true } } } },
-        contentValidations: {
-          include: { validation: { select: { id: true, type: true, result: true } } },
-        },
+        publicationReview: true,
       },
     });
 
@@ -47,24 +44,9 @@ export class PublicationService {
       );
     }
 
-    if (!content.contentSources || content.contentSources.length === 0) {
+    if (!content.publicationReview || !content.publicationReview.isCurrent || content.publicationReview.decision !== 'APPROVED') {
       throw new BadRequestException(
-        'El contenido debe tener al menos una fuente asociada para publicarse',
-      );
-    }
-
-    if (!content.contentValidations || content.contentValidations.length === 0) {
-      throw new BadRequestException(
-        'El contenido debe tener al menos una validación asociada para publicarse',
-      );
-    }
-
-    const hasApprovedValidation = content.contentValidations.some(
-      (cv) => cv.validation.result === 'APPROVED',
-    );
-    if (!hasApprovedValidation) {
-      throw new BadRequestException(
-        'El contenido debe tener al menos una validación aprobada para publicarse',
+        'El contenido debe tener una revisión editorial aprobada y vigente para publicarse',
       );
     }
 
@@ -192,6 +174,71 @@ export class PublicationService {
       contentId: updated.contentId,
       publicationId: updated.id,
       summary: `Publicación "${updated.publicTitle}" retirada`,
+    });
+
+    return this.toResponse(updated);
+  }
+
+  async republish(id: string, userId: string) {
+    const publication = await this.prisma.publication.findUnique({
+      where: { id },
+      include: {
+        content: {
+          select: {
+            id: true, title: true, slug: true, status: true,
+            contentSources: { include: { source: { select: { id: true, name: true } } } },
+            contentValidations: {
+              include: { validation: { select: { id: true, type: true, result: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!publication || publication.deletedAt) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+
+    if (publication.status === PublicationStatus.PUBLISHED) {
+      throw new BadRequestException('La publicación ya está activa');
+    }
+
+    const content = publication.content;
+    if (!content.contentSources || content.contentSources.length === 0) {
+      throw new BadRequestException('El contenido debe tener al menos una fuente asociada');
+    }
+    if (!content.contentValidations || content.contentValidations.length === 0) {
+      throw new BadRequestException('El contenido debe tener al menos una validación asociada');
+    }
+    const hasApproved = content.contentValidations.some(
+      (cv) => cv.validation.result === 'APPROVED',
+    );
+    if (!hasApproved) {
+      throw new BadRequestException('El contenido debe tener al menos una validación aprobada');
+    }
+
+    const updated = await this.prisma.publication.update({
+      where: { id },
+      data: {
+        status: PublicationStatus.PUBLISHED,
+        publishedAt: new Date(),
+        isVisible: true,
+        withdrawnAt: null,
+        archivedAt: null,
+      },
+      include: {
+        content: {
+          select: { id: true, title: true, slug: true, status: true },
+        },
+      },
+    });
+
+    await this.traceability.record({
+      action: 'PUBLISHED',
+      userId,
+      contentId: updated.contentId,
+      publicationId: updated.id,
+      summary: `Publicación "${updated.publicTitle}" republicada`,
     });
 
     return this.toResponse(updated);
