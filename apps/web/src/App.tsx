@@ -14,6 +14,7 @@ import CampaignListPage from './pages/admin/campaigns/CampaignListPage';
 import DiseaseListPage from './pages/admin/diseases/DiseaseListPage';
 import TimelineEventListPage from './pages/admin/timeline/TimelineEventListPage';
 import CommunicationChannelListPage from './pages/admin/communication-channels/CommunicationChannelListPage';
+import SocialCredentialsPage from './pages/admin/social-credentials/SocialCredentialsPage';
 import ContentTypeListPage from './pages/admin/content-types/ContentTypeListPage';
 import { SourceListPage } from './pages/admin/sources/SourceListPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -66,6 +67,7 @@ export function App() {
               <Route path="diseases" element={<DiseaseListPage />} />
               <Route path="timeline" element={<TimelineEventListPage />} />
               <Route path="communication-channels" element={<CommunicationChannelListPage />} />
+              <Route path="social-credentials" element={<SocialCredentialsPage />} />
               <Route path="sources" element={<SourceListPage />} />
               <Route path="users" element={<UserListPage />} />
             </Route>

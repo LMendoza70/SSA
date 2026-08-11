@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DistributionService } from './distribution.service';
-import { CreateChannelDto, UpdateChannelDto, AssociateChannelsDto, UpdateDistributionDto } from './dto';
+import { CreateChannelDto, UpdateChannelDto, AssociateChannelsDto, UpdateDistributionDto, PublishToSocialsDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -74,5 +74,57 @@ export class DistributionController {
   async publishToChannel(@Param('id') id: string, @Req() req: any) {
     const userId = req.user.id;
     return this.service.publishToChannel(id, userId);
+  }
+
+  @Post('publications/:publicationId/publish-channels')
+  @ApiOperation({ summary: 'Publicar contenido en varios canales; éxito solo si todos se publicaron' })
+  async publishToChannels(
+    @Param('publicationId') publicationId: string,
+    @Body() dto: AssociateChannelsDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    return this.service.publishToChannels(publicationId, dto.channelIds || [], userId);
+  }
+
+  @Post('contents/:contentId/publish-to-socials')
+  @ApiOperation({ summary: 'Publicar a redes y solo mostrar en el sitio si todas las redes se publicaron' })
+  async publishContentToSocials(
+    @Param('contentId') contentId: string,
+    @Body() dto: PublishToSocialsDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    return this.service.publishContentToSocials(contentId, dto, userId);
+  }
+
+  @Get('publications/:publicationId/content-media-analysis')
+  @ApiOperation({ summary: 'Analizar contenido multimedia y obtener plataformas habilitadas' })
+  async analyzeContentMedia(@Param('publicationId') publicationId: string) {
+    return this.service.analyzeContentMedia(publicationId);
+  }
+
+  @Get('publications/:publicationId/eligible-channels')
+  @ApiOperation({ summary: 'Obtener canales habilitados para una publicación según su contenido' })
+  async getEligibleChannels(@Param('publicationId') publicationId: string) {
+    return this.service.getEligibleChannels(publicationId);
+  }
+
+  @Get('contents/:contentId/eligible-channels')
+  @ApiOperation({ summary: 'Obtener canales habilitados para un contenido según su contenido' })
+  async getEligibleChannelsForContent(@Param('contentId') contentId: string) {
+    return this.service.getEligibleChannelsForContent(contentId);
+  }
+
+  @Get('communication-channels/:type/token-status')
+  @ApiOperation({ summary: 'Verificar estado de token para una plataforma' })
+  async getTokenStatus(@Param('type') type: string) {
+    return this.service.getChannelTokenStatus(type);
+  }
+
+  @Post('communication-channels/:type/validate-connection')
+  @ApiOperation({ summary: 'Validar conexión a la plataforma social' })
+  async validateConnection(@Param('type') type: string) {
+    return this.service.getChannelTokenStatus(type);
   }
 }

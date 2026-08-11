@@ -24,8 +24,12 @@ import {
   Snackbar,
 } from '@mui/material';
 import { usePublications, useWithdrawPublication, useArchivePublication, useRepublishPublication } from '../../../hooks/usePublications';
-import { usePublicationChannels, useAssociatePublicationChannels, useChannels, usePublishToChannel } from '../../../hooks/useCommunicationChannels';
+import { usePublicationChannels, useAssociatePublicationChannels, useChannels, usePublishToChannels } from '../../../hooks/useCommunicationChannels';
 import { usePublicationTraceability } from '../../../hooks/useTraceability';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../../lib/api';
+import InfoIcon from '@mui/icons-material/Info';
+import { Tooltip } from '@mui/material';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
@@ -73,10 +77,44 @@ export function PublicationListPage() {
   const { data: allChannels } = useChannels();
   const associateChannels = useAssociatePublicationChannels();
   const [selectedChIds, setSelectedChIds] = useState<string[]>([]);
-  const publishToChannel = usePublishToChannel();
+  const publishToChannels = usePublishToChannels();
   const [traceDialog, setTraceDialog] = useState<{ publicationId: string; open: boolean }>({ publicationId: '', open: false });
   const { data: traceRecords } = usePublicationTraceability(traceDialog.publicationId);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const { data: contentAnalysis } = useQuery<any>({
+    queryKey: ['content-analysis', channelDialog.publicationId],
+    queryFn: async () => {
+      if (!channelDialog.publicationId) return null;
+      const { data } = await api.get(
+        `/admin/publications/${channelDialog.publicationId}/content-media-analysis`,
+      );
+      return data;
+    },
+    enabled: channelDialog.open && !!channelDialog.publicationId,
+  });
+
+  const { data: tokenStatuses } = useQuery<Record<string, any>>({
+    queryKey: ['token-statuses'],
+    queryFn: async () => {
+      const platforms = ['FACEBOOK', 'INSTAGRAM', 'YOUTUBE'];
+      const results: Record<string, any> = {};
+      await Promise.all(
+        platforms.map(async (p) => {
+          try {
+            const { data } = await api.get(`/admin/communication-channels/${p}/token-status`);
+            results[p] = data;
+          } catch {
+            results[p] = { platform: p, configured: false, valid: false, message: 'Error al consultar' };
+          }
+        }),
+      );
+      return results;
+    },
+    enabled: channelDialog.open,
+    refetchOnWindowFocus: false,
+  });
 
   const handleOpenChannels = async (publicationId: string) => {
     setChannelDialog({ publicationId, open: true });
@@ -85,6 +123,37 @@ export function PublicationListPage() {
   const handleSaveChannels = async () => {
     await associateChannels.mutateAsync({ publicationId: channelDialog.publicationId, channelIds: selectedChIds });
     setChannelDialog({ publicationId: '', open: false });
+  };
+
+  const handlePublishChannels = async () => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    if (!channelDialog.publicationId) return;
+    if (selectedChIds.length === 0) {
+      setErrorMsg('Selecciona al menos una red para publicar');
+      return;
+    }
+    try {
+      const result = await publishToChannels.mutateAsync({
+        publicationId: channelDialog.publicationId,
+        channelIds: selectedChIds,
+      });
+      if (result?.allSucceeded) {
+        setSuccessMsg(`Publicado exitosamente en ${selectedChIds.length} red(es)`);
+      } else {
+        const failed = (result?.results || []).filter((r: any) => !r.success);
+        const detail = failed
+          .map((r: any) => `${r.channelName}: ${r.errorMessage || 'Error desconocido'}`)
+          .join('\n');
+        setErrorMsg(
+          `No se completó la publicación en todas las redes seleccionadas.${
+            detail ? `\n${detail}` : ''
+          }`,
+        );
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Error al publicar');
+    }
   };
 
   useEffect(() => {
@@ -218,9 +287,48 @@ export function PublicationListPage() {
         />
       </TableContainer>
 
-      <Dialog open={channelDialog.open} onClose={() => setChannelDialog({ publicationId: '', open: false })} maxWidth="sm" fullWidth>
+      <Dialog open={channelDialog.open} onClose={() => setChannelDialog({ publicationId: '', open: false })} maxWidth="md" fullWidth>
         <DialogTitle>Canales de distribución</DialogTitle>
         <DialogContent>
+          {contentAnalysis && (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'info.lightest' }}>
+              <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                Análisis de contenido
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Perfil detectado: <strong>{contentAnalysis.contentShape}</strong>
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                {contentAnalysis.eligiblePlatforms?.map((ep: any) => (
+                  <Chip
+                    key={ep.platform}
+                    label={`${ep.platform}${ep.allowed ? ' ✓' : ' ✗'}`}
+                    color={ep.allowed ? 'success' : 'default'}
+                    size="small"
+                    variant="outlined"
+                    sx={{ mr: 0.5, mb: 0.5 }}
+                  />
+                ))}
+              </Box>
+            </Paper>
+          )}
+          {tokenStatuses && Object.keys(tokenStatuses).length > 0 && (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+              <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                Estado de tokens
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {Object.values(tokenStatuses).map((ts: any) => (
+                  <Chip
+                    key={ts.platform}
+                    label={`${ts.platform}: ${ts.valid ? 'OK' : ts.expired ? 'Caducado' : ts.configured ? 'Error' : 'Sin configurar'}`}
+                    color={ts.valid ? 'success' : ts.expired ? 'warning' : ts.configured ? 'error' : 'default'}
+                    size="small"
+                  />
+                ))}
+              </Stack>
+            </Paper>
+          )}
           <TextField
             select
             label="Canales"
@@ -233,9 +341,32 @@ export function PublicationListPage() {
             }}
             sx={{ mt: 1 }}
           >
-            {(allChannels || []).filter((ch: any) => ch.isActive).map((ch: any) => (
-              <MenuItem key={ch.id} value={ch.id}>{ch.name}</MenuItem>
-            ))}
+            {(allChannels || [])
+              .filter((ch: any) => ch.isActive)
+              .map((ch: any) => {
+                const eligibility = contentAnalysis?.eligiblePlatforms?.find(
+                  (ep: any) => ep.platform === ch.type,
+                );
+                const restricted = eligibility && !eligibility.allowed;
+                return (
+                  <MenuItem
+                    key={ch.id}
+                    value={ch.id}
+                    disabled={restricted}
+                    sx={{ opacity: restricted ? 0.5 : 1 }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1} width="100%">
+                      <span>{ch.name}</span>
+                      {restricted && (
+                        <Tooltip title={eligibility?.reason || 'No compatible con este contenido'}>
+                          <InfoIcon fontSize="small" color="disabled" />
+                        </Tooltip>
+                      )}
+                    </Stack>
+                  </MenuItem>
+                );
+              })
+            }
           </TextField>
           {pubChannels && pubChannels.length > 0 && (
             <Stack spacing={1} sx={{ mt: 2 }}>
@@ -255,29 +386,26 @@ export function PublicationListPage() {
                       </Typography>
                     )}
                   </Box>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="primary"
-                    disabled={publishToChannel.isPending}
-                    onClick={async () => {
-                      try {
-                        await publishToChannel.mutateAsync(pc.id);
-                      } catch {
-                        // Error al publicar
-                      }
-                    }}
-                  >
-                    {publishToChannel.isPending ? 'Publicando...' : 'Publicar ahora'}
-                  </Button>
                 </Box>
               ))}
             </Stack>
           )}
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Selecciona las redes en el combobox y pulsa "Publicar en redes seleccionadas". El mensaje de éxito
+            solo aparecerá si la publicación se realizó en todas las redes seleccionadas.
+          </Alert>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setChannelDialog({ publicationId: '', open: false })}>Cerrar</Button>
-          <Button variant="contained" onClick={handleSaveChannels}>Guardar canales</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={publishToChannels.isPending}
+            onClick={handlePublishChannels}
+          >
+            {publishToChannels.isPending ? 'Publicando...' : 'Publicar en redes seleccionadas'}
+          </Button>
+          <Button variant="outlined" onClick={handleSaveChannels}>Guardar canales</Button>
         </DialogActions>
       </Dialog>
 
@@ -341,9 +469,15 @@ export function PublicationListPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={!!errorMsg} autoHideDuration={6000} onClose={() => setErrorMsg(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+      <Snackbar open={!!errorMsg} autoHideDuration={8000} onClose={() => setErrorMsg(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={() => setErrorMsg(null)} severity="error" variant="filled">
-          {errorMsg}
+          <Box component="span" sx={{ whiteSpace: 'pre-line' }}>{errorMsg}</Box>
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={!!successMsg} autoHideDuration={4000} onClose={() => setSuccessMsg(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={() => setSuccessMsg(null)} severity="success" variant="filled">
+          {successMsg}
         </Alert>
       </Snackbar>
     </Box>

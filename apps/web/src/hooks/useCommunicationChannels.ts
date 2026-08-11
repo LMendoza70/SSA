@@ -8,6 +8,14 @@ export function useChannels() {
   });
 }
 
+export function useContentEligibleChannels(contentId: string) {
+  return useQuery({
+    queryKey: ['content-eligible-channels', contentId],
+    queryFn: () => api.get(`/admin/contents/${contentId}/eligible-channels`).then((r) => r.data),
+    enabled: !!contentId,
+  });
+}
+
 export function useChannel(id: string) {
   return useQuery({
     queryKey: ['communication-channel', id],
@@ -71,6 +79,17 @@ export function usePublishToChannel() {
   return useMutation({
     mutationFn: (id: string) =>
       api.post(`/admin/publication-channels/${id}/publish`).then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['publication-channels'] }),
+  });
+}
+
+export function usePublishToChannels() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ publicationId, channelIds }: { publicationId: string; channelIds: string[] }) =>
+      api
+        .post(`/admin/publications/${publicationId}/publish-channels`, { channelIds })
+        .then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['publication-channels'] }),
   });
 }

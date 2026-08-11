@@ -237,6 +237,8 @@ model Publication {
 
   institutionalResponsibility String?
 
+  temporalImageUrl String?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -677,4 +679,23 @@ model TimelineEventMediaResource {
   @@unique([timelineEventId, mediaResourceId])
   @@index([mediaResourceId])
   @@map("timeline_event_media_resources")
+}
+
+// =========================
+// Social platform credentials
+// =========================
+
+model SocialCredential {
+  id         String   @id @default(uuid())
+  platform   String
+  credentialKey   String
+  credentialValue String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([platform, credentialKey])
+  @@index([platform])
+  @@map("social_credentials")
 }

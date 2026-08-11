@@ -11,6 +11,8 @@ describe('DistributionService', () => {
   let mockPrisma: any;
   let mockPublisherFactory: any;
   let mockTraceability: any;
+  let mockContentAnalyzer: any;
+  let mockCredentialService: any;
 
   const mockChannel = {
     id: 'channel-1',
@@ -55,11 +57,15 @@ describe('DistributionService', () => {
     };
 
     mockTraceability = { record: vi.fn() };
+    mockContentAnalyzer = { classifyMedia: vi.fn().mockReturnValue({ profile: 'TEXT_ONLY', attachments: [], eligiblePlatforms: [] }) };
+    mockCredentialService = { hasCredentials: vi.fn().mockResolvedValue(false) };
 
     service = new DistributionService(
       mockPrisma as any,
       mockPublisherFactory as any,
       mockTraceability as any,
+      mockContentAnalyzer as any,
+      mockCredentialService as any,
     );
   });
 

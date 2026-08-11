@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import { useContent, useCreateContent, useUpdateContent } from '../../../hooks/useContents';
 import { useContentTypes } from '../../../hooks/useContentTypes';
-import { useCreatePublication } from '../../../hooks/usePublications';
+import { useCreatePublication, usePublishToSocials } from '../../../hooks/usePublications';
 import { useContentMedia, useAssociateMedia, useMediaResources } from '../../../hooks/useMediaResources';
 import { useContentCategories, useContentTags, useAssociateContentCategories, useAssociateContentTags } from '../../../hooks/useContentClassification';
 import { useCategories } from '../../../hooks/useCategories';
@@ -33,7 +33,7 @@ import { useTags } from '../../../hooks/useTags';
 import { useCampaigns } from '../../../hooks/useCampaigns';
 import { useDiseases } from '../../../hooks/useDiseases';
 import { useContentCampaigns, useContentDiseases, useAssociateContentCampaigns, useAssociateContentDiseases } from '../../../hooks/useContentCampaignDisease';
-import { useChannels, useAssociatePublicationChannels } from '../../../hooks/useCommunicationChannels';
+import { useContentEligibleChannels } from '../../../hooks/useCommunicationChannels';
 import { useContentTraceability } from '../../../hooks/useTraceability';
 import { useAllSources } from '../../../hooks/useSources';
 import { useAssociateContentSources } from '../../../hooks/useContentSources';
@@ -66,6 +66,7 @@ export function ContentFormPage() {
   const [publicTitle, setPublicTitle] = useState('');
   const [institutionalResponsibility, setInstitutionalResponsibility] = useState('');
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
+  const [urlImagenTemporal, setUrlImagenTemporal] = useState('');
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [reviewNotes, setReviewNotes] = useState('');
   const [reviewError, setReviewError] = useState('');
@@ -78,6 +79,7 @@ export function ContentFormPage() {
   });
 
   const createPublication = useCreatePublication();
+  const publishToSocials = usePublishToSocials();
   const publicationReview = usePublicationReview();
 
   const { data: contentMedia } = useContentMedia(id || '');
@@ -104,8 +106,7 @@ export function ContentFormPage() {
   const { data: allDiseases } = useDiseases();
   const { data: selectedCampaigns } = useContentCampaigns(id || '');
   const { data: selectedDiseases } = useContentDiseases(id || '');
-  const { data: allChannels } = useChannels();
-  const associateChannels = useAssociatePublicationChannels();
+  const { data: eligibleChannels } = useContentEligibleChannels(id || '');
   const associateCampaigns = useAssociateContentCampaigns();
   const associateDiseases = useAssociateContentDiseases();
   const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
@@ -397,9 +398,9 @@ export function ContentFormPage() {
             {isEdit && (
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} mt={2}>Publicación</Typography>
-                {pubError && <Alert severity="error" sx={{ mb: 1 }}>{pubError}</Alert>}
+                {pubError && <Alert severity="error" sx={{ mb: 1 }}><Box component="span" sx={{ whiteSpace: 'pre-line' }}>{pubError}</Box></Alert>}
                 {pubSuccess && <Alert severity="success" sx={{ mb: 1 }}>{pubSuccess}</Alert>}
-                {content?.publication ? (
+                {content?.publication && content.publication.isVisible ? (
                   <Stack direction="row" spacing={2} alignItems="center" mt={1}>
                     <Chip
                       label={`Publicado — ${content.publication.status}`}
@@ -411,21 +412,29 @@ export function ContentFormPage() {
                     </Typography>
                   </Stack>
                 ) : content?.publicationReview?.decision === 'APPROVED' && content.publicationReview.isCurrent ? (
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => {
-                      setPubError('');
-                      setPubSuccess('');
-                      setPublicSlug(content?.slug || '');
-                      setPublicTitle(content?.title || '');
-                      setInstitutionalResponsibility('');
-                      setPubDialogOpen(true);
-                    }}
-                    sx={{ mt: 1 }}
-                  >
-                    Publicar
-                  </Button>
+                  <Stack spacing={2} mt={1}>
+                    <TextField
+                      label="URL de imagen temporal"
+                      fullWidth
+                      value={urlImagenTemporal}
+                      onChange={(e) => setUrlImagenTemporal(e.target.value)}
+                      helperText="Si provees una URL pública de imagen, se habilitarán Facebook e Instagram para publicar el contenido."
+                    />
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => {
+                        setPubError('');
+                        setPubSuccess('');
+                        setPublicSlug(content?.slug || '');
+                        setPublicTitle(content?.title || '');
+                        setInstitutionalResponsibility('');
+                        setPubDialogOpen(true);
+                      }}
+                    >
+                      Publicar
+                    </Button>
+                  </Stack>
                 ) : (
                   <Button
                     variant="contained"
@@ -527,7 +536,7 @@ export function ContentFormPage() {
               <DialogTitle>Publicar contenido</DialogTitle>
               <DialogContent>
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                  {pubError && <Alert severity="error">{pubError}</Alert>}
+                  {pubError && <Alert severity="error"><Box component="span" sx={{ whiteSpace: 'pre-line' }}>{pubError}</Box></Alert>}
                   {pubSuccess && <Alert severity="success">{pubSuccess}</Alert>}
                   <TextField label="Slug público" fullWidth value={publicSlug} onChange={(e) => setPublicSlug(e.target.value)} helperText="Dejar vacío para auto-generar" />
                   <TextField label="Título público" fullWidth value={publicTitle} onChange={(e) => setPublicTitle(e.target.value)} helperText="Dejar vacío para usar el título del contenido" />
@@ -545,16 +554,35 @@ export function ContentFormPage() {
                     select
                     label="Canales de distribución"
                     size="small"
+                    fullWidth
                     SelectProps={{
                       multiple: true,
                       value: selectedChannelIds,
                       onChange: (e: any) => setSelectedChannelIds(e.target.value as string[]),
+                      renderValue: (selected: any) => {
+                        const selectedArr = (selected as string[]) || [];
+                        return selectedArr
+                          .map((id) => (eligibleChannels || []).find((c: any) => c.id === id)?.name ?? id)
+                          .join(', ');
+                      },
                     }}
-                    helperText="Selecciona los canales donde se distribuirá"
+                    helperText="Solo se muestran las redes habilitadas según el tipo de contenido (imagen, texto o video)."
                   >
-                    {(allChannels || []).filter((ch: any) => ch.isActive).map((ch: any) => (
-                      <MenuItem key={ch.id} value={ch.id}>{ch.name}</MenuItem>
-                    ))}
+                    {(eligibleChannels || []).filter((ch: any) => ch.isActive).map((ch: any) => {
+                      const hasImageLink = !!urlImagenTemporal && /^https?:\/\/.+\..+/.test(urlImagenTemporal.trim());
+                      const eligible = ch.eligible || (hasImageLink && ['FACEBOOK', 'INSTAGRAM'].includes(ch.type));
+                      return (
+                        <MenuItem key={ch.id} value={ch.id}>
+                          {ch.name}
+                          {!eligible && <em> — no disponible para este contenido</em>}
+                        </MenuItem>
+                      );
+                    })}
+                    {(!eligibleChannels || eligibleChannels.length === 0) && (
+                      <MenuItem disabled>
+                        <em>No hay canales disponibles para este contenido</em>
+                      </MenuItem>
+                    )}
                   </TextField>
                 </Stack>
               </DialogContent>
@@ -563,7 +591,7 @@ export function ContentFormPage() {
                 <Button
                   variant="contained"
                   color="secondary"
-                  disabled={createPublication.isPending}
+                  disabled={createPublication.isPending || publishToSocials.isPending}
                   onClick={async () => {
                     setPubError('');
                     setPubSuccess('');
@@ -576,22 +604,47 @@ export function ContentFormPage() {
                         setPubError('No se encontró el contenido que se desea publicar');
                         return;
                       }
-                      const pub = await createPublication.mutateAsync({
+                      if (selectedChannelIds.length === 0) {
+                        setPubError('Selecciona al menos una red social para publicar. El contenido no se publica en el sitio hasta distribuirse en una red.');
+                        return;
+                      }
+                      const hasImageLink = !!urlImagenTemporal && /^https?:\/\/.+\..+/.test(urlImagenTemporal.trim());
+                      const selectedTypes = (selectedChannelIds || [])
+                        .map((cid) => (eligibleChannels || []).find((c: any) => c.id === cid))
+                        .filter(Boolean);
+                      if (selectedTypes.some((c: any) => c.type === 'INSTAGRAM') && !hasImageLink) {
+                        setPubError('Instagram requiere una URL pública de imagen (urlImagenTemporal). Proporciona el link de la imagen para publicar en Instagram.');
+                        return;
+                      }
+                      const dist = await publishToSocials.mutateAsync({
                         contentId: id,
                         publicSlug: publicSlug || undefined,
                         publicTitle: publicTitle || undefined,
                         institutionalResponsibility: institutionalResponsibility.trim(),
+                        channelIds: selectedChannelIds,
+                        urlImagenTemporal: urlImagenTemporal.trim() || undefined,
                       });
-                      if (selectedChannelIds.length > 0 && pub?.id) {
-                        await associateChannels.mutateAsync({ publicationId: pub.id, channelIds: selectedChannelIds });
+                      if (dist?.allSucceeded) {
+                        setPubSuccess(
+                          `Contenido publicado y distribuido exitosamente en ${selectedChannelIds.length} red(es)`,
+                        );
+                      } else {
+                        const failed = (dist?.results || []).filter((r: any) => !r.success);
+                        const detail = failed
+                          .map((r: any) => `${r.channelName}: ${r.errorMessage || 'Error desconocido'}`)
+                          .join('\n');
+                        setPubError(
+                          `El contenido se guardó localmente, pero falló la publicación en la(s) red(es).${
+                            detail ? `\n${detail}` : ''
+                          }`,
+                        );
                       }
-                      setPubSuccess('Contenido publicado exitosamente');
                     } catch (err: any) {
-                      setPubError(err?.response?.data?.message || 'Error al publicar');
+                      setPubError(err?.response?.data?.message || err?.message || 'Error al publicar');
                     }
                   }}
                 >
-                  {createPublication.isPending ? <CircularProgress size={20} /> : 'Publicar'}
+                  {createPublication.isPending || publishToSocials.isPending ? <CircularProgress size={20} /> : 'Publicar'}
                 </Button>
               </DialogActions>
             </Dialog>

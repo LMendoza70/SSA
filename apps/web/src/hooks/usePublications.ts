@@ -42,6 +42,28 @@ export function useCreatePublication() {
   });
 }
 
+interface PublishToSocialsInput {
+  contentId: string;
+  publicSlug?: string;
+  publicTitle?: string;
+  institutionalResponsibility: string;
+  channelIds: string[];
+  urlImagenTemporal?: string;
+}
+
+export function usePublishToSocials() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ contentId, ...data }: PublishToSocialsInput) =>
+      api.post(`/admin/contents/${contentId}/publish-to-socials`, data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['publications'] });
+      queryClient.invalidateQueries({ queryKey: ['contents'] });
+      queryClient.invalidateQueries({ queryKey: ['content-analysis'] });
+    },
+  });
+}
+
 export function useWithdrawPublication() {
   const queryClient = useQueryClient();
   return useMutation({

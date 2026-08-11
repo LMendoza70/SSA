@@ -12,7 +12,7 @@ import {
   Button,
   Chip,
 } from '@mui/material';
-import { Dashboard, Person, Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout, Source, People } from '@mui/icons-material';
+import { Dashboard, Person, Article, Publish, PermMedia, Category, Label, Campaign, HealthAndSafety, ListAlt, Timeline as TimelineIcon, Share, Logout, Source, People, Security } from '@mui/icons-material';
 import { useAuth } from '../../lib/auth';
 
 const DRAWER_WIDTH = 260;
@@ -174,6 +174,14 @@ export function Sidebar() {
         )}
         {hasRole('ADMIN') && (
           <>
+            <ListItemButton
+              selected={location.pathname.startsWith('/admin/social-credentials')}
+              onClick={() => navigate('/admin/social-credentials')}
+              sx={{ borderRadius: 1, mb: 0.5 }}
+            >
+              <ListItemIcon><Security /></ListItemIcon>
+              <ListItemText primary="Credenciales Sociales" />
+            </ListItemButton>
             <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 0.5 }} />
             <ListItemButton
               selected={location.pathname.startsWith('/admin/users')}

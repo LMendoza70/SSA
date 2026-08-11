@@ -8,8 +8,10 @@ import { XAdapter } from './adapters/x.adapter';
 import { TikTokAdapter } from './adapters/tiktok.adapter';
 import { YouTubeAdapter } from './adapters/youtube.adapter';
 import { WhatsAppAdapter } from './adapters/whatsapp.adapter';
+import { SocialCredentialsModule } from './social-credentials/social-credentials.module';
 
 @Module({
+  imports: [SocialCredentialsModule],
   controllers: [DistributionController],
   providers: [
     DistributionService,
@@ -21,5 +23,6 @@ import { WhatsAppAdapter } from './adapters/whatsapp.adapter';
     YouTubeAdapter,
     WhatsAppAdapter,
   ],
+  exports: [DistributionService, SocialCredentialsModule],
 })
 export class DistributionModule {}
